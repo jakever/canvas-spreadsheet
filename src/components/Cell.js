@@ -1,9 +1,7 @@
 import { CELL_WIDTH } from "./constants";
 
 class Cell {
-  constructor(
-    value,
-    grid,
+  constructor(value, grid,
     colIndex,
     rowIndex,
     x,
