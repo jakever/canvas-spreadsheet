@@ -1,0 +1,36 @@
+$css-prefix: xs-data-grid;
+.#{$css-prefix}-main {
+    position: relative;
+    border: 1px solid #d4d4d4;
+    width: 1264px;
+    height: 400px;
+}
+.#{$css-prefix}-editor-area {
+    position: absolute;
+    text-align: left;
+    // border: 2px solid #4b89ff;
+    line-height: 0;
+    z-index: 100;
+    background-color: #fff;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 6px;
+    pointer-events: auto;
+
+    div[contenteditable="true"] {
+        box-sizing: border-box;
+        border: 2px solid #4b89ff;
+        padding: 5px;
+        outline: none;
+        // resize: none;
+        // text-align: start;
+        // overflow-y: hidden;
+        font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", Arial, sans-serif;
+        font-weight: 400;
+        font-size: 12px;
+        color: inherit;
+        white-space: normal;
+        word-wrap: break-word;
+        line-height: 18px;
+        margin: 0;
+        cursor: text;
+    }
+}
