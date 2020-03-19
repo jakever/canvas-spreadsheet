@@ -5,4 +5,4 @@ export const HEADER_HEIGHT = 30;
 export const CELL_HEIGHT = 30;
 export const MIN_CELL_HEIGHT = 30;
 export const CHECK_BOX_WIDTH = 30;
-export const CSS_PREFIX = 'xs-data-grid';
+export const CSS_PREFIX = "xs-data-grid";
