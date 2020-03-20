@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <div id="data-grid-demo"></div>
+    <!-- <canvas id="data-grid-demo"></canvas> -->
   </div>
 </template>
 <script>
@@ -18,7 +19,10 @@ export default {
         { title: "岗位", key: "job_name", width: 140 },
         { title: "手机号", key: "phone", width: 100 },
         { title: "性别", key: "sex", width: 80 },
-        { title: "家庭地址", key: "address", width: 150 },
+        { title: "家庭地址", key: "address", width: 150},
+        { title: "物料编码", key: "materialNo", width: 100, textAlign: 'left' },
+        { title: "单位", key: "unit", width: 70, textAlign: 'left' },
+        { title: "数量", key: "requiredQuantity", type: "number", width: 70 },
         { title: "工作性质", width: 100, key: "work_type" },
         { title: "工作状态", width: 100, key: "work_status" },
         { title: "户籍城市", width: 100, key: "household_city" },
@@ -36,9 +40,6 @@ export default {
         { title: "品牌", key: "brandName", width: 80 },
         { title: "商品名称", key: "goodsName", width: 150 },
         { title: "规格型号", key: "sn", width: 100 },
-        { title: "物料编码", key: "materialNo", width: 100 },
-        { title: "单位", key: "unit", width: 70 },
-        { title: "数量", key: "requiredQuantity", type: "number", width: 70 },
         { title: "客户备注", key: "customerRemarks", width: 150 },
         {
           title: "采购价(元)",
@@ -125,7 +126,7 @@ export default {
           phone: 1385964556 + i,
           sex: i % 4 === 0 ? "男" : "女",
           address:
-            i === 2
+            i === 0
               ? `海淀区北京路海淀区北京路十分地${i}号`
               : `海淀区北京路${i}号`,
           work_type: `兼职${i}`,
@@ -155,8 +156,8 @@ export default {
       }
 
       const Grid = new DataGrid(el, {
-        width: 1264,
-        height: 400,
+        // width: 1264,
+        // height: 400,
         fixedLeft: 1,
         fixedRight: 2,
         columns: this.columns,
@@ -168,6 +169,9 @@ export default {
 </script>
 
 <style lang="scss">
+body {
+  margin: 0;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
