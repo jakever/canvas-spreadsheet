@@ -92,15 +92,32 @@ class Paint {
       options = Object.assign({
           borderWidth: 1,
           borderColor: undefined,
-          fillColor: undefined
+          fillColor: undefined,
+          shadowOffsetX: 0,
+          shadowOffsetY: 0,
+          shadowBlur: 0,
+          shadowColor: undefined
       }, options);
   
       this.ctx.beginPath();
+
+    // if(options.shadowOffsetX) {
+    //     this.ctx.shadowOffsetX = options.shadowOffsetX;
+    // }
+    // if(options.shadowOffsetY) {
+    //     this.ctx.shadowOffsetY = options.shadowOffsetY;
+    // }
+    // if(options.shadowBlur) {
+    //     this.ctx.shadowBlur = options.shadowBlur;
+    // }
+    // if(options.shadowColor) {
+    //     this.ctx.shadowColor = options.shadowColor;
+    // }
       
-      // 填充颜色
-      if(options.fillColor) {
-          this.ctx.fillStyle = options.fillColor;
-      }
+    // 填充颜色
+    if(options.fillColor) {
+        this.ctx.fillStyle = options.fillColor;
+    }
       
       // 线条宽度及绘制颜色
       if(options.borderColor) {

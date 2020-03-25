@@ -1,16 +1,15 @@
 import { CELL_WIDTH, CELL_HEIGHT } from './constants.js'
+import Context from './Context.js'
 
-class ColumnHeader {
+class ColumnHeader extends Context {
     constructor(grid, index, x, y, column, options) {
-        this.grid = grid
+        const width = column.width || CELL_WIDTH
+        const realX = column.fixed === 'right' ? 
+            grid.width - (grid.actualTableWidth - x - width) - width : x;
+        super(grid, realX, y, width, CELL_HEIGHT)
+
         this.index = index - grid.fixedLeft;;
         this.fixed = column.fixed
-        this.width = column.width || CELL_WIDTH;
-        this.height = CELL_HEIGHT;
-        this.x = this.fixed === 'right' ? 
-            grid.width - (grid.actualTableWidth - x - this.width) - this.width
-            : x;
-        this.y = y;
         this.text = column.title
 
         Object.assign(this, options);
@@ -23,11 +22,17 @@ class ColumnHeader {
     draw() {
         // 绘制表头每个单元格框
         const x = this.fixed ? this.x : this.x + this.grid.scrollX
-        this.grid.painter.drawRect(x, this.y, this.width, this.height, {
-            fillColor: this.bgColor,
+        const style = {
+            fillColor: this.fillColor,
             borderColor: this.borderColor,
             borderWidth: this.borderWidth
-        });
+        }
+        // if (this.fixed) {
+        //     style.shadowBlur = 10;
+        //     style.shadowColor = 'rgba(0,0,0,0.2)';
+        //     style.shadowOffsetX = 3;
+        // }
+        this.grid.painter.drawRect(x, this.y, this.width, this.height, style);
         // 绘制表头每个单元格文本
         this.grid.painter.drawText(this.text, x + this.width / 2, this.y + this.height / 2, {
             color: this.color

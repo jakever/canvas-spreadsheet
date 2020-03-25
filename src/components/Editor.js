@@ -150,7 +150,12 @@ class Editor {
         this.textEl.attr('contenteditable', true)
         this.el = h('div', `${CSS_PREFIX}-editor`)
             .child(this.areaEl).hide();
-
+        
+        this.type = 'text'; // 数据类型
+        this.fixed = false; // 当前选中单元格是否属于冻结列
+        this.selectOptions = []; // 下拉数据源
+        this.editorXIndex = 0; // 编辑器所在x,y轴坐标
+        this.editorYIndex = 0;
         this.show = false;
         this.value = '';
     }

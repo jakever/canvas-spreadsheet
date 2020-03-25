@@ -1,60 +1,45 @@
 import RowHeader from './RowHeader.js'
 import Cell from './Cell.js'
-import {CELL_WIDTH, ROW_HEADER_WIDTH, CHECK_BOX_WIDTH} from './constants';
+import Context from './Context.js'
+import {CELL_WIDTH, ROW_INDEX_WIDTH, CHECK_BOX_WIDTH} from './constants';
 
-class Row {
+class Row extends Context {
     constructor(grid, rowIndex, x, y, height, columns, data) {
-        this.grid = grid;
+        super(grid, x, y, grid.actualTableWidth, height)
+
         this.data = data;
         this.rowIndex = rowIndex;
-        this.x = x;
-        this.y = y;
-        this.height = height;
         this.checked = false;
 
-        this.fixedLeftCells = [];
-        this.fixedRightCells = [];
+        this.fixedCells = [];
         this.cells = [];
 
         const style = {
             color: this.grid.color,
-            bgColor: this.grid.bgColor,
+            fillColor: this.grid.fillColor,
             borderColor: this.grid.borderColor,
-            borderWidth: this.grid.borderWidth
+            borderWidth: this.grid.borderWidth,
+            selectBorderColor: this.grid.selectBorderColor
         }
-        this.rowHeader = new RowHeader(grid, rowIndex, x, y, ROW_HEADER_WIDTH, height, style)
+        this.rowHeader = new RowHeader(grid, rowIndex, x, y, ROW_INDEX_WIDTH, height, style)
 
         // cells对象集合
         const len = columns.length
-        let everyOffsetX = ROW_HEADER_WIDTH + CHECK_BOX_WIDTH;
+        let everyOffsetX = ROW_INDEX_WIDTH + CHECK_BOX_WIDTH;
 
         for(let i = 0; i < len; i++) {
             const column = columns[i]
             const width = column.width || CELL_WIDTH
             const cell = new Cell(data[column.key], grid, i, rowIndex, everyOffsetX, y, width, this.height, column, style)
             
-            if (column.fixed === 'left') {
-                this.fixedLeftCells.push(cell);
-            } else if (column.fixed === 'right') {
-                this.fixedRightCells.push(cell);
+            if (column.fixed) {
+                this.fixedCells.push(cell);
             } else {
                 this.cells.push(cell);
             }
             
             everyOffsetX += width;
         }
-    }
-    // 表头行是否超过了画布底部可视区的边界
-    isVisibleOnScreen() {
-        return !(this.x + this.grid.scrollX + this.grid.actualTableWidth < 0 || this.x + this.grid.scrollX > this.grid.width ||
-            this.y + this.grid.scrollY + this.height < 0 || this.y + this.grid.scrollY > this.grid.height);
-    }
-    // 判断行是否和否鼠标所在位置有交集
-    isInsideBoundary(mouseX, mouseY) {
-        return mouseX > this.x + this.grid.scrollX &&
-            mouseX < this.x + this.grid.scrollX + this.grid.actualTableWidth &&
-            mouseY > this.y + this.grid.scrollY &&
-            mouseY < this.y + this.grid.scrollY + this.height;
     }
     handleCheck() {
         this.rowHeader.handleCheck()
@@ -125,13 +110,8 @@ class Row {
             cell.height = this.height
             cell.y = this.y
         }
-        for(let i = 0; i < this.fixedLeftCells.length; i++) {
-            const cell = this.fixedLeftCells[i];
-            cell.height = this.height
-            cell.y = this.y
-        }
-        for(let i = 0; i < this.fixedRightCells.length; i++) {
-            const cell = this.fixedRightCells[i];
+        for(let i = 0; i < this.fixedCells.length; i++) {
+            const cell = this.fixedCells[i];
             cell.height = this.height
             cell.y = this.y
         }
@@ -147,16 +127,13 @@ class Row {
                 cell.draw();
             }
         }
-        for(let i = 0; i < this.fixedLeftCells.length; i++) {
-            const cell = this.fixedLeftCells[i];
-            cell.draw();
-        }
-        for(let i = 0; i < this.fixedRightCells.length; i++) {
-            const cell = this.fixedRightCells[i];
+        // 左右冻结列
+        for(let i = 0; i < this.fixedCells.length; i++) {
+            const cell = this.fixedCells[i];
             cell.draw();
         }
 
-        // 绘制每行索引
+        // 绘制每行索引及勾选框
         this.rowHeader.draw();
     }
 }
