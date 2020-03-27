@@ -12,6 +12,8 @@ import './index.scss'
 
 class DataGrid {
     constructor(target, options) {
+        this.xxx = 0
+        this.yyy = 0
         this.data = options.data
         this.columns = options.columns
         this.fixedLeft = options.fixedLeft;
@@ -27,9 +29,6 @@ class DataGrid {
         this.borderColor = '#dee0e3'
         this.fillColor = '#f8f9fa'
         this.borderWidth = 1
-        this.selectBorderColor = '#5292f7'
-        this.selectAreaColor = 'rgba(160, 195, 255, 0.2)'
-        this.selectBgColor = '#f6f6f6'
 
         // 选择区域
         this.selector = {
@@ -51,18 +50,6 @@ class DataGrid {
         this.setContainerSize(target, options)
         this.createContainer(target)
 
-        // 生成主画笔
-        this.painter = new Paint(this.tableEl.el, {
-            width: this.width,
-            height: this.height,
-            onMouseDown: this.handleMouseDown.bind(this),
-            onMouseMove: this.handleMouseMove.bind(this),
-            onMouseUp: this.handleMouseUp.bind(this),
-            onClick: this.handleClick.bind(this),
-            onDbClick: this.handleDbClick.bind(this),
-            onScroll: this.handleScroll.bind(this),
-        })
-
         this.actualTableWidth = this.columns.reduce((sum, item) => {
             return sum + item.width || CELL_WIDTH
         }, ROW_INDEX_WIDTH + CHECK_BOX_WIDTH)
@@ -76,6 +63,18 @@ class DataGrid {
         this.body = new Body(this, this.columns, this.data)
         
         this.setActualSize() // 设置画布像素的实际宽高
+
+        // 生成主画笔
+        this.painter = new Paint(this.tableEl.el, {
+            width: this.width,
+            height: this.height,
+            onMouseDown: this.handleMouseDown.bind(this),
+            onMouseMove: this.handleMouseMove.bind(this),
+            onMouseUp: this.handleMouseUp.bind(this),
+            onClick: this.handleClick.bind(this),
+            onDbClick: this.handleDbClick.bind(this),
+            onScroll: this.handleScroll.bind(this),
+        })
         
         this.initPaint()
     }
@@ -133,12 +132,19 @@ class DataGrid {
         target.appendChild(this.rootEl.el)
     }
     setActualSize() {
-        this.fixedWidth = this.header.fixedColumnHeaders.reduce((sum, col) => {
-            return sum + col.width
-        }, 0)
+        this.fixedLeftWidth = ROW_INDEX_WIDTH + CHECK_BOX_WIDTH
+        this.fixedRightWidth = 0
+        this.header.fixedColumnHeaders.forEach(item => {
+            if (item.index + this.fixedLeft < this.fixedLeft) {
+                this.fixedLeftWidth += item.width
+            }
+            if (item.index + this.fixedLeft >= this.columns.length - this.fixedRight) {
+                this.fixedRightWidth += item.width
+            }
+        })
         this.actualTableWidth = this.header.columnHeaders.reduce((sum, item) => {
             return sum + item.width
-        }, ROW_INDEX_WIDTH + CHECK_BOX_WIDTH)
+        }, 0)
 
         this.actualTableHeight = this.body.height
     }
@@ -160,18 +166,8 @@ class DataGrid {
         this.editor.editorXIndex = x
         this.editor.editorYIndex = y
     }
-    // mouseup事件 -> 结束批量选取
-    endMultiSelect() {
-        this.selector.isSelected = false;
-    }
-    // 清空批量选取
-    clearMultiSelect() {
-        this.selector.show = false;
-        this.selector.selectedXArr = [0,0];
-        this.selector.selectedYArr = [0,0];
-    }
     // mousemove事件 -> 更新选取范围
-    updateSelection(x, y) {
+    multiSelectCell(x, y) {
         if(this.selector.isSelected) {
             const minX = x > this.editor.editorXIndex ? this.editor.editorXIndex : x
             const maxX = x > this.editor.editorXIndex ? x : this.editor.editorXIndex
@@ -181,15 +177,17 @@ class DataGrid {
             this.autofill.autofillYIndex = maxY
             this.selector.selectedXArr = [minX, maxX]
             this.selector.selectedYArr = [minY, maxY]
-
-            this.deselectAllCells();
-
-            this.body.updateSelection(this.selector.selectedXArr, this.selector.selectedYArr)
         }
     }
-    // 取消选取所有单元格
-    deselectAllCells() {
-        this.body.deselectAllCells()
+    // mouseup事件 -> 结束批量选取
+    endMultiSelect() {
+        this.selector.isSelected = false;
+    }
+    // 清空批量选取
+    clearMultiSelect() {
+        this.selector.show = false;
+        this.selector.selectedXArr = [0,0];
+        this.selector.selectedYArr = [0,0];
     }
     // 开始编辑
     startEdit(cell) {
@@ -231,21 +229,20 @@ class DataGrid {
         this.body.handleCheckRow(y)
     }
     handleMouseDown(x, y) {
-        if(this.header.isInsideBoundary(x, y)) {
+        if(this.header.isInsideHeader(x, y)) {
             this.header.mouseDown(x, y);
         }
         this.body.mouseDown(x, y);
     }
     handleMouseMove(x, y) {
         document.body.style.cursor = 'default';
-
-        if(this.header.isInsideBoundary(x, y)) {
+        if(this.header.isInsideHeader(x, y)) {
             this.header.mouseMove(x, y);
         }
         this.body.mouseMove(x, y);
     }
     handleMouseUp(x, y) {
-        if(this.header.isInsideBoundary(x, y)) {
+        if(this.header.isInsideHeader(x, y)) {
             this.header.mouseUp(x, y);
         }
         this.body.mouseUp(x, y);
@@ -257,13 +254,14 @@ class DataGrid {
         this.body.dbClick(x, y);
     }
     handleScroll(e) {
+        if (this.editor.show) return;
         const { deltaX, deltaY } = e
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
             let maxWidth = 0;
             if (this.fillCellWidth > 0) { // 列总宽小于容器宽
                 maxWidth = this.actualTableWidth
             } else {
-                maxWidth = this.actualTableWidth + this.fixedWidth
+                maxWidth = this.actualTableWidth + this.fixedLeftWidth + this.fixedRightWidth
             }
             if (this.scrollX - deltaX > 0) {
                 this.scrollX = 0
@@ -285,9 +283,9 @@ class DataGrid {
                 this.scrollY -= 2 * deltaY;
             }
         }
-        if (this.editor.show) {
-            this.editor.setoffset()
-        }
+        // if (this.editor.show) {
+        //     this.editor.setoffset() // 编辑器跟着滚动
+        // }
     }
     /**
      * 画布绘制相关
@@ -306,43 +304,43 @@ class DataGrid {
             borderWidth: this.borderWidth
         })
     }
-    drawSelector() {
-        if (this.selector.show) {
-            const minX = this.selector.selectedXArr[0]
-            const maxX = this.selector.selectedXArr[1]
-            const minY = this.selector.selectedYArr[0]
-            const maxY = this.selector.selectedYArr[1]
-            const minRow = this.body.getRow(minY)
-            const x = minRow.cells[minX].x + this.scrollX
-            const y = minRow.y + this.scrollY
+    // drawSelector() {
+    //     if (this.selector.show) {
+    //         const minX = this.selector.selectedXArr[0]
+    //         const maxX = this.selector.selectedXArr[1]
+    //         const minY = this.selector.selectedYArr[0]
+    //         const maxY = this.selector.selectedYArr[1]
+    //         const minRow = this.body.getRow(minY)
+    //         const x = minRow.cells[minX].x + this.scrollX
+    //         const y = minRow.y + this.scrollY
 
-            let width = 0;
-            let height = 0;
-            for (let i = minX; i <= maxX; i++) {
-                width += minRow.cells[i].width
-            }
-            for (let i = minY; i <= maxY; i++) {
-                height += this.body.rows[i].height
-            }
+    //         let width = 0;
+    //         let height = 0;
+    //         for (let i = minX; i <= maxX; i++) {
+    //             width += minRow.cells[i].width
+    //         }
+    //         for (let i = minY; i <= maxY; i++) {
+    //             height += this.body.rows[i].height
+    //         }
 
-            this.painter.drawRect(x, y, width, height, {
-                borderColor: this.selectBorderColor,
-                borderWidth: 2
-            })
-        }
-    }
-    drawAutofill() {
-        if (this.selector.show) {
-            const cell = this.body.getCell(this.autofill.autofillXIndex, this.autofill.autofillYIndex)
+    //         this.painter.drawRect(x, y, width, height, {
+    //             borderColor: this.selectBorderColor,
+    //             borderWidth: 2
+    //         })
+    //     }
+    // }
+    // drawAutofill() {
+    //     if (this.selector.show) {
+    //         const cell = this.body.getCell(this.autofill.autofillXIndex, this.autofill.autofillYIndex)
 
-            // -2让触点覆盖于边框之上
-            this.painter.drawRect(cell.x + cell.width + this.scrollX - 2, cell.y + cell.height + this.scrollY - 2, 6, 6, {
-                borderColor: '#fff',
-                borderWidth: 2,
-                fillColor: this.selectBorderColor
-            })
-        }
-    }
+    //         // -2让触点覆盖于边框之上
+    //         this.painter.drawRect(cell.x + cell.width + this.scrollX - 2, cell.y + cell.height + this.scrollY - 2, 6, 6, {
+    //             borderColor: '#fff',
+    //             borderWidth: 2,
+    //             fillColor: this.selectBorderColor
+    //         })
+    //     }
+    // }
     draw() {
         this.painter.clearCanvas()
 
@@ -350,10 +348,10 @@ class DataGrid {
         this.drawContainer()
 
         // 绘制批量选择边框
-        this.drawSelector()
+        // this.drawSelector()
 
         // 绘制Autofull触点
-        this.drawAutofill()
+        // this.drawAutofill()
 
         // body
         this.body.draw()

@@ -1,4 +1,4 @@
-import { ROW_INDEX_WIDTH, CHECK_BOX_WIDTH } from './constants.js'
+import { CHECK_BOX_WIDTH, SELECT_BORDER_COLOR } from './constants.js'
 import Context from './Context.js'
 
 const oncheck = new Image()
@@ -16,27 +16,43 @@ class RowHeader extends Context {
         
         Object.assign(this, options);
     }
-    isInsideBoundary(mouseX, mouseY) {
-        return mouseX > this.x + this.width &&
-            mouseX < this.x + this.width + CHECK_BOX_WIDTH &&
-            mouseY > this.y + this.grid.scrollY &&
-            mouseY < this.y + this.grid.scrollY + this.height;
-    }
     click() {
         this.grid.handleCheckRow(this.rowIndex)
     }
-    handleCheck() {
-        this.checked = !this.checked
+    handleCheck(val) {
+        this.checked = val
     }
     draw() {
-        // 绘制checkbox
+        const editor = this.grid.editor
+        const selector = this.grid.selector
         const checkEl = this.checked ? oncheck : offcheck
-        this.grid.painter.drawRect(ROW_INDEX_WIDTH, this.grid.scrollY + this.y, CHECK_BOX_WIDTH, this.height, {
+
+        // 绘制checkbox
+        this.grid.painter.drawRect(this.width, this.grid.scrollY + this.y, CHECK_BOX_WIDTH, this.height, {
             borderColor: this.borderColor,
             fillColor: this.fillColor,
             borderWidth: this.borderWidth
         })
-        this.grid.painter.drawImage(checkEl, ROW_INDEX_WIDTH + (CHECK_BOX_WIDTH - 20) / 2, this.grid.scrollY + this.y + (this.height - 20) / 2, 20, 20)
+        this.grid.painter.drawImage(checkEl, this.width + (CHECK_BOX_WIDTH - 20) / 2, this.grid.scrollY + this.y + (this.height - 20) / 2, 20, 20)
+
+        /**
+         * 焦点高亮
+         */
+        if (selector.show || editor.show) {
+            const minY = selector.selectedYArr[0]
+            const maxY = selector.selectedYArr[1]
+
+            if (this.rowIndex >= minY && this.rowIndex <= maxY) {
+                const points = [
+                    [this.width + CHECK_BOX_WIDTH, this.y ],
+                    [this.width + CHECK_BOX_WIDTH, this.y + this.height]
+                ]
+                this.grid.painter.drawLine(points, {
+                    borderColor: SELECT_BORDER_COLOR,
+                    borderWidth: 2
+                })
+            }
+        }
 
         // 绘制每行的索引的边框
         this.grid.painter.drawRect(this.x, this.grid.scrollY + this.y, this.width, this.height, {

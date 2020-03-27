@@ -41,17 +41,6 @@ class Body {
             return sum + item.height
         }, CELL_HEIGHT)
     }
-    updateSelection(xArr, yArr) {
-        for(let i = yArr[0]; i <= yArr[1]; i++) {
-            this.rows[i].updateSelection(xArr[0], xArr[1]);
-            
-        }
-    }
-    deselectAllCells() {
-        for(let i = 0; i < this.rows.length; i++) {
-            this.rows[i].deselectAllCells();
-        }
-    }
     getRow(y) {
         return this.rows[y]
     }
@@ -78,35 +67,35 @@ class Body {
     }
     mouseDown(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideBoundary(x, y)) {
+            if(this.rows[i].isInsideBodyBoundary(x, y)) {
                 this.rows[i].mouseDown(x, y);
             }
         }
     }
     mouseMove(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideBoundary(x, y)) {
+            if(this.rows[i].isInsideBodyBoundary(x, y)) {
                 this.rows[i].mouseMove(x, y);
             }
         }
     }
     mouseUp(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideBoundary(x, y)) {
+            if(this.rows[i].isInsideBodyBoundary(x, y)) {
                 this.rows[i].mouseUp(x, y);
             }
         }
     }
     click(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideBoundary(x, y)) {
+            if(this.rows[i].isInsideCheckboxBoundary(x, y)) {
                 this.rows[i].click(x, y);
             }
         }
     }
     dbClick(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideBoundary(x, y)) {
+            if(this.rows[i].isInsideBodyBoundary(x, y)) {
                 this.rows[i].dbClick(x, y);
             }
         }
@@ -149,7 +138,7 @@ class Body {
         for(let i = 0; i < len; i++) {
             const row = this.rows[i];
             
-            if(row.isVisibleOnScreen()) {
+            if(row.isVisibleOnBody()) {
                 row.draw();
             }
         }

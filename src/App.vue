@@ -15,14 +15,14 @@ export default {
       columns: [
         { title: "姓名", key: "emp_name", width: 100 },
         { title: "工号", key: "emp_no", width: 100 },
-        { title: "部门", key: "dep_name", width: 140 },
+        { title: "部门", key: "dep_name", width: 140, readonly: true },
         { title: "岗位", key: "job_name", width: 140 },
         { title: "手机号", key: "phone", width: 100 },
         { title: "性别", key: "sex", width: 80 },
         { title: "家庭地址", key: "address", width: 150},
-        { title: "物料编码", key: "materialNo", width: 100, textAlign: 'left' },
-        { title: "单位", key: "unit", width: 70, textAlign: 'left' },
-        { title: "数量", key: "requiredQuantity", type: "number", width: 70 },
+        { title: "物料编码", key: "materialNo", width: 100, align: 'right' },
+        { title: "数量", key: "requiredQuantity", type: "number", width: 70, align: 'right' },
+        { title: "单位", key: "unit", width: 70 },
         { title: "工作性质", width: 100, key: "work_type" },
         { title: "工作状态", width: 100, key: "work_status" },
         { title: "户籍城市", width: 100, key: "household_city" },
@@ -47,7 +47,7 @@ export default {
           type: "number",
           width: 80
         },
-        { title: "销售价(元)", key: "salePrice", type: "number", width: 80 }
+        { title: "销售价(元)", key: "salePrice", type: "number", width: 100 }
       ]
     };
   },

@@ -77,13 +77,14 @@ class ColumnHeaderRow extends Context {
         }
     }
     draw() {
-        // 绘制表头
+        // 滚动表头
         for(let i = 0; i < this.columnHeaders.length; i++) {
             const columnHeader = this.columnHeaders[i];
             if(columnHeader.isVisibleOnScreen()) {
                 columnHeader.draw();
             }
         }
+        // 冻结表头
         for(let i = 0; i < this.fixedColumnHeaders.length; i++) {
             const columnHeader = this.fixedColumnHeaders[i];
             columnHeader.draw();
@@ -98,6 +99,7 @@ class ColumnHeaderRow extends Context {
         this.grid.painter.drawRect(ROW_INDEX_WIDTH, 0, CHECK_BOX_WIDTH, HEADER_HEIGHT, style)
         this.grid.painter.drawImage(offcheck, ROW_INDEX_WIDTH + (CHECK_BOX_WIDTH - 20) / 2, (HEADER_HEIGHT - 20) / 2, 20, 20)
         
+        // 最左上角方格
         this.grid.painter.drawRect(0, 0, ROW_INDEX_WIDTH, HEADER_HEIGHT, style)
     }
 }

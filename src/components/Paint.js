@@ -1,6 +1,11 @@
 /**
  * 画笔
  */
+const ALIGN_MAP = {
+    left: 'right',
+    right: 'left'
+}
+
 class Paint {
   constructor(target, options) {
       const w = options.width
@@ -51,11 +56,12 @@ class Paint {
       };
   }
   drawLine(points, options) {
+      if (!points[0]) return;
       options = Object.assign({
-          width: 1,
-          color: 'black',
-          cap: 'square',
-          lineJoin: 'miter'
+            borderWidth: 1,
+            borderColor: 'black',
+            cap: 'square',
+            lineJoin: 'miter'
       }, options);
 
       this.ctx.beginPath();
@@ -63,11 +69,18 @@ class Paint {
       for(let i = 1; i < points.length; i++) {
           this.ctx.lineTo(points[i][0], points[i][1]);
       }
-      this.ctx.lineWidth = options.width;
-      this.ctx.strokeStyle = options.color;
+      this.ctx.lineWidth = options.borderWidth;
       this.ctx.lineCap = options.cap;
       this.ctx.lineJoin = options.lineJoin;
-      this.ctx.stroke();
+
+      if (options.fillColor) {
+        this.ctx.fillStyle = options.fillColor;
+          this.ctx.fill()
+      }
+      if (options.borderColor) {
+        this.ctx.strokeStyle = options.borderColor;
+        this.ctx.stroke();
+      }
   }
   drawText(text, x, y, options) {
       const defautSty = {
@@ -84,7 +97,7 @@ class Paint {
   
       this.ctx.font = defautSty.font;
       this.ctx.fillStyle = defautSty.color;
-      this.ctx.textAlign = defautSty.align;
+      this.ctx.textAlign = ALIGN_MAP[defautSty.align] || defautSty.align;
       this.ctx.textBaseline = defautSty.baseLine;
       this.ctx.fillText(text, x, y);
   }
@@ -93,26 +106,26 @@ class Paint {
           borderWidth: 1,
           borderColor: undefined,
           fillColor: undefined,
-          shadowOffsetX: 0,
-          shadowOffsetY: 0,
+          shadowOffsetX: undefined,
+          shadowOffsetY: undefined,
           shadowBlur: 0,
           shadowColor: undefined
       }, options);
-  
+    //   this.ctx.save()
       this.ctx.beginPath();
 
-    // if(options.shadowOffsetX) {
-    //     this.ctx.shadowOffsetX = options.shadowOffsetX;
-    // }
-    // if(options.shadowOffsetY) {
-    //     this.ctx.shadowOffsetY = options.shadowOffsetY;
-    // }
-    // if(options.shadowBlur) {
-    //     this.ctx.shadowBlur = options.shadowBlur;
-    // }
-    // if(options.shadowColor) {
-    //     this.ctx.shadowColor = options.shadowColor;
-    // }
+    if(options.shadowOffsetX) {
+        this.ctx.shadowOffsetX = options.shadowOffsetX;
+    }
+    if(options.shadowOffsetY) {
+        this.ctx.shadowOffsetY = options.shadowOffsetY;
+    }
+    if(options.shadowBlur) {
+        this.ctx.shadowBlur = options.shadowBlur;
+    }
+    if(options.shadowColor) {
+        this.ctx.shadowColor = options.shadowColor;
+    }
       
     // 填充颜色
     if(options.fillColor) {
@@ -137,12 +150,13 @@ class Paint {
       if(options.borderColor) {
           this.ctx.stroke();
       }
+    //   this.ctx.restore()
   }
   drawImage(img, x, y, width, height) {
       this.ctx.drawImage(img, x, y, width, height);
   }
-  clearCanvas() {
-      this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+  clearCanvas(x = 0, y = 0, width, height) {
+      this.ctx.clearRect(x, y, width || this.ctx.canvas.width, height || this.ctx.canvas.height);
   }
   getTextWrapping(text, width) {
       if (!text && text !== 0) {

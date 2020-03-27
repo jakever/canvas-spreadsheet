@@ -18,8 +18,7 @@ class Row extends Context {
             color: this.grid.color,
             fillColor: this.grid.fillColor,
             borderColor: this.grid.borderColor,
-            borderWidth: this.grid.borderWidth,
-            selectBorderColor: this.grid.selectBorderColor
+            borderWidth: this.grid.borderWidth
         }
         this.rowHeader = new RowHeader(grid, rowIndex, x, y, ROW_INDEX_WIDTH, height, style)
 
@@ -42,37 +41,38 @@ class Row extends Context {
         }
     }
     handleCheck() {
-        this.rowHeader.handleCheck()
+        this.checked = !this.checked
+        this.rowHeader.handleCheck(this.checked)
     }
     mouseDown(x, y) {
         for(let i = 0; i < this.cells.length; i++) {
-            if(this.cells[i].isInsideBoundary(x, y)) {
+            if(this.cells[i].isInsideBodyBoundary(x, y)) {
                 this.cells[i].mouseDown(x, y);
             }
         }
     }
     mouseMove(x, y) {
         for(let i = 0; i < this.cells.length; i++) {
-            if(this.cells[i].isInsideBoundary(x, y)) {
+            if(this.cells[i].isInsideBodyBoundary(x, y)) {
                 this.cells[i].mouseMove(x, y);
             }
         }
     }
     mouseUp(x, y) {
         for(let i = 0; i < this.cells.length; i++) {
-            if(this.cells[i].isInsideBoundary(x, y)) {
+            if(this.cells[i].isInsideBodyBoundary(x, y)) {
                 this.cells[i].mouseUp(x, y);
             }
         }
     }
     click(x, y) {
-        if(this.rowHeader.isInsideBoundary(x, y)) {
+        if(this.rowHeader.isInsideCheckboxBoundary(x, y)) {
             this.rowHeader.click()
         }
     }
     dbClick(x, y) {
         for(let i = 0; i < this.cells.length; i++) {
-            if(this.cells[i].isInsideBoundary(x, y)) {
+            if(this.cells[i].isInsideBodyBoundary(x, y)) {
                 this.cells[i].dbClick(x, y);
             }
         }
@@ -84,16 +84,6 @@ class Row extends Context {
     //     }
     //     return null;
     // }
-    deselectAllCells() {
-        for(let i = 0; i < this.cells.length; i++) {
-            this.cells[i].deselect();
-        }
-    }
-    updateSelection(minColIndex, maxColIndex) {
-        for(let i = minColIndex; i <= maxColIndex; i++) {
-            this.cells[i].isSelected = true;
-        }
-    }
     resizeColumn(colIndex, width) {
         let cell = this.cells[colIndex]
         let oldWidth = cell.width;
@@ -120,13 +110,24 @@ class Row extends Context {
         this.rowHeader.y = this.y
     }
     draw() {
-        // 绘制每行数据单元格
+        // 绘制主体body部分
         for(let i = 0; i < this.cells.length; i++) {
             const cell = this.cells[i];
-            if(cell.isVisibleOnScreen()) {
+            if(cell.isVisibleOnBody()) {
                 cell.draw();
             }
         }
+        // 固定列阴影
+        // if (this.grid.scrollX !== 0) {
+        //     this.grid.painter.drawRect(this.x, this.y + this.grid.scrollY, ROW_INDEX_WIDTH + CHECK_BOX_WIDTH + this.grid.fixedLeftWidth, this.height, {
+        //         fillColor: '#f9f9f9',
+        //         shadowBlur: 10,
+        //         shadowColor: 'rgba(0,0,0,0.2)',
+        //         shadowOffsetX: 3,
+        //         shadowOffsetY: 3
+        //     })
+        // }
+
         // 左右冻结列
         for(let i = 0; i < this.fixedCells.length; i++) {
             const cell = this.fixedCells[i];

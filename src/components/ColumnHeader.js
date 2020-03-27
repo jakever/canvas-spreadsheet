@@ -1,4 +1,4 @@
-import { CELL_WIDTH, CELL_HEIGHT } from './constants.js'
+import { CELL_WIDTH, CELL_HEIGHT, SELECT_BORDER_COLOR } from './constants.js'
 import Context from './Context.js'
 
 class ColumnHeader extends Context {
@@ -8,31 +8,48 @@ class ColumnHeader extends Context {
             grid.width - (grid.actualTableWidth - x - width) - width : x;
         super(grid, realX, y, width, CELL_HEIGHT)
 
-        this.index = index - grid.fixedLeft;;
         this.fixed = column.fixed
+        this.index = index - grid.fixedLeft;
         this.text = column.title
 
         Object.assign(this, options);
     }
     // 表头是否超过了右侧可视区的边界
     isVisibleOnScreen() {
-        return !(this.x + this.grid.scrollX + this.width < 0 || this.x + this.grid.scrollX > this.grid.width ||
+        return !(this.x + this.width - this.grid.fixedLeftWidth + this.grid.scrollX < 0 || 
+            this.x + this.grid.scrollX > this.grid.width - this.grid.fixedRightWidth ||
             this.y + this.height < 0 || this.y  > this.grid.height);
     }
     draw() {
         // 绘制表头每个单元格框
         const x = this.fixed ? this.x : this.x + this.grid.scrollX
-        const style = {
+        const editor = this.grid.editor
+        const selector = this.grid.selector
+        this.grid.painter.drawRect(x, this.y, this.width, this.height, {
             fillColor: this.fillColor,
             borderColor: this.borderColor,
             borderWidth: this.borderWidth
+        });
+
+        /**
+         * 焦点高亮
+         */
+        if (selector.show || editor.show) {
+            const minX = selector.selectedXArr[0]
+            const maxX = selector.selectedXArr[1]
+
+            if (this.index >= minX && this.index <= maxX) {
+                const points = [
+                    [x, this.y + this.height - 1],
+                    [x + this.width, this.y + this.height - 1]
+                ]
+                this.grid.painter.drawLine(points, {
+                    borderColor: SELECT_BORDER_COLOR,
+                    borderWidth: 2
+                })
+            }
         }
-        // if (this.fixed) {
-        //     style.shadowBlur = 10;
-        //     style.shadowColor = 'rgba(0,0,0,0.2)';
-        //     style.shadowOffsetX = 3;
-        // }
-        this.grid.painter.drawRect(x, this.y, this.width, this.height, style);
+
         // 绘制表头每个单元格文本
         this.grid.painter.drawText(this.text, x + this.width / 2, this.y + this.height / 2, {
             color: this.color
