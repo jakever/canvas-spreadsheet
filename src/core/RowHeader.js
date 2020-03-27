@@ -23,17 +23,18 @@ class RowHeader extends Context {
         this.checked = val
     }
     draw() {
+        const y = this.y + this.grid.scrollY
         const editor = this.grid.editor
         const selector = this.grid.selector
         const checkEl = this.checked ? oncheck : offcheck
 
         // 绘制checkbox
-        this.grid.painter.drawRect(this.width, this.grid.scrollY + this.y, CHECK_BOX_WIDTH, this.height, {
+        this.grid.painter.drawRect(this.width, y, CHECK_BOX_WIDTH, this.height, {
             borderColor: this.borderColor,
             fillColor: this.fillColor,
             borderWidth: this.borderWidth
         })
-        this.grid.painter.drawImage(checkEl, this.width + (CHECK_BOX_WIDTH - 20) / 2, this.grid.scrollY + this.y + (this.height - 20) / 2, 20, 20)
+        this.grid.painter.drawImage(checkEl, this.width + (CHECK_BOX_WIDTH - 20) / 2, y + (this.height - 20) / 2, 20, 20)
 
         /**
          * 焦点高亮
@@ -44,8 +45,8 @@ class RowHeader extends Context {
 
             if (this.rowIndex >= minY && this.rowIndex <= maxY) {
                 const points = [
-                    [this.width + CHECK_BOX_WIDTH, this.y ],
-                    [this.width + CHECK_BOX_WIDTH, this.y + this.height]
+                    [this.width + CHECK_BOX_WIDTH, y ],
+                    [this.width + CHECK_BOX_WIDTH, y + this.height]
                 ]
                 this.grid.painter.drawLine(points, {
                     borderColor: SELECT_BORDER_COLOR,
@@ -55,13 +56,13 @@ class RowHeader extends Context {
         }
 
         // 绘制每行的索引的边框
-        this.grid.painter.drawRect(this.x, this.grid.scrollY + this.y, this.width, this.height, {
+        this.grid.painter.drawRect(this.x, y, this.width, this.height, {
             fillColor: this.fillColor,
             borderColor: this.borderColor,
             borderWidth: this.borderWidth
         });
         // 绘制每行的索引
-        this.grid.painter.drawText(this.text, this.x + this.width / 2, this.y + this.grid.scrollY + this.height / 2, {
+        this.grid.painter.drawText(this.text, this.x + this.width / 2, y + this.height / 2, {
             color: this.color
         });
     }

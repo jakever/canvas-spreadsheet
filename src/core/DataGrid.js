@@ -16,8 +16,8 @@ class DataGrid {
         this.yyy = 0
         this.data = options.data
         this.columns = options.columns
-        this.fixedLeft = options.fixedLeft;
-        this.fixedRight = options.fixedRight;
+        this.fixedLeft = options.fixedLeft || 0;
+        this.fixedRight = options.fixedRight || 0;
         this.scrollY = 0;
         this.scrollX = 0;
 
