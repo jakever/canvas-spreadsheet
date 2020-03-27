@@ -5,7 +5,7 @@
   </div>
 </template>
 <script>
-import DataGrid from "./components/DataGrid.js";
+import DataGrid from "./core/DataGrid.js";
 export default {
   name: "App",
   data() {

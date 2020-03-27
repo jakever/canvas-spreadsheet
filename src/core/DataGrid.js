@@ -4,7 +4,7 @@
 import { h } from './element.js'
 import Paint from './Paint.js'
 import Body from './Body.js'
-import ColumnHeaderRow from './ColumnHeaderRow.js'
+import Header from './ColumnHeaderRow.js'
 import Editor from './Editor.js'
 // import Selector from './Selector.js'
 import { CSS_PREFIX, CELL_WIDTH, MIN_CELL_WIDTH, CELL_HEIGHT, HEADER_HEIGHT, ROW_INDEX_WIDTH, CHECK_BOX_WIDTH } from './constants.js'
@@ -57,7 +57,7 @@ class DataGrid {
         this.actualTableHeight = this.data.length * CELL_HEIGHT + HEADER_HEIGHT
         
         // Headers 表头对象
-        this.header = new ColumnHeaderRow(this, 0, 0, this.columns)
+        this.header = new Header(this, 0, 0, this.columns)
 
         // Body 主体
         this.body = new Body(this, this.columns, this.data)

@@ -10,8 +10,10 @@ class Context {
     }
     // 判断单元格是否超过了右侧和底部可视区的边界
     isVisibleOnScreen() {
-        return !(this.x + this.grid.scrollX + this.width < 0 || this.x + this.grid.scrollX > this.grid.width ||
-        this.y + this.grid.scrollY + this.height < 0 || this.y + this.grid.scrollY > this.grid.height);
+        return !(this.x + this.grid.scrollX + this.width < 0 || 
+            this.x + this.grid.scrollX > this.grid.width ||
+            this.y + this.grid.scrollY + this.height < 0 || 
+            this.y + this.grid.scrollY > this.grid.height);
     }
     isVisibleOnBody() {
         return !(this.x + this.width - this.grid.fixedLeftWidth + this.grid.scrollX < 0 || 
