@@ -14,16 +14,11 @@ class DataGrid {
     constructor(target, options) {
         this.xxx = 0
         this.yyy = 0
-        this.data = options.data
-        this.columns = options.columns
-        this.fixedLeft = options.fixedLeft || 0;
-        this.fixedRight = options.fixedRight || 0;
         this.scrollY = 0;
         this.scrollX = 0;
 
         this.scrollerWidth = 20;
         this.fillCellWidth = 0; // 所有列宽总和若小于视宽，则需要补全
-        this.showCheckbox = true
         
         this.color = '#495060'
         this.borderColor = '#dee0e3'
@@ -47,6 +42,7 @@ class DataGrid {
         }
         this.range = {}; // 编辑器边界范围
 
+        this.initConfig(options)
         this.setContainerSize(target, options)
         this.createContainer(target)
 
@@ -81,6 +77,25 @@ class DataGrid {
     /**
      * 容器初始化相关
      */
+    initConfig(options) {
+        Object.assign(this, {
+            columns: [],
+            data: [],
+            color: '#495060',
+            borderColor: '#dee0e3',
+            fillColor: '#f8f9fa',
+            borderWidth: 1,
+            fixedLeft: 0,
+            fixedRight: 0,
+            showCheckbox: true,
+            onSelectCell: (cell) => {},
+            onMultiSelectCell: (cells) => {},
+            onEditCell: (cell) => {},
+            onSelectRow: (row) => {},
+            onResizeColumn: () => {},
+            onResizeRow: () => {}
+          }, options);
+    }
     setContainerSize(target, options) {
         const {
             width,
@@ -165,6 +180,7 @@ class DataGrid {
 
         this.editor.editorXIndex = x
         this.editor.editorYIndex = y
+        this.onSelectCell()
     }
     // mousemove事件 -> 更新选取范围
     multiSelectCell(x, y) {
@@ -191,8 +207,14 @@ class DataGrid {
     }
     // 开始编辑
     startEdit(cell) {
-        this.selector.show = false;
-        this.editor.fire(cell);
+        this.editor.show = true
+        this.editor.setData(cell.value)
+        if (cell.dateType === 'text' || cell.dateType === 'number') {
+            this.selector.show = false;
+            this.editor.fire(cell);
+        } else {
+            this.onEditCell(cell)
+        }
     }
     // 结束编辑
     finishedEdit() {
@@ -202,7 +224,7 @@ class DataGrid {
                 cell.value = this.editor.value
                 // this.rePaintRow(this.editor.editorYIndex)
             }
-            this.editor.clear();
+            this.editor.hide();
             this.selector.show = true; // 编辑完再选中该单元格
         }
     }

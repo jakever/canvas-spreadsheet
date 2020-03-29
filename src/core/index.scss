@@ -17,6 +17,10 @@ $css-prefix: xs-data-grid;
     overflow: hidden;
     border: 1px solid #d4d4d4;
 }
+.#{$css-prefix}-table {
+    text-rendering: auto;
+    user-select: none;
+}
 .#{$css-prefix}-editor-area {
     position: absolute;
     text-align: left;

@@ -14,6 +14,7 @@ class Cell extends Context{
         this.colIndex = colIndex - grid.fixedLeft;
         this.rowIndex = rowIndex;
         this.value = value;
+        this.dateType = column.type || 'text'
 
         Object.assign(this, options, {
             fillColor: '#fff'
@@ -73,6 +74,7 @@ class Cell extends Context{
             const maxX = selector.selectedXArr[1]
             const minY = selector.selectedYArr[0]
             const maxY = selector.selectedYArr[1]
+
             // background color
             if (this.colIndex >= minX && this.colIndex <= maxX && this.rowIndex >= minY && this.rowIndex <= maxY) {
                 this.grid.painter.drawRect(x, y, this.width, this.height, {
@@ -103,36 +105,36 @@ class Cell extends Context{
                 })
             } 
             // left／right border
-            if (this.colIndex + 1 === minX && this.rowIndex >= minY && this.rowIndex <= maxY
-                || this.colIndex === maxX && this.rowIndex >= minY && this.rowIndex <= maxY) {
-                const points = [
-                    [x + this.width - 1, y],
-                    [x + this.width - 1, y + this.height]
-                ]
-                this.grid.painter.drawLine(points, {
-                    borderColor: SELECT_BORDER_COLOR,
-                    borderWidth: 1
-                })
-            }
-            if (this.colIndex === minX && this.rowIndex >= minY && this.rowIndex <= maxY
-                || (this.colIndex - 1 === maxX && this.rowIndex >= minY && this.rowIndex <= maxY)) {
+            if (this.colIndex === minX && this.rowIndex >= minY && this.rowIndex <= maxY) {
                 const points = [
                     [x, y],
                     [x, y + this.height]
                 ]
                 this.grid.painter.drawLine(points, {
                     borderColor: SELECT_BORDER_COLOR,
-                    borderWidth: 1
+                    borderWidth: 2
+                })
+            }
+            if (this.colIndex - 1 === maxX && this.rowIndex >= minY && this.rowIndex <= maxY) {
+                const points = [
+                    [x, y],
+                    [x, y + this.height]
+                ]
+                this.grid.painter.drawLine(points, {
+                    borderColor: SELECT_BORDER_COLOR,
+                    borderWidth: 2
                 })
             }
             // autofill
-            if (this.colIndex - 1 === autofill.autofillXIndex && this.rowIndex - 1 === autofill.autofillYIndex) {
-                // -2让触点覆盖于边框之上
-                this.grid.painter.drawRect(x - 2, y - 2, 6, 6, {
-                    borderColor: '#fff',
-                    borderWidth: 2,
-                    fillColor: SELECT_BORDER_COLOR
-                })
+            if (!editor.show) {
+                if (this.colIndex - 1 === autofill.autofillXIndex && this.rowIndex - 1 === autofill.autofillYIndex) {
+                    // -2让触点覆盖于边框之上
+                    this.grid.painter.drawRect(x - 2, y - 2, 6, 6, {
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        fillColor: SELECT_BORDER_COLOR
+                    })
+                }
             }
         }
 

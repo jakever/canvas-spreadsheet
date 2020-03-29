@@ -161,13 +161,12 @@ class Editor {
     }
     fire(cell) {
         this.cell = cell
-        this.setData(cell.value)
         this.setoffset()
         this.show = true;
         this.el.show()
         this.textEl.focus()
     }
-    clear() {
+    hide() {
         this.cell = null
         this.el.hide()
         this.show = false;
@@ -185,11 +184,11 @@ class Editor {
         if (this.cell) {
             const { x, y, width, height } = this.cell
             this.areaEl.offset({
-                left: x + this.grid.scrollX,
-                top: y + this.grid.scrollY
+                left: x + this.grid.scrollX - 1,
+                top: y + this.grid.scrollY - 1
             });
             this.textEl.offset({
-                'min-width': width, 
+                'min-width': width + 2, 
                 'min-height': height
             });
         }
