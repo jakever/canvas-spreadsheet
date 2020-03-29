@@ -1,6 +1,19 @@
 import { SELECT_BORDER_COLOR, SELECT_AREA_COLOR, SELECT_BG_COLOR, READONLY_COLOR } from './constants.js'
 import Context from './Context.js'
 
+function filterValue () {
+    let label = this.value
+    if (this.dateType === 'select' && Array.isArray(this.options)) {
+        for (let item of this.options) {
+            if (this.value === item.value) {
+                label = item.label
+                break
+            }
+        }
+    }
+    return label
+}
+
 class Cell extends Context{
     constructor(value, grid, colIndex, rowIndex, x, y, width, height, column, options) {
         const realX = column.fixed === 'right' ? 
@@ -13,8 +26,10 @@ class Cell extends Context{
         this.textBaseline = column.baseline
         this.colIndex = colIndex - grid.fixedLeft;
         this.rowIndex = rowIndex;
-        this.value = value;
         this.dateType = column.type || 'text'
+        this.options = column.options
+        this.value = value
+        this.label = filterValue.call(this);
 
         Object.assign(this, options, {
             fillColor: '#fff'
@@ -25,6 +40,7 @@ class Cell extends Context{
     }
     setData(val) {
         this.value = val
+        this.label = filterValue.call(this);
     }
     mouseMove() {
         this.grid.multiSelectCell(this.colIndex, this.rowIndex);
@@ -39,7 +55,7 @@ class Cell extends Context{
     draw() {
         const x = this.fixed ? this.x : this.x + this.grid.scrollX
         const y = this.y + this.grid.scrollY
-        const startOffset = this.grid.painter.calucateTextAlign(this.value, this.width)
+        const startOffset = this.grid.painter.calucateTextAlign(this.label, this.width)
         const editor = this.grid.editor
         const selector = this.grid.selector
         const autofill = this.grid.autofill
@@ -151,7 +167,7 @@ class Cell extends Context{
         // }
 
 
-        this.grid.painter.drawText(this.value, x + startOffset, height, {
+        this.grid.painter.drawText(this.label, x + startOffset, height, {
             color: this.color,
             align: this.textAlign,
             baseLine: this.textBaseline

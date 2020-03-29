@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div id="data-grid-demo"></div>
-    <DataGrid :columns="columns" :data="gridData"></DataGrid>
+    <DataGrid :columns="columns" :data="gridData" :fixed-right="2"></DataGrid>
   </div>
 </template>
 <script>
@@ -19,9 +19,12 @@ export default {
         { title: "姓名", key: "emp_name", width: 100 },
         { title: "工号", key: "emp_no", width: 100 },
         { title: "部门", key: "dep_name", width: 140, readonly: true },
-        { title: "岗位", key: "job_name", width: 140, type: 'select' },
+        { title: "岗位", key: "job_name", width: 140 },
         { title: "手机号", key: "phone", width: 100 },
-        { title: "性别", key: "sex", width: 80 },
+        { title: "性别", key: "sex", width: 80, type: 'select', options: [
+          { value: 1, label: '男' }, 
+          { value: 2, label: '女'}
+        ] },
         { title: "生日", width: 140, key: "birthday", type: 'date' },
         { title: "家庭地址", key: "address", width: 150},
         { title: "物料编码", key: "materialNo", width: 100, align: 'right' },
@@ -65,7 +68,7 @@ export default {
           dep_name: `研发部${i}`,
           job_name: `产品经理${i}`,
           phone: 1385964556 + i,
-          sex: i % 4 === 0 ? "男" : "女",
+          sex: i % 4 === 0 ? 1 : 2,
           address:
             i === 0
               ? `海淀区北京路海淀区北京路十分地${i}号`

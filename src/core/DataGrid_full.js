@@ -8,7 +8,7 @@ import Header from './ColumnHeaderRow.js'
 import Editor from './Editor.js'
 // import Selector from './Selector.js'
 import { CSS_PREFIX, CELL_WIDTH, MIN_CELL_WIDTH, CELL_HEIGHT, HEADER_HEIGHT, ROW_INDEX_WIDTH, CHECK_BOX_WIDTH } from './constants.js'
-// import './index.scss'
+import './index.scss'
 
 class DataGrid {
     constructor(target, options) {
@@ -25,19 +25,12 @@ class DataGrid {
         this.fillColor = '#f8f9fa'
         this.borderWidth = 1
 
-        this.focusCell = null
-
         // 选择区域
         this.selector = {
             show: false, // 是否显示
             isSelected: false, // 单击鼠标按下代表即将要开始范围选择
             selectedXArr: [0,0], // 选中区域
             selectedYArr: [0,0]
-        }
-        this.editor = {
-            show: false,
-            editorXIndex: 0,
-            editorYIndex: 0
         }
         // 自动填充
         this.autofill = {
@@ -51,7 +44,7 @@ class DataGrid {
 
         this.initConfig(options)
         this.setContainerSize(target, options)
-        // this.createContainer(target)
+        this.createContainer(target)
 
         this.actualTableWidth = this.columns.reduce((sum, item) => {
             return sum + item.width || CELL_WIDTH
@@ -68,7 +61,7 @@ class DataGrid {
         this.setActualSize() // 设置画布像素的实际宽高
 
         // 生成主画笔
-        this.painter = new Paint(target, {
+        this.painter = new Paint(this.tableEl.el, {
             width: this.width,
             height: this.height,
             onMouseDown: this.handleMouseDown.bind(this),
@@ -104,12 +97,11 @@ class DataGrid {
           }, options);
     }
     setContainerSize(target, options) {
-        const el = target.parentElement
         const {
             width,
             left,
             top
-        } = el.getBoundingClientRect()
+        } = target.getBoundingClientRect()
         this.containerOriginX = left;
         this.containerOriginY = top;
         this.width = options.width || width; // 容器宽
@@ -216,43 +208,25 @@ class DataGrid {
     // 开始编辑
     startEdit(cell) {
         this.editor.show = true
-        this.selector.show = false;
-        this.focusCell = cell
-        // this.editor.setData(cell.value)
-        // if (cell.dateType === 'date' || cell.dateType === 'select') {
-        //     this.onEditCell(cell)
-        // } else {
-        //     this.selector.show = false;
-        //     this.editor.fire(cell);
-        // }
-        this.onEditCell({
-            value: cell.value,
-            x: cell.x,
-            y: cell.y,
-            width: cell.width,
-            height: cell.height,
-            dateType: cell.dateType,
-            scrollX: this.scrollX,
-            scrollY: this.scrollY,
-            options: cell.options
-        })
+        this.editor.setData(cell.value)
+        if (cell.dateType === 'text' || cell.dateType === 'number') {
+            this.selector.show = false;
+            this.editor.fire(cell);
+        } else {
+            this.onEditCell(cell)
+        }
     }
     // 结束编辑
     finishedEdit() {
         if (this.editor.show) {
-            // const cell = this.body.getCell(this.editor.editorXIndex, this.editor.editorYIndex)
-            // if (cell) {
-            //     cell.value = this.editor.value
-            //     // this.rePaintRow(this.editor.editorYIndex)
-            // }
-            // this.editor.hide();
-            this.focusCell = null
-            this.editor.show = false
+            const cell = this.body.getCell(this.editor.editorXIndex, this.editor.editorYIndex)
+            if (cell) {
+                cell.value = this.editor.value
+                // this.rePaintRow(this.editor.editorYIndex)
+            }
+            this.editor.hide();
             this.selector.show = true; // 编辑完再选中该单元格
         }
-    }
-    setData(value) {
-        this.focusCell && this.focusCell.setData(value)
     }
     /**
      * 调整列宽、行宽
@@ -331,6 +305,9 @@ class DataGrid {
                 this.scrollY -= 2 * deltaY;
             }
         }
+        // if (this.editor.show) {
+        //     this.editor.setoffset() // 编辑器跟着滚动
+        // }
     }
     /**
      * 画布绘制相关

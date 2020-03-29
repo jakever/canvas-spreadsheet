@@ -40,8 +40,8 @@ class ColumnHeader extends Context {
 
             if (this.index >= minX && this.index <= maxX) {
                 const points = [
-                    [x, this.y + this.height - 1],
-                    [x + this.width, this.y + this.height - 1]
+                    [x + 1, this.y + this.height - 1],
+                    [x + 1 + this.width, this.y + this.height - 1]
                 ]
                 this.grid.painter.drawLine(points, {
                     borderColor: SELECT_BORDER_COLOR,

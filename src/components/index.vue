@@ -1,33 +1,50 @@
 <template>
-    <div class="data-grid">
-        <div id="data-grid__el"></div>
-        <div class="data-grid__editor" v-show="show" ref="editor">
-            <el-date-picker
-                ref="date"
-                class="data-grid__cell--editor"
-                v-if="dateType==='date'"
-                :style="popupSty"
-                v-model="value"
-                :editable="false"
-                type="date"
-                size="mini"
-                placeholder="选择日期">
-            </el-date-picker>
-            <el-select 
-                ref="select"
-                class="data-grid__cell--editor"
-                v-else-if="dateType==='select'"
-                :style="popupSty"
-                v-model="value" 
-                size="mini"
-                :automatic-dropdown="true">
-                <el-option v-for="item in selectOptions" :value="item.value" :label="item.label" :key="item.value"></el-option>
-            </el-select>
+    <div :class="CSS_PREFIX">
+        <div :class="`${CSS_PREFIX}-main`">
+            <canvas :id="`${CSS_PREFIX}-target`" :class="`${CSS_PREFIX}-table`"></canvas>
+            <div :class="`${CSS_PREFIX}-overlayer`">
+                <div :class="`${CSS_PREFIX}-editor`" v-show="show" ref="editor">
+                    <div 
+                        ref="text" 
+                        contenteditable="true" 
+                        v-if="dateType==='text'"
+                        @input="inputHandler"
+                        @keydown="keydownHander"></div>
+                    <el-date-picker
+                        ref="date"
+                        :class="`${CSS_PREFIX}-popup`"
+                        v-else-if="dateType==='date'"
+                        :style="popupSty"
+                        v-model="value"
+                        :editable="false"
+                        type="date"
+                        size="mini"
+                        placeholder="选择日期"
+                        format="yyyy-MM-dd"
+                        value-format="yyyy-MM-dd"
+                        @change="dateChange">
+                    </el-date-picker>
+                    <el-select 
+                        ref="select"
+                        :class="`${CSS_PREFIX}-popup`"
+                        v-else-if="dateType==='select'"
+                        :style="popupSty"
+                        v-model="value" 
+                        size="mini"
+                        :automatic-dropdown="true"
+                        @change="selectChange">
+                        <el-option v-for="item in selectOptions" :value="item.value" :label="item.label" :key="item.value"></el-option>
+                    </el-select>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 <script>
+import { CSS_PREFIX } from '../core/constants.js'
 import DataGrid from '../core/DataGrid.js'
+import './index.scss'
+
 export default {
     props: {
         fixedLeft: {
@@ -53,15 +70,12 @@ export default {
     },
     data() {
         return {
+            CSS_PREFIX,
             show: false,
             dateType: 'text',
             width: 'auto',
             value: '',
-            selectOptions: [
-                { value: 111, label: '测试111' },
-                { value: 222, label: '测试222' },
-                { value: 333, label: '测试333' },
-            ]
+            selectOptions: []
         }
     },
     computed: {
@@ -75,6 +89,8 @@ export default {
         startEdit(cell) {
             this.dateType = cell.dateType
             this.value = cell.value
+            this.selectOptions = cell.options
+            this.$refs.text.innerText = cell.value
             this.width = `${cell.width - 2}px`
             this.setPosition(cell)
             this.show = true
@@ -82,21 +98,61 @@ export default {
                 this.focus()
             })
         },
+        finishedEdit() {
+            this.show = false
+            this.dateType = 'text'
+            this.grid.finishedEdit()
+        },
         setPosition(cell) {
-            this.$refs.editor.style.left = `${cell.x + 2}px`
-            this.$refs.editor.style.top = `${cell.y + 2}px`
+            this.$refs.editor.style.left = `${cell.x + cell.scrollX - 1}px`
+            this.$refs.editor.style.top = `${cell.y + cell.scrollY - 1}px`
+            this.$refs.text.style['min-width'] = `${cell.width - 2}px`
+            this.$refs.text.style['min-height'] = `${cell.height - 2}px`
         },
         focus(type) {
             const _type = type || this.dateType
-            if (typeof this.$refs[_type].focus === 'function') {
-                this.$refs[_type].focus()
+            const el = this.$refs[_type]
+            if (typeof el.focus === 'function') {
+                if (_type === 'date' || _type === 'select') {
+                    el.focus()
+                } else {
+                    if (window.getSelection) { // ie11 10 9 ff safari
+                        el.focus() // 解决ff不获取焦点无法定位问题
+                        const range = window.getSelection()// 创建range
+                        range.selectAllChildren(el)// range 选择obj下所有子内容
+                        range.collapseToEnd()// 光标移至最后
+                    } else if (document.selection) { // ie10以下
+                        const range = document.selection.createRange()// 创建选择对象
+                        // var range = document.body.createTextRange();
+                        range.moveToElementText(el)// range定位到obj
+                        range.collapse(false)// 光标移至最后
+                        range.select()
+                    }
+                }
             }
         },
+        inputHandler(e) {
+            const val = e.target.innerText;
+            this.grid.setData(val)
+        },
+        keydownHander(e) {
+            // 编辑模式下按Enter／ESC
+            if (e.keyCode === 13 || e.keyCode === 27) {
+                e.preventDefault()
+                return this.finishedEdit()
+            }
+        },
+        selectChange(val) {
+            this.grid.setData(val)
+        },
+        dateChange(val) {
+            this.grid.setData(val)
+        }
     },
     created() {
         this.$nextTick(() => {
-            let el = document.getElementById("data-grid__el");
-            new DataGrid(el, {
+            let el = document.getElementById(`${CSS_PREFIX}-target`);
+            this.grid = new DataGrid(el, {
               fixedLeft: this.fixedLeft,
               fixedRight: this.fixedRight,
               columns: this.columns,
@@ -105,8 +161,7 @@ export default {
                   this.startEdit(cell)
               },
               onSelectCell: () => {
-                  this.show = false
-                  this.dateType = 'text'
+                  this.finishedEdit()
               }
             });
         })
@@ -114,22 +169,4 @@ export default {
 }
 </script>
 <style lang="scss">
-.data-grid{
-    position: relative;
-}
-.data-grid__editor {
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 100;
-    height: 27px;
-    overflow: hidden;
-}
-.data-grid__cell--editor {
-    input[type="text"] {
-        border: none;
-        outline: none;
-        border-radius: 0;
-    }
-}
 </style>
