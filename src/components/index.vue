@@ -3,13 +3,12 @@
         <div :class="`${CSS_PREFIX}-main`">
             <canvas :id="`${CSS_PREFIX}-target`" :class="`${CSS_PREFIX}-table`"></canvas>
             <div :class="`${CSS_PREFIX}-overlayer`">
-                <div :class="`${CSS_PREFIX}-editor`" v-show="show" ref="editor">
+                <div :class="`${CSS_PREFIX}-editor`" v-show="show" ref="editor" @keydown="keydownHander">
                     <div 
                         ref="text" 
                         contenteditable="true" 
-                        v-if="dateType==='text'"
-                        @input="inputHandler"
-                        @keydown="keydownHander"></div>
+                        v-if="isSimple"
+                        @input="inputHandler"></div>
                     <el-date-picker
                         ref="date"
                         :class="`${CSS_PREFIX}-popup`"
@@ -44,6 +43,7 @@
 import { CSS_PREFIX } from '../core/constants.js'
 import DataGrid from '../core/DataGrid.js'
 import './index.scss'
+const SIMPLE_DATE_TYPES = ['text', 'number', 'phone', 'email']
 
 export default {
     props: {
@@ -83,6 +83,9 @@ export default {
             return {
                 width: this.width
             }
+        },
+        isSimple() {
+            return SIMPLE_DATE_TYPES.includes(this.dateType)
         }
     },
     methods: {
@@ -110,7 +113,10 @@ export default {
             this.$refs.text.style['min-height'] = `${cell.height - 2}px`
         },
         focus(type) {
-            const _type = type || this.dateType
+            let _type = type || this.dateType
+            if (this.isSimple) {
+                _type = 'text'
+            }
             const el = this.$refs[_type]
             if (typeof el.focus === 'function') {
                 if (_type === 'date' || _type === 'select') {

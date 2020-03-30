@@ -8,6 +8,7 @@ import Header from './ColumnHeaderRow.js'
 import Editor from './Editor.js'
 // import Selector from './Selector.js'
 import { CSS_PREFIX, CELL_WIDTH, MIN_CELL_WIDTH, CELL_HEIGHT, HEADER_HEIGHT, ROW_INDEX_WIDTH, CHECK_BOX_WIDTH } from './constants.js'
+import Tooltip from './Tooltip.js'
 // import './index.scss'
 
 class DataGrid {
@@ -64,6 +65,8 @@ class DataGrid {
 
         // Body 主体
         this.body = new Body(this, this.columns, this.data)
+
+        this.tooltip = new Tooltip(this, 0, 0)
         
         this.setActualSize() // 设置画布像素的实际宽高
 
@@ -203,6 +206,14 @@ class DataGrid {
             this.selector.selectedYArr = [minY, maxY]
         }
     }
+    updateTooltip({ valid, message, x, y, width }) {
+        this.tooltip.update({
+            valid, 
+            message, 
+            x: x + width, 
+            y,
+        })
+    }
     // mouseup事件 -> 结束批量选取
     endMultiSelect() {
         this.selector.isSelected = false;
@@ -246,6 +257,7 @@ class DataGrid {
             //     // this.rePaintRow(this.editor.editorYIndex)
             // }
             // this.editor.hide();
+            this.focusCell.validate()
             this.focusCell = null
             this.editor.show = false
             this.selector.show = true; // 编辑完再选中该单元格
@@ -349,57 +361,16 @@ class DataGrid {
             borderWidth: this.borderWidth
         })
     }
-    // drawSelector() {
-    //     if (this.selector.show) {
-    //         const minX = this.selector.selectedXArr[0]
-    //         const maxX = this.selector.selectedXArr[1]
-    //         const minY = this.selector.selectedYArr[0]
-    //         const maxY = this.selector.selectedYArr[1]
-    //         const minRow = this.body.getRow(minY)
-    //         const x = minRow.cells[minX].x + this.scrollX
-    //         const y = minRow.y + this.scrollY
-
-    //         let width = 0;
-    //         let height = 0;
-    //         for (let i = minX; i <= maxX; i++) {
-    //             width += minRow.cells[i].width
-    //         }
-    //         for (let i = minY; i <= maxY; i++) {
-    //             height += this.body.rows[i].height
-    //         }
-
-    //         this.painter.drawRect(x, y, width, height, {
-    //             borderColor: this.selectBorderColor,
-    //             borderWidth: 2
-    //         })
-    //     }
-    // }
-    // drawAutofill() {
-    //     if (this.selector.show) {
-    //         const cell = this.body.getCell(this.autofill.autofillXIndex, this.autofill.autofillYIndex)
-
-    //         // -2让触点覆盖于边框之上
-    //         this.painter.drawRect(cell.x + cell.width + this.scrollX - 2, cell.y + cell.height + this.scrollY - 2, 6, 6, {
-    //             borderColor: '#fff',
-    //             borderWidth: 2,
-    //             fillColor: this.selectBorderColor
-    //         })
-    //     }
-    // }
     draw() {
         this.painter.clearCanvas()
 
         // 绘制外层容器
         this.drawContainer()
 
-        // 绘制批量选择边框
-        // this.drawSelector()
-
-        // 绘制Autofull触点
-        // this.drawAutofill()
-
         // body
         this.body.draw()
+
+        this.tooltip.draw()
 
         // 绘制表头
         this.header.draw();

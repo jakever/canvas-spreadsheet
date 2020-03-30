@@ -1,18 +1,6 @@
-import { SELECT_BORDER_COLOR, SELECT_AREA_COLOR, SELECT_BG_COLOR, READONLY_COLOR } from './constants.js'
+import { SELECT_BORDER_COLOR, SELECT_AREA_COLOR, SELECT_BG_COLOR, READONLY_COLOR, ERROR_TIP_COLOR } from './constants.js'
 import Context from './Context.js'
-
-function filterValue () {
-    let label = this.value
-    if (this.dateType === 'select' && Array.isArray(this.options)) {
-        for (let item of this.options) {
-            if (this.value === item.value) {
-                label = item.label
-                break
-            }
-        }
-    }
-    return label
-}
+import Validator from './Validator.js'
 
 class Cell extends Context{
     constructor(value, grid, colIndex, rowIndex, x, y, width, height, column, options) {
@@ -29,21 +17,35 @@ class Cell extends Context{
         this.dateType = column.type || 'text'
         this.options = column.options
         this.value = value
-        this.label = filterValue.call(this);
+
+        this.validator = new Validator(column)
+        this.label = this.validator.filterValue(value);
+        this.valid = true;
+        this.message = null;
 
         Object.assign(this, options, {
             fillColor: '#fff'
         });
+        this.validate()
+    }
+    validate() {
+        const { 
+            flag,
+            message
+        } = this.validator.validate(this.value)
+        this.valid = flag
+        this.message = message
     }
     mouseDown() {
         this.grid.selectCell(this.colIndex, this.rowIndex);
     }
     setData(val) {
         this.value = val
-        this.label = filterValue.call(this);
+        this.label = this.validator.filterValue(val);
     }
     mouseMove() {
         this.grid.multiSelectCell(this.colIndex, this.rowIndex);
+        this.grid.updateTooltip(this)
     }
     mouseUp() {
         this.grid.endMultiSelect();
@@ -55,7 +57,6 @@ class Cell extends Context{
     draw() {
         const x = this.fixed ? this.x : this.x + this.grid.scrollX
         const y = this.y + this.grid.scrollY
-        const startOffset = this.grid.painter.calucateTextAlign(this.label, this.width)
         const editor = this.grid.editor
         const selector = this.grid.selector
         const autofill = this.grid.autofill
@@ -80,6 +81,20 @@ class Cell extends Context{
                     fillColor: SELECT_BG_COLOR
                 });
             }
+        }
+
+        /**
+         * 绘制错误提示
+         */
+        if (!this.valid) {
+            const points = [
+                [x + this.width - 8, y],
+                [x + this.width, y],
+                [x + this.width, y + 8]
+            ]
+            this.grid.painter.drawLine(points, {
+                fillColor: ERROR_TIP_COLOR
+            })
         }
         
         /**
@@ -155,19 +170,19 @@ class Cell extends Context{
         }
 
         // const textArr = this.grid.painter.getTextWrapping(this.value, this.width)
-        let height = y + this.height / 2
+        let _y = y + this.height / 2
         // // 如果文本超出列宽，则不再已列高／2垂直剧中
         // if (textArr && textArr.length > 1) {
-        //     height = y + 10
+        //     _y = y + 10
         // }
         // for (let i = 0; i < textArr.length; i++) {
-        //     this.grid.painter.drawText(textArr[i], x + this.width / 2, height + i * 18, {
+        //     this.grid.painter.drawText(textArr[i], x + this.width / 2, _y + i * 18, {
         //         color: this.color
         //     });
         // }
 
 
-        this.grid.painter.drawText(this.label, x + startOffset, height, {
+        this.grid.painter.drawCellText(this.label, x, _y, this.width, 10, {
             color: this.color,
             align: this.textAlign,
             baseLine: this.textBaseline
