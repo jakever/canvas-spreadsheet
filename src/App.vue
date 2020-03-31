@@ -1,6 +1,10 @@
 <template>
   <div id="app">
     <div id="data-grid-demo"></div>
+    <div style="padding: 12px;">
+      <el-button size="small">获取完整数据</el-button>
+      <el-button size="small">获取选中行数据</el-button>
+    </div>
     <DataGrid :columns="columns" :data="gridData" :fixed-right="2"></DataGrid>
   </div>
 </template>

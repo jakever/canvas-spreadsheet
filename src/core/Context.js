@@ -22,8 +22,8 @@ class Context {
             this.y + this.grid.scrollY > this.grid.height);
     }
     isInsideHeader(mouseX, mouseY) {
-        return mouseY > this.y + this.grid.scrollY &&
-            mouseY < this.y + this.grid.scrollY + this.height;
+        return mouseY > this.y &&
+            mouseY < this.y + this.height;
     }
     // 鼠标坐标是否在body内
     isInsideBodyBoundary(mouseX, mouseY) {

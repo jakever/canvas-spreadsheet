@@ -29,43 +29,6 @@ class Paint {
 
       this.ctx = target.getContext('2d')
       this.ctx.scale(2, 2); // 解决fillText模糊的问题
-
-      const getMouseCoords = (e) => {
-          const rect = this.ctx.canvas.getBoundingClientRect()
-          return {
-              x: e.clientX - rect.left,
-              y: e.clientY - rect.top
-          }
-      }
-      this.ctx.canvas.onmousedown = (e) => {
-          const coords = getMouseCoords(e);
-          options.onMouseDown(coords.x, coords.y);
-          e.preventDefault();
-      };
-      this.ctx.canvas.onmousemove = function(e) {
-          const coords = getMouseCoords(e);
-          options.onMouseMove(coords.x, coords.y);
-          e.preventDefault();
-      };
-      this.ctx.canvas.onmouseup = function (e) {
-          const coords = getMouseCoords(e);
-          options.onMouseUp(coords.x, coords.y);
-        e.preventDefault();
-      };
-      this.ctx.canvas.onclick = function (e) {
-          const coords = getMouseCoords(e);
-          options.onClick(coords.x, coords.y);
-        e.preventDefault();
-      };
-      this.ctx.canvas.ondblclick = function (e) {
-          const coords = getMouseCoords(e);
-          options.onDbClick(coords.x, coords.y);
-        e.preventDefault();
-      };
-      this.ctx.canvas.onmousewheel = (e) => {
-          options.onScroll(e);
-          e.preventDefault();
-      };
   }
   drawLine(points, options) {
       if (!points[0]) return;

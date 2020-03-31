@@ -90,13 +90,13 @@ export default {
     },
     methods: {
         startEdit(cell) {
+            this.show = true
             this.dateType = cell.dateType
             this.value = cell.value
             this.selectOptions = cell.options
             this.$refs.text.innerText = cell.value
             this.width = `${cell.width - 2}px`
             this.setPosition(cell)
-            this.show = true
             this.$nextTick(() => {
                 this.focus()
             })

@@ -37,7 +37,7 @@ class Cell extends Context{
         this.message = message
     }
     mouseDown() {
-        this.grid.selectCell(this.colIndex, this.rowIndex);
+        this.grid.selectCell(this);
     }
     setData(val) {
         this.value = val
@@ -51,8 +51,7 @@ class Cell extends Context{
         this.grid.endMultiSelect();
     }
     dbClick() {
-        if (this.readonly) return;
-        this.grid.startEdit(this)
+        this.grid.startEdit()
     }
     draw() {
         const x = this.fixed ? this.x : this.x + this.grid.scrollX
