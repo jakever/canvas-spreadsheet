@@ -24,7 +24,8 @@ class Context {
     isInsideHorizontalBodyBoundary(mouseX, mouseY) {
         return mouseX > this.x + this.grid.scrollX &&
             mouseX < this.x + this.grid.scrollX + this.width &&
-            mouseX > this.grid.fixedLeftWidth;
+            mouseX > this.grid.fixedLeftWidth &&
+            mouseX < this.grid.width - this.grid.fixedRightWidth;
     }
     isInsideVerticaBodyBoundary(mouseX, mouseY) {
         return mouseY > this.y + this.grid.scrollY &&
@@ -50,7 +51,14 @@ class Context {
         return mouseX > this.x + ROW_INDEX_WIDTH &&
             mouseX < this.x + ROW_INDEX_WIDTH + CHECK_BOX_WIDTH &&
             mouseY > this.y + this.grid.scrollY &&
-            mouseY < this.y + this.height + this.grid.scrollY;
+            mouseY < this.y + this.height + this.grid.scrollY &&
+            mouseY > HEADER_HEIGHT;;
+    }
+    isInsideHeaderCheckboxBoundary(mouseX, mouseY) {
+        return mouseX > this.x + ROW_INDEX_WIDTH &&
+            mouseX < this.x + ROW_INDEX_WIDTH + CHECK_BOX_WIDTH &&
+            mouseY > this.y &&
+            mouseY < this.y + this.height;
     }
 }
 

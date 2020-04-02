@@ -331,8 +331,5 @@ class DataGrid {
     getChangedRow() {
         return this.body.getChangedRow()
     }
-    getChangedCell() {
-        return this.body.getChangedCell()
-    }
 }
 export default DataGrid

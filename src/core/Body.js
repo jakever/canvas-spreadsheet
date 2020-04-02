@@ -63,7 +63,13 @@ class Body {
         }
     }
     handleCheckRow(y) {
-        this.rows[y].handleCheck()
+        if (typeof y === 'number') {
+            this.rows[y].handleCheck()
+        } else {
+            for (let row of this.rows) {
+                row.handleCheck()
+            }
+        }
     }
     mouseDown(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
@@ -153,34 +159,10 @@ class Body {
         Object.keys(hashChange).forEach(key => {
             arr.add(Number(key.split('-')[1]))
         })
-        for(let i = 0; i < this.rows.length; i++) {
-            if (arr.has(i)) {
-                rows.push(this.rows[i])
-            }
-        }
+        arr.forEach(item => {
+            rows.push(this.rows[item])
+        })
         return rows
-    }
-    getChangedCell() {
-        // let rowArr = new Set()
-        // let cellArr = new Set()
-        // let cells = []
-        // const hashChange = this.grid.hashChange
-        // Object.keys(hashChange).forEach(key => {
-        //     rowArr.add(Number(key.split('-')[1]))
-        //     cellArr.add(Number(key.split('-')[0]))
-        // })
-        // for(let i = 0; i < this.rows.length; i++) {
-        //     if (rowArr.has(i)) {
-        //         const row = this.rows[i]
-        //         for (let j = 0; j < row.cells.length; j++) {
-        //             if (cellArr.has(j)) {
-        //                 cells.push(row.cells[i])
-        //             }
-        //         }
-                
-        //     }
-        // }
-        // return cells
     }
 }
 

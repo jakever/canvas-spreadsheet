@@ -11,6 +11,8 @@ class Header extends Context {
     constructor(grid, x, y, columns) {
         super(grid, x, y, null, HEADER_HEIGHT)
 
+        this.checked = false
+
         this.fixedColumnHeaders = []
         this.columnHeaders = [];
 
@@ -65,6 +67,9 @@ class Header extends Context {
         this.resizeTarget = null;
         this.isResizing = false;
     }
+    click() {
+        this.checked = !this.checked
+    }
     resizeColumn(colIndex, width) {
         let columnHeader = this.columnHeaders[colIndex];
         let oldWidth = columnHeader.width;
@@ -91,13 +96,14 @@ class Header extends Context {
         }
 
         // 绘制checkbox
+        const checkEl = this.checked ? oncheck : offcheck
         const style = {
             borderColor: this.grid.borderColor,
             borderWidth: this.grid.borderWidth,
             fillColor: this.grid.fillColor
         }
         this.grid.painter.drawRect(ROW_INDEX_WIDTH, 0, CHECK_BOX_WIDTH, HEADER_HEIGHT, style)
-        this.grid.painter.drawImage(offcheck, ROW_INDEX_WIDTH + (CHECK_BOX_WIDTH - 20) / 2, (HEADER_HEIGHT - 20) / 2, 20, 20)
+        this.grid.painter.drawImage(checkEl, ROW_INDEX_WIDTH + (CHECK_BOX_WIDTH - 20) / 2, (HEADER_HEIGHT - 20) / 2, 20, 20)
         
         // 最左上角方格
         this.grid.painter.drawRect(0, 0, ROW_INDEX_WIDTH, HEADER_HEIGHT, style)

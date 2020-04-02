@@ -98,16 +98,10 @@ export default {
         getChangedRow() {
             return this.grid.getChangedRow()
         },
-        getChangedCell() {
-            return this.grid.getChangedCell()
-        },
         setFullScreen(){
-            const {
-                top
-            } = this.$el.getBoundingClientRect()
             this.$el.style.cssText = `
                 position: fixed;
-                top: ${top}px;
+                top: 0;
                 left: 0;
                 bottom: 0;
                 right: 0;

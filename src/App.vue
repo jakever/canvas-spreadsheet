@@ -4,7 +4,6 @@
     <div style="padding: 12px 0;">
       <el-button size="small" @click="getCheckedRow">获取选中行数据</el-button>
       <el-button size="small" @click="getChangedRow">获取已改变行数据</el-button>
-      <!-- <el-button size="small" @click="getChangedCell">获取已改变单元格数据</el-button> -->
       <el-button size="small" @click="fullscreen">全屏</el-button>
     </div>
     <DataGrid ref="datagrid" :columns="columns" :data="gridData" :fixed-right="2" :fixed-left="1"></DataGrid>
@@ -100,11 +99,6 @@ export default {
     },
     getChangedRow() {
       const data = this.$refs.datagrid.getChangedRow()
-      console.log(data)
-      alert('获取成功，请查看控制台')
-    },
-    getChangedCell() {
-      const data = this.$refs.datagrid.getChangedCell()
       console.log(data)
       alert('获取成功，请查看控制台')
     },
