@@ -4,9 +4,7 @@ import Validator from './Validator.js'
 
 class Cell extends Context{
     constructor(value, grid, colIndex, rowIndex, x, y, width, height, column, options) {
-        const realX = column.fixed === 'right' ? 
-            grid.width - (grid.actualTableWidth - x - width) - width : x;
-        super(grid, realX, y, width, height)
+        super(grid, x, y, width, height)
 
         this.fixed = column.fixed;
         this.readonly = column.readonly;
@@ -54,7 +52,9 @@ class Cell extends Context{
         this.grid.startEdit()
     }
     draw() {
-        const x = this.fixed ? this.x : this.x + this.grid.scrollX
+        const x = this.fixed === 'right' ? 
+            this.grid.width - (this.grid.tableWidth - this.x - this.width) - this.width :
+                (this.fixed === 'left' ? this.x : this.x + this.grid.scrollX);
         const y = this.y + this.grid.scrollY
         const editor = this.grid.editor
         const selector = this.grid.selector

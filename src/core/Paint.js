@@ -19,16 +19,11 @@ function calucateTextAlign(value, width, padding, align) {
 }
 
 class Paint {
-  constructor(target, options) {
-      const w = options.width
-      const h = options.height
-      target.width = w * 2;
-      target.height = h * 2;
-      target.style.width = w + "px";
-      target.style.height = h + "px";
-
+  constructor(target) {
       this.ctx = target.getContext('2d')
-      this.ctx.scale(2, 2); // 解决fillText模糊的问题
+  }
+  scaleCanvas(dpr) {
+    this.ctx.scale(dpr, dpr); // 解决高清屏canvas绘制模糊的问题
   }
   drawLine(points, options) {
       if (!points[0]) return;

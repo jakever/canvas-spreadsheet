@@ -5,7 +5,7 @@ import {CELL_WIDTH, ROW_INDEX_WIDTH, CHECK_BOX_WIDTH} from './constants';
 
 class Row extends Context {
     constructor(grid, rowIndex, x, y, height, columns, data) {
-        super(grid, x, y, grid.actualTableWidth, height)
+        super(grid, x, y, null, height)
 
         this.data = data;
         this.rowIndex = rowIndex;
@@ -46,21 +46,21 @@ class Row extends Context {
     }
     mouseDown(x, y) {
         for(let i = 0; i < this.cells.length; i++) {
-            if(this.cells[i].isInsideBodyBoundary(x, y)) {
+            if(this.cells[i].isInsideHorizontalBodyBoundary(x, y)) {
                 this.cells[i].mouseDown(x, y);
             }
         }
     }
     mouseMove(x, y) {
         for(let i = 0; i < this.cells.length; i++) {
-            if(this.cells[i].isInsideBodyBoundary(x, y)) {
+            if(this.cells[i].isInsideHorizontalBodyBoundary(x, y)) {
                 this.cells[i].mouseMove(x, y);
             }
         }
     }
     mouseUp(x, y) {
         for(let i = 0; i < this.cells.length; i++) {
-            if(this.cells[i].isInsideBodyBoundary(x, y)) {
+            if(this.cells[i].isInsideHorizontalBodyBoundary(x, y)) {
                 this.cells[i].mouseUp(x, y);
             }
         }
@@ -72,7 +72,7 @@ class Row extends Context {
     }
     dbClick(x, y) {
         for(let i = 0; i < this.cells.length; i++) {
-            if(this.cells[i].isInsideBodyBoundary(x, y)) {
+            if(this.cells[i].isInsideHorizontalBodyBoundary(x, y)) {
                 this.cells[i].dbClick(x, y);
             }
         }
@@ -113,7 +113,7 @@ class Row extends Context {
         // 绘制主体body部分
         for(let i = 0; i < this.cells.length; i++) {
             const cell = this.cells[i];
-            if(cell.isVisibleOnBody()) {
+            if(cell.isHorizontalVisibleOnBody()) {
                 cell.draw();
             }
         }

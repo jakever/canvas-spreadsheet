@@ -1,26 +1,81 @@
-function handleMouseDown(x, y) {
+function throttle (func, time = 17, options = {
+    // leading 和 trailing 无法同时为 false
+    leading: true,
+    trailing: false,
+    context: null
+}) {
+    let previous = new Date(0).getTime()
+    let timer;
+    const _throttle = function (...args) {
+        let now = new Date().getTime();
+
+        if (!options.leading) {
+            if (timer) return
+            timer = setTimeout(() => {
+                timer = null
+                func.apply(options.context, args)
+            }, time)
+        } else if (now - previous > time) {
+            func.apply(options.context, args)
+            previous = now
+        } else if (options.trailing) {
+            clearTimeout(timer)
+            timer = setTimeout(() => {
+                func.apply(options.context, args)
+            }, time)
+        }
+    };
+    // 闭包返回取消函数
+    _throttle.cancel = () => {
+        previous = 0;
+        clearTimeout(timer);
+        timer = null
+    };
+    return _throttle
+};
+function handleMouseDown(e) {
+    e.preventDefault();
+    const rect = e.target.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
     if(this.header.isInsideHeader(x, y)) {
         this.header.mouseDown(x, y);
     }
     this.body.mouseDown(x, y);
 }
-function handleMouseMove(x, y) {
+function handleMouseMove(e) {
+    e.preventDefault();
+    const rect = e.target.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
     document.body.style.cursor = 'default';
     if(this.header.isInsideHeader(x, y) || this.header.isResizing) {
         this.header.mouseMove(x, y);
     }
     this.body.mouseMove(x, y);
 }
-function handleMouseUp(x, y) {
+function handleMouseUp(e) {
+    e.preventDefault();
+    const rect = e.target.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
     if(this.header.isInsideHeader(x, y) || this.header.isResizing) {
         this.header.mouseUp(x, y);
     }
     this.body.mouseUp(x, y);
 }
-function handleClick(x, y) {
+function handleClick(e) {
+    e.preventDefault();
+    const rect = e.target.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
     this.body.click(x, y);
 }
-function handleDbClick(x, y) {
+function handleDbClick(e) {
+    e.preventDefault();
+    const rect = e.target.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
     this.body.dbClick(x, y);
 }
 function handleKeydown(e) {
@@ -40,15 +95,11 @@ function handleKeydown(e) {
     }
 }
 function handleScroll(e) {
+    e.preventDefault();
     if (this.editor.show) return;
     const { deltaX, deltaY } = e
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        let maxWidth = 0;
-        if (this.fillCellWidth > 0) { // 列总宽小于容器宽
-            maxWidth = this.actualTableWidth
-        } else {
-            maxWidth = this.actualTableWidth + this.fixedLeftWidth + this.fixedRightWidth
-        }
+        const maxWidth = this.tableWidth;
         if (this.scrollX - deltaX > 0) {
             this.scrollX = 0
         } else if (maxWidth - this.width + this.scrollX < deltaX) {
@@ -61,8 +112,8 @@ function handleScroll(e) {
     } else {
         if (this.scrollY - deltaY > 0) {
             this.scrollY = 0
-        } else if (this.actualTableHeight - this.height + this.scrollY < deltaY) {
-            this.scrollY = this.height - this.actualTableHeight
+        } else if (this.tableHeight - this.height + this.scrollY < deltaY) {
+            this.scrollY = this.height - this.tableHeight
         } else {
             e.preventDefault()
             e.returnValue = false
@@ -70,48 +121,26 @@ function handleScroll(e) {
         }
     }
 }
+function handleResize() {
+    this.initSize()
+}
 
 class Events {
     constructor(grid, el) {
         this.grid = grid
 
-        const getMouseCoords = (e) => {
-            const rect = el.getBoundingClientRect()
-            return {
-                x: e.clientX - rect.left,
-                y: e.clientY - rect.top
-            }
-        }
-        el.onmousedown = (e) => {
-            const coords = getMouseCoords(e);
-            handleMouseDown.call(grid, coords.x, coords.y);
-            e.preventDefault();
-        };
-        el.onmousemove = function(e) {
-            const coords = getMouseCoords(e);
-            handleMouseMove.call(grid, coords.x, coords.y);
-            e.preventDefault();
-        };
-        el.onmouseup = function (e) {
-            const coords = getMouseCoords(e);
-            handleMouseUp.call(grid, coords.x, coords.y);
-          e.preventDefault();
-        };
-        el.onclick = function (e) {
-            const coords = getMouseCoords(e);
-            handleClick.call(grid, coords.x, coords.y);
-          e.preventDefault();
-        };
-        el.ondblclick = function (e) {
-            const coords = getMouseCoords(e);
-            handleDbClick.call(grid, coords.x, coords.y);
-          e.preventDefault();
-        };
+        el.addEventListener('mousedown', handleMouseDown.bind(grid), false)
+        el.addEventListener('mousemove', throttle(handleMouseMove, 50, {
+            context: grid
+        }), false)
+        el.addEventListener('mouseup', handleMouseUp.bind(grid), false)
+        el.addEventListener('click', handleClick.bind(grid), false)
+        el.addEventListener('dblclick', handleDbClick.bind(grid), false)
+        el.addEventListener('mousewheel', handleScroll.bind(grid), false)
         window.addEventListener('keydown', handleKeydown.bind(grid), false)
-        el.onmousewheel = (e) => {
-            handleScroll.call(grid, e);
-            e.preventDefault();
-        };
+        window.addEventListener('resize', throttle(handleResize, 100, {
+            context: grid
+        }), false)
     }
 }
 export default Events

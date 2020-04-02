@@ -55,6 +55,8 @@ export default {
             type: Number,
             default: 0
         },
+        width: Number,
+        height: Number,
         columns: {
             type: Array,
             default() {
@@ -73,7 +75,7 @@ export default {
             CSS_PREFIX,
             show: false,
             dateType: 'text',
-            width: 'auto',
+            popWidth: 'auto',
             value: '',
             selectOptions: []
         }
@@ -81,7 +83,7 @@ export default {
     computed: {
         popupSty() {
             return {
-                width: this.width
+                width: this.popWidth
             }
         },
         isSimple() {
@@ -89,13 +91,28 @@ export default {
         }
     },
     methods: {
+        setFullScreen(){
+            this.grid.setFullScreen()
+            this.$el.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                width: 100%;
+                min-height: 100vh;
+                background: #fff;
+                z-index: 9999;
+                overflow: hidden;
+            `
+        },
         startEdit(cell) {
             this.show = true
             this.dateType = cell.dateType
             this.value = cell.value
             this.selectOptions = cell.options
             this.$refs.text.innerText = cell.value
-            this.width = `${cell.width - 2}px`
+            this.popWidth = `${cell.width - 2}px`
             this.setPosition(cell)
             this.$nextTick(() => {
                 this.focus()
@@ -158,7 +175,10 @@ export default {
     created() {
         this.$nextTick(() => {
             let el = document.getElementById(`${CSS_PREFIX}-target`);
+
             this.grid = new DataGrid(el, {
+                width: this.width,
+                height: this.height,
               fixedLeft: this.fixedLeft,
               fixedRight: this.fixedRight,
               columns: this.columns,

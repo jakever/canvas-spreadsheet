@@ -67,21 +67,21 @@ class Body {
     }
     mouseDown(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideBodyBoundary(x, y)) {
+            if(this.rows[i].isInsideVerticaBodyBoundary(x, y)) {
                 this.rows[i].mouseDown(x, y);
             }
         }
     }
     mouseMove(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideBodyBoundary(x, y)) {
+            if(this.rows[i].isInsideVerticaBodyBoundary(x, y)) {
                 this.rows[i].mouseMove(x, y);
             }
         }
     }
     mouseUp(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideBodyBoundary(x, y)) {
+            if(this.rows[i].isInsideVerticaBodyBoundary(x, y)) {
                 this.rows[i].mouseUp(x, y);
             }
         }
@@ -95,7 +95,7 @@ class Body {
     }
     dbClick(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideBodyBoundary(x, y)) {
+            if(this.rows[i].isInsideVerticaBodyBoundary(x, y)) {
                 this.rows[i].dbClick(x, y);
             }
         }
@@ -138,7 +138,7 @@ class Body {
         for(let i = 0; i < len; i++) {
             const row = this.rows[i];
             
-            if(row.isVisibleOnBody()) {
+            if(row.isVerticalVisibleOnBody()) {
                 row.draw();
             }
         }

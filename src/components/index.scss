@@ -1,8 +1,10 @@
 $css-prefix: xs-data-grid;
 .#{$css-prefix} {
+    width: 100%;
     position: relative;
 }
 .#{$css-prefix}-main {
+    width: 100%;
     position: relative;
     box-sizing: border-box;
     overflow: hidden;

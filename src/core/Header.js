@@ -7,9 +7,9 @@ const offcheck = new Image()
 oncheck.src = require('./images/oncheck.png')
 offcheck.src = require('./images/offcheck.png')
 
-class ColumnHeaderRow extends Context {
+class Header extends Context {
     constructor(grid, x, y, columns) {
-        super(grid, x, y, grid.actualTableWidth, HEADER_HEIGHT)
+        super(grid, x, y, null, HEADER_HEIGHT)
 
         this.fixedColumnHeaders = []
         this.columnHeaders = [];
@@ -103,4 +103,4 @@ class ColumnHeaderRow extends Context {
         this.grid.painter.drawRect(0, 0, ROW_INDEX_WIDTH, HEADER_HEIGHT, style)
     }
 }
-export default ColumnHeaderRow
+export default Header

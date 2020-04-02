@@ -4,18 +4,22 @@
 import { h } from './element.js'
 import Paint from './Paint.js'
 import Body from './Body.js'
-import Header from './ColumnHeaderRow.js'
+import Header from './Header.js'
 import Editor from './Editor.js'
 import Events from './Events.js'
-// import Selector from './Selector.js'
-import { CSS_PREFIX, CELL_WIDTH, MIN_CELL_WIDTH, CELL_HEIGHT, HEADER_HEIGHT, ROW_INDEX_WIDTH, CHECK_BOX_WIDTH } from './constants.js'
 import Tooltip from './Tooltip.js'
+import { dpr } from './config.js'
+import { 
+    CSS_PREFIX, 
+    MIN_CELL_WIDTH, 
+    ROW_INDEX_WIDTH, 
+    CHECK_BOX_WIDTH 
+} from './constants.js'
 // import './index.scss'
 
 class DataGrid {
     constructor(target, options) {
-        this.xxx = 0
-        this.yyy = 0
+        this.target = target
         this.scrollY = 0;
         this.scrollX = 0;
 
@@ -51,16 +55,13 @@ class DataGrid {
         }
         this.range = {}; // 编辑器边界范围
 
+        // 生成主画笔
+        this.painter = new Paint(target)
+
         this.initConfig(options)
-        this.initSize(target, options)
-        // this.createContainer(target)
+        this.initSize(options)
+        // this.createContainer()
 
-        this.actualTableWidth = this.columns.reduce((sum, item) => {
-            return sum + item.width || CELL_WIDTH
-        }, ROW_INDEX_WIDTH + CHECK_BOX_WIDTH)
-
-        this.actualTableHeight = this.data.length * CELL_HEIGHT + HEADER_HEIGHT
-        
         // Headers 表头对象
         this.header = new Header(this, 0, 0, this.columns)
 
@@ -72,12 +73,6 @@ class DataGrid {
         this.events = new Events(this, target)
         
         this.getTableSize() // 设置画布像素的实际宽高
-
-        // 生成主画笔
-        this.painter = new Paint(target, {
-            width: this.width,
-            height: this.height
-        })
         
         this.initPaint()
     }
@@ -103,8 +98,8 @@ class DataGrid {
             onResizeRow: () => {}
           }, options);
     }
-    initSize(target, options) {
-        const el = target.parentElement
+    initSize(options = {}) {
+        const el = this.target.parentElement
         const {
             width,
             left,
@@ -114,8 +109,15 @@ class DataGrid {
         this.containerOriginY = top;
         this.width = options.width || width; // 容器宽
         this.height = options.height || (window.innerHeight - top); // 容器高
+
+        this.target.width = this.width * dpr;
+        this.target.height = this.height * dpr;
+        this.target.style.width = this.width + "px";
+        this.target.style.height = this.height + "px";
+        el.style.height = this.height + "px";
+        this.painter.scaleCanvas(dpr)
     }
-    createContainer(target) {
+    createContainer() {
         // 顶层容器
         this.rootEl = h('div', `${CSS_PREFIX}`);
 
@@ -152,7 +154,7 @@ class DataGrid {
             this.overlayerEl
         )
 
-        target.appendChild(this.rootEl.el)
+        this.target.appendChild(this.rootEl.el)
     }
     getTableSize() {
         this.fixedLeftWidth = ROW_INDEX_WIDTH + CHECK_BOX_WIDTH
@@ -165,11 +167,11 @@ class DataGrid {
                 this.fixedRightWidth += item.width
             }
         })
-        this.actualTableWidth = this.header.columnHeaders.reduce((sum, item) => {
+        this.tableWidth = this.header.columnHeaders.reduce((sum, item) => {
             return sum + item.width
-        }, 0)
+        }, this.fixedLeftWidth + this.fixedRightWidth)
 
-        this.actualTableHeight = this.body.height
+        this.tableHeight = this.body.height
     }
     /**
      * 选择、编辑相关
@@ -295,6 +297,12 @@ class DataGrid {
     }
     rePaintRow(rowIndex) {
         this.body.rePaintRow(rowIndex)
+    }
+    setFullScreen() {
+        this.initSize({
+            width: window.innerWidth,
+            height: window.innerHeight
+        })
     }
     drawContainer() {
         this.painter.drawRect(0, 0, this.width, this.height, {

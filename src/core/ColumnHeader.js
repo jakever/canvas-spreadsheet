@@ -4,9 +4,7 @@ import Context from './Context.js'
 class ColumnHeader extends Context {
     constructor(grid, index, x, y, column, options) {
         const width = column.width || CELL_WIDTH
-        const realX = column.fixed === 'right' ? 
-            grid.width - (grid.actualTableWidth - x - width) - width : x;
-        super(grid, realX, y, width, CELL_HEIGHT)
+        super(grid, x, y, width, CELL_HEIGHT)
 
         this.fixed = column.fixed
         this.index = index - grid.fixedLeft;
@@ -17,12 +15,13 @@ class ColumnHeader extends Context {
     // 表头是否超过了右侧可视区的边界
     isVisibleOnScreen() {
         return !(this.x + this.width - this.grid.fixedLeftWidth + this.grid.scrollX < 0 || 
-            this.x + this.grid.scrollX > this.grid.width - this.grid.fixedRightWidth ||
-            this.y + this.height < 0 || this.y  > this.grid.height);
+            this.x + this.grid.scrollX > this.grid.width - this.grid.fixedRightWidth);
     }
     draw() {
         // 绘制表头每个单元格框
-        const x = this.fixed ? this.x : this.x + this.grid.scrollX
+        const x = this.fixed === 'right' ? 
+            this.grid.width - (this.grid.tableWidth - this.x - this.width) - this.width :
+                (this.fixed === 'left' ? this.x : this.x + this.grid.scrollX);
         const editor = this.grid.editor
         const selector = this.grid.selector
         this.grid.painter.drawRect(x, this.y, this.width, this.height, {

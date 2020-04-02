@@ -4,8 +4,9 @@
     <div style="padding: 12px;">
       <el-button size="small">获取完整数据</el-button>
       <el-button size="small">获取选中行数据</el-button>
+      <el-button size="small" @click="fullscreen">全屏</el-button>
     </div>
-    <DataGrid :columns="columns" :data="gridData" :fixed-right="2"></DataGrid>
+    <DataGrid ref="datagrid" :columns="columns" :data="gridData" :fixed-right="2" :fixed-left="1"></DataGrid>
   </div>
 </template>
 <script>
@@ -86,6 +87,11 @@ export default {
         { title: "销售价(元)", key: "salePrice", type: "number", width: 100 }
       ]
     };
+  },
+  methods: {
+    fullscreen() {
+      this.$refs.datagrid.setFullScreen()
+    }
   },
   created() {
     // this.$nextTick(() => {

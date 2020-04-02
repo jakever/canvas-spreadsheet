@@ -46,11 +46,11 @@ class DataGrid {
         this.setContainerSize(target, options)
         this.createContainer(target)
 
-        this.actualTableWidth = this.columns.reduce((sum, item) => {
+        this.tableWidth = this.columns.reduce((sum, item) => {
             return sum + item.width || CELL_WIDTH
         }, ROW_INDEX_WIDTH + CHECK_BOX_WIDTH)
 
-        this.actualTableHeight = this.data.length * CELL_HEIGHT + HEADER_HEIGHT
+        this.tableHeight = this.data.length * CELL_HEIGHT + HEADER_HEIGHT
         
         // Headers 表头对象
         this.header = new Header(this, 0, 0, this.columns)
@@ -157,11 +157,11 @@ class DataGrid {
                 this.fixedRightWidth += item.width
             }
         })
-        this.actualTableWidth = this.header.columnHeaders.reduce((sum, item) => {
+        this.tableWidth = this.header.columnHeaders.reduce((sum, item) => {
             return sum + item.width
         }, 0)
 
-        this.actualTableHeight = this.body.height
+        this.tableHeight = this.body.height
     }
     /**
      * 选择、编辑相关
@@ -281,9 +281,9 @@ class DataGrid {
         if (Math.abs(deltaX) > Math.abs(deltaY)) {
             let maxWidth = 0;
             if (this.fillCellWidth > 0) { // 列总宽小于容器宽
-                maxWidth = this.actualTableWidth
+                maxWidth = this.tableWidth
             } else {
-                maxWidth = this.actualTableWidth + this.fixedLeftWidth + this.fixedRightWidth
+                maxWidth = this.tableWidth + this.fixedLeftWidth + this.fixedRightWidth
             }
             if (this.scrollX - deltaX > 0) {
                 this.scrollX = 0
@@ -297,8 +297,8 @@ class DataGrid {
         } else {
             if (this.scrollY - deltaY > 0) {
                 this.scrollY = 0
-            } else if (this.actualTableHeight - this.height + this.scrollY < deltaY) {
-                this.scrollY = this.height - this.actualTableHeight
+            } else if (this.tableHeight - this.height + this.scrollY < deltaY) {
+                this.scrollY = this.height - this.tableHeight
             } else {
                 e.preventDefault()
                 e.returnValue = false
