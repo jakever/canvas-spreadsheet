@@ -1,9 +1,10 @@
 <template>
   <div id="app">
     <div id="data-grid-demo"></div>
-    <div style="padding: 12px;">
-      <el-button size="small">获取完整数据</el-button>
-      <el-button size="small">获取选中行数据</el-button>
+    <div style="padding: 12px 0;">
+      <el-button size="small" @click="getCheckedRow">获取选中行数据</el-button>
+      <el-button size="small" @click="getChangedRow">获取已改变行数据</el-button>
+      <!-- <el-button size="small" @click="getChangedCell">获取已改变单元格数据</el-button> -->
       <el-button size="small" @click="fullscreen">全屏</el-button>
     </div>
     <DataGrid ref="datagrid" :columns="columns" :data="gridData" :fixed-right="2" :fixed-left="1"></DataGrid>
@@ -91,7 +92,28 @@ export default {
   methods: {
     fullscreen() {
       this.$refs.datagrid.setFullScreen()
-    }
+    },
+    getCheckedRow() {
+      const data = this.$refs.datagrid.getCheckedRow()
+      console.log(data)
+      alert('获取成功，请查看控制台')
+    },
+    getChangedRow() {
+      const data = this.$refs.datagrid.getChangedRow()
+      console.log(data)
+      alert('获取成功，请查看控制台')
+    },
+    getChangedCell() {
+      const data = this.$refs.datagrid.getChangedCell()
+      console.log(data)
+      alert('获取成功，请查看控制台')
+    },
+    // fullscreen() {
+    //   this.$refs.datagrid.setFullScreen()
+    // },
+    // fullscreen() {
+    //   this.$refs.datagrid.setFullScreen()
+    // }
   },
   created() {
     // this.$nextTick(() => {
@@ -158,7 +180,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  padding: 0;
+  padding: 12px;
   margin: 0;
 }
 </style>

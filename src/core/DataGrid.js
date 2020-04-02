@@ -33,6 +33,8 @@ class DataGrid {
 
         this.focusCell = null
 
+        this.hashChange = {}
+
         // 选择区域
         this.selector = {
             show: false, // 是否显示
@@ -299,10 +301,7 @@ class DataGrid {
         this.body.rePaintRow(rowIndex)
     }
     setFullScreen() {
-        this.initSize({
-            width: window.innerWidth,
-            height: window.innerHeight
-        })
+        this.initSize()
     }
     drawContainer() {
         this.painter.drawRect(0, 0, this.width, this.height, {
@@ -325,6 +324,15 @@ class DataGrid {
 
         // 绘制表头
         this.header.draw();
+    }
+    getCheckedRow() {
+        return this.body.getCheckedRow()
+    }
+    getChangedRow() {
+        return this.body.getChangedRow()
+    }
+    getChangedCell() {
+        return this.body.getChangedCell()
     }
 }
 export default DataGrid

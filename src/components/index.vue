@@ -46,6 +46,7 @@ import './index.scss'
 const SIMPLE_DATE_TYPES = ['text', 'number', 'phone', 'email']
 
 export default {
+    name: 'DDataGrid',
     props: {
         fixedLeft: {
             type: Number,
@@ -91,20 +92,32 @@ export default {
         }
     },
     methods: {
+        getCheckedRow() {
+            return this.grid.getCheckedRow()
+        },
+        getChangedRow() {
+            return this.grid.getChangedRow()
+        },
+        getChangedCell() {
+            return this.grid.getChangedCell()
+        },
         setFullScreen(){
-            this.grid.setFullScreen()
+            const {
+                top
+            } = this.$el.getBoundingClientRect()
             this.$el.style.cssText = `
                 position: fixed;
-                top: 0;
+                top: ${top}px;
                 left: 0;
                 bottom: 0;
                 right: 0;
                 width: 100%;
                 min-height: 100vh;
                 background: #fff;
-                z-index: 9999;
+                z-index: 2000;
                 overflow: hidden;
             `
+            this.grid.setFullScreen()
         },
         startEdit(cell) {
             this.show = true

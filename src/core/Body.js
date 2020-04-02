@@ -143,6 +143,45 @@ class Body {
             }
         }
     }
+    getCheckedRow() {
+        return this.rows.filter(item => item.checked)
+    }
+    getChangedRow() {
+        let arr = new Set()
+        let rows = []
+        const hashChange = this.grid.hashChange
+        Object.keys(hashChange).forEach(key => {
+            arr.add(Number(key.split('-')[1]))
+        })
+        for(let i = 0; i < this.rows.length; i++) {
+            if (arr.has(i)) {
+                rows.push(this.rows[i])
+            }
+        }
+        return rows
+    }
+    getChangedCell() {
+        // let rowArr = new Set()
+        // let cellArr = new Set()
+        // let cells = []
+        // const hashChange = this.grid.hashChange
+        // Object.keys(hashChange).forEach(key => {
+        //     rowArr.add(Number(key.split('-')[1]))
+        //     cellArr.add(Number(key.split('-')[0]))
+        // })
+        // for(let i = 0; i < this.rows.length; i++) {
+        //     if (rowArr.has(i)) {
+        //         const row = this.rows[i]
+        //         for (let j = 0; j < row.cells.length; j++) {
+        //             if (cellArr.has(j)) {
+        //                 cells.push(row.cells[i])
+        //             }
+        //         }
+                
+        //     }
+        // }
+        // return cells
+    }
 }
 
 export default Body

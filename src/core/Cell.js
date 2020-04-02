@@ -15,6 +15,7 @@ class Cell extends Context{
         this.dateType = column.type || 'text'
         this.options = column.options
         this.value = value
+        this.originalValue = value
 
         this.validator = new Validator(column)
         this.label = this.validator.filterValue(value);
@@ -40,6 +41,11 @@ class Cell extends Context{
     setData(val) {
         this.value = val
         this.label = this.validator.filterValue(val);
+        if (this.value !== this.originalValue) {
+            this.grid.hashChange[`${this.colIndex}-${this.rowIndex}`] = true
+        } else {
+            delete this.grid.hashChange[`${this.colIndex}-${this.rowIndex}`]
+        }
     }
     mouseMove() {
         this.grid.multiSelectCell(this.colIndex, this.rowIndex);
