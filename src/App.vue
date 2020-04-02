@@ -4,7 +4,9 @@
     <div style="padding: 12px 0;">
       <el-button size="small" @click="getCheckedRow">获取选中行数据</el-button>
       <el-button size="small" @click="getChangedRow">获取已改变行数据</el-button>
-      <el-button size="small" @click="fullscreen">全屏</el-button>
+      <el-button size="small" @click="setFullScreen">
+        {{!isFullscreen ? '全屏' : '退出全屏'}}
+      </el-button>
     </div>
     <DataGrid ref="datagrid" :columns="columns" :data="gridData" :fixed-right="2" :fixed-left="1"></DataGrid>
   </div>
@@ -17,8 +19,7 @@ export default {
   components: { DataGrid },
   data() {
     return {
-      scrollX: 0,
-      scrollY: 0,
+      isFullscreen: false,
       gridData: [],
       columns: [
         { title: "姓名", key: "emp_name", width: 100 },
@@ -89,7 +90,27 @@ export default {
     };
   },
   methods: {
-    fullscreen() {
+    setFullScreen() {
+      let el = document.getElementById('app')
+      if (!this.isFullscreen) {
+        this.isFullscreen = true
+        el.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          bottom: 0;
+          right: 0;
+          min-height: 100vh;
+          background: #fff;
+          z-index: 2000;
+          overflow: hidden;
+        `
+      } else {
+        this.isFullscreen = false
+        el.style.cssText = `
+          position: relative;
+        `
+      }
       this.$refs.datagrid.setFullScreen()
     },
     getCheckedRow() {
@@ -101,13 +122,7 @@ export default {
       const data = this.$refs.datagrid.getChangedRow()
       console.log(data)
       alert('获取成功，请查看控制台')
-    },
-    // fullscreen() {
-    //   this.$refs.datagrid.setFullScreen()
-    // },
-    // fullscreen() {
-    //   this.$refs.datagrid.setFullScreen()
-    // }
+    }
   },
   created() {
     // this.$nextTick(() => {

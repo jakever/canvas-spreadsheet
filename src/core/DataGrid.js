@@ -300,9 +300,6 @@ class DataGrid {
     rePaintRow(rowIndex) {
         this.body.rePaintRow(rowIndex)
     }
-    setFullScreen() {
-        this.initSize()
-    }
     drawContainer() {
         this.painter.drawRect(0, 0, this.width, this.height, {
             borderColor: this.borderColor,

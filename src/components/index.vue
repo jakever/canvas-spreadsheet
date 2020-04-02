@@ -99,19 +99,7 @@ export default {
             return this.grid.getChangedRow()
         },
         setFullScreen(){
-            this.$el.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                bottom: 0;
-                right: 0;
-                width: 100%;
-                min-height: 100vh;
-                background: #fff;
-                z-index: 2000;
-                overflow: hidden;
-            `
-            this.grid.setFullScreen()
+            this.grid.initSize()
         },
         startEdit(cell) {
             this.show = true

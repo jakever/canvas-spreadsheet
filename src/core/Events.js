@@ -70,7 +70,7 @@ function handleClick(e) {
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
     this.body.click(x, y);
-    if(this.header.isInsideHeader(x, y) && this.header.isInsideHeaderCheckboxBoundary(x, y)) {
+    if(this.header.isInsideHeaderCheckboxBoundary(x, y)) {
         this.header.click();
         this.body.handleCheckRow();
     }
