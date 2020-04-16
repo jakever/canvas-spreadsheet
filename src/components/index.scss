@@ -8,11 +8,15 @@ $css-prefix: xs-data-grid;
     position: relative;
     box-sizing: border-box;
     overflow: hidden;
-    border: 1px solid #d4d4d4;
+    // border: 1px solid #dee0e3;
 }
 .#{$css-prefix}-table {
     text-rendering: auto;
     user-select: none;
+    position: relative;
+    left: 0px;
+    top: 0px;
+    cursor: default;
 }
 .#{$css-prefix}-editor {
     position: absolute;

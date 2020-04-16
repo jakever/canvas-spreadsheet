@@ -4,7 +4,6 @@ import Row from './Row.js'
 class Body {
     constructor(grid, columns, data) {
         this.grid = grid
-        this.columns = columns
         this.data = data
 
         this.rows = [];
@@ -33,7 +32,7 @@ class Body {
             //     }
             // }
 
-            this.rows.push(new Row(grid, i, 0, everyOffsetY, rowHeight, this.columns, rowData));
+            this.rows.push(new Row(grid, i, 0, everyOffsetY, rowHeight, columns, rowData));
             everyOffsetY += rowHeight;
         }
 

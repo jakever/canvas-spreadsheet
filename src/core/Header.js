@@ -16,8 +16,8 @@ class Header extends Context {
         this.fixedColumnHeaders = []
         this.columnHeaders = [];
 
-        const len = columns.length
-        let everyOffsetX = ROW_INDEX_WIDTH + CHECK_BOX_WIDTH;
+        const len = this.grid.columnsLength
+        let everyOffsetX = this.grid.originFixedWidth;
 
         for(let i = 0; i < len; i++) {
             const column = columns[i]
@@ -57,7 +57,7 @@ class Header extends Context {
                 let columnHeader = this.columnHeaders[i];
         
                 if(x > columnHeader.x + this.grid.scrollX + columnHeader.width - 4 && x < columnHeader.x + this.grid.scrollX + columnHeader.width + 4) {
-                    document.body.style.cursor = 'col-resize';
+                    this.grid.target.style.cursor = 'col-resize';
                     this.resizeTarget = columnHeader;
                 }
             }
@@ -71,14 +71,28 @@ class Header extends Context {
         this.checked = !this.checked
     }
     resizeColumn(colIndex, width) {
-        let columnHeader = this.columnHeaders[colIndex];
-        let oldWidth = columnHeader.width;
-
+        const scrollRightBoundry = this.grid.width - this.grid.tableWidth === this.grid.scrollX
+        const columnHeader = this.columnHeaders[colIndex];
+        const oldWidth = columnHeader.width;
+        // 滚动列最后一列不允许调小宽度
+        if (colIndex + 1 === this.grid.columnsLength - this.grid.fixedLeft - this.grid.fixedRight && width <= oldWidth) {
+            return
+        }
         columnHeader.width = width;
-
-        // 该列之后的所有列的x轴位移需要更新
-        for(let i = colIndex + 1; i < this.columnHeaders.length; i++) {
-            this.columnHeaders[i].x += (width - oldWidth);
+        if (scrollRightBoundry && width < oldWidth) {
+            this.columnHeaders[colIndex + 1].width += (oldWidth - width)
+            this.columnHeaders[colIndex + 1].x += (width - oldWidth)
+        } else {
+            // 该列之后的所有列的x轴位移需要更新
+            for(let i = colIndex + 1; i < this.columnHeaders.length; i++) {
+                this.columnHeaders[i].x += (width - oldWidth);
+            }
+            for(let i = 0; i < this.fixedColumnHeaders.length; i++) {
+                if (this.fixedColumnHeaders[i].fixed === 'right') {
+                    this.fixedColumnHeaders[i].x += (width - oldWidth);
+                }
+                
+            }
         }
     }
     draw() {

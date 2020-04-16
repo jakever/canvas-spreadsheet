@@ -99,7 +99,7 @@ export default {
             return this.grid.getChangedRow()
         },
         setFullScreen(){
-            this.grid.initSize()
+            this.grid.resize()
         },
         startEdit(cell) {
             this.show = true

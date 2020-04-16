@@ -128,7 +128,7 @@ export default {
     // this.$nextTick(() => {
       let el = document.getElementById("data-grid-demo");
       let data = [];
-      for (let i = 0; i < 5000; i += 1) {
+      for (let i = 0; i < 1000; i += 1) {
         data.push({
           emp_name: `张三${i}`,
           emp_no: 10 + i,
@@ -189,7 +189,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  padding: 12px;
+  padding: 0;
   margin: 0;
 }
 </style>

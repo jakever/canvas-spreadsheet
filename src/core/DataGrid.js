@@ -6,6 +6,7 @@ import Paint from './Paint.js'
 import Body from './Body.js'
 import Header from './Header.js'
 import Editor from './Editor.js'
+import Scroller from './Scroller.js'
 import Events from './Events.js'
 import Tooltip from './Tooltip.js'
 import { dpr } from './config.js'
@@ -13,7 +14,8 @@ import {
     CSS_PREFIX, 
     MIN_CELL_WIDTH, 
     ROW_INDEX_WIDTH, 
-    CHECK_BOX_WIDTH 
+    CHECK_BOX_WIDTH,
+    SCROLLER_TRACK_SIZE
 } from './constants.js'
 // import './index.scss'
 
@@ -23,8 +25,9 @@ class DataGrid {
         this.scrollY = 0;
         this.scrollX = 0;
 
-        this.scrollerWidth = 20;
+        this.scrollerTrackSize = SCROLLER_TRACK_SIZE;
         this.fillCellWidth = 0; // 所有列宽总和若小于视宽，则需要补全
+        this.originFixedWidth = ROW_INDEX_WIDTH + CHECK_BOX_WIDTH
         
         this.color = '#495060'
         this.borderColor = '#dee0e3'
@@ -70,11 +73,14 @@ class DataGrid {
         // Body 主体
         this.body = new Body(this, this.columns, this.data)
 
+        this.getTableSize() // 设置画布像素的实际宽高
+
+        // 滚动条
+        this.scroller = new Scroller(this)
+
         this.tooltip = new Tooltip(this, 0, 0)
 
         this.events = new Events(this, target)
-        
-        this.getTableSize() // 设置画布像素的实际宽高
         
         this.initPaint()
     }
@@ -99,6 +105,7 @@ class DataGrid {
             onResizeColumn: () => {},
             onResizeRow: () => {}
           }, options);
+        this.columnsLength = this.columns.length
     }
     initSize(options = {}) {
         const el = this.target.parentElement
@@ -118,6 +125,10 @@ class DataGrid {
         this.target.style.height = this.height + "px";
         el.style.height = this.height + "px";
         this.painter.scaleCanvas(dpr)
+    }
+    resize() {
+        this.initSize()
+        this.scroller.init()
     }
     createContainer() {
         // 顶层容器
@@ -159,13 +170,13 @@ class DataGrid {
         this.target.appendChild(this.rootEl.el)
     }
     getTableSize() {
-        this.fixedLeftWidth = ROW_INDEX_WIDTH + CHECK_BOX_WIDTH
+        this.fixedLeftWidth = this.originFixedWidth
         this.fixedRightWidth = 0
         this.header.fixedColumnHeaders.forEach(item => {
             if (item.index + this.fixedLeft < this.fixedLeft) {
                 this.fixedLeftWidth += item.width
             }
-            if (item.index + this.fixedLeft >= this.columns.length - this.fixedRight) {
+            if (item.index + this.fixedLeft >= this.columnsLength - this.fixedRight) {
                 this.fixedRightWidth += item.width
             }
         })
@@ -303,15 +314,12 @@ class DataGrid {
     drawContainer() {
         this.painter.drawRect(0, 0, this.width, this.height, {
             borderColor: this.borderColor,
-            fillColor: '#fff',
+            // fillColor: '#fff',
             borderWidth: this.borderWidth
         })
     }
     draw() {
         this.painter.clearCanvas()
-
-        // 绘制外层容器
-        this.drawContainer()
 
         // body
         this.body.draw()
@@ -321,6 +329,12 @@ class DataGrid {
 
         // 绘制表头
         this.header.draw();
+
+        // 绘制滚动条
+        this.scroller.draw();
+
+        // 绘制外层容器
+        this.drawContainer()
     }
     getCheckedRow() {
         return this.body.getCheckedRow()

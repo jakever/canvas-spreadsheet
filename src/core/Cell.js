@@ -1,4 +1,10 @@
-import { SELECT_BORDER_COLOR, SELECT_AREA_COLOR, SELECT_BG_COLOR, READONLY_COLOR, ERROR_TIP_COLOR } from './constants.js'
+import { 
+    SELECT_BORDER_COLOR, 
+    SELECT_AREA_COLOR, 
+    SELECT_BG_COLOR, 
+    READONLY_COLOR, 
+    ERROR_TIP_COLOR
+} from './constants.js'
 import Context from './Context.js'
 import Validator from './Validator.js'
 
@@ -59,7 +65,7 @@ class Cell extends Context{
     }
     draw() {
         const x = this.fixed === 'right' ? 
-            this.grid.width - (this.grid.tableWidth - this.x - this.width) - this.width :
+            this.grid.width - (this.grid.tableWidth - this.x - this.width) - this.width - this.grid.scrollerTrackSize :
                 (this.fixed === 'left' ? this.x : this.x + this.grid.scrollX);
         const y = this.y + this.grid.scrollY
         const editor = this.grid.editor

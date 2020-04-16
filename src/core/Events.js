@@ -42,17 +42,19 @@ function handleMouseDown(e) {
         this.header.mouseDown(x, y);
     }
     this.body.mouseDown(x, y);
+    this.scroller.mouseDown(x, y)
 }
 function handleMouseMove(e) {
     e.preventDefault();
     const rect = e.target.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
-    document.body.style.cursor = 'default';
+    this.target.style.cursor = 'default';
     if(this.header.isInsideHeader(x, y) || this.header.isResizing) {
         this.header.mouseMove(x, y);
     }
     this.body.mouseMove(x, y);
+    this.scroller.mouseMove(x, y)
 }
 function handleMouseUp(e) {
     e.preventDefault();
@@ -63,6 +65,7 @@ function handleMouseUp(e) {
         this.header.mouseUp(x, y);
     }
     this.body.mouseUp(x, y);
+    this.scroller.mouseUp(x, y)
 }
 function handleClick(e) {
     e.preventDefault();
@@ -106,8 +109,8 @@ function handleScroll(e) {
         const maxWidth = this.tableWidth;
         if (this.scrollX - deltaX > 0) {
             this.scrollX = 0
-        } else if (maxWidth - this.width + this.scrollX < deltaX) {
-            this.scrollX = this.width - maxWidth
+        } else if (maxWidth + this.scrollerTrackSize - this.width + this.scrollX < deltaX) {
+            this.scrollX = this.width - maxWidth - this.scrollerTrackSize
         } else {
             e.preventDefault()
             e.returnValue = false
@@ -116,17 +119,22 @@ function handleScroll(e) {
     } else {
         if (this.scrollY - deltaY > 0) {
             this.scrollY = 0
-        } else if (this.tableHeight - this.height + this.scrollY < deltaY) {
-            this.scrollY = this.height - this.tableHeight
+        } else if (this.tableHeight + this.scrollerTrackSize - this.height + this.scrollY < deltaY) {
+            this.scrollY = this.height - this.tableHeight - this.scrollerTrackSize
         } else {
             e.preventDefault()
             e.returnValue = false
             this.scrollY -= 2 * deltaY;
         }
     }
+    this.scroller.setPosition()
 }
 function handleResize() {
-    this.initSize()
+    const diffX = this.tableWidth - this.width + this.scrollX
+    this.resize()
+    if (this.tableWidth - this.width + this.scrollX < 0) {
+        this.scrollX = this.width - this.tableWidth + diffX
+    }
 }
 
 class Events {
@@ -134,10 +142,14 @@ class Events {
         this.grid = grid
 
         el.addEventListener('mousedown', handleMouseDown.bind(grid), false)
-        el.addEventListener('mousemove', throttle(handleMouseMove, 50, {
+        // el.addEventListener('mousemove', throttle(handleMouseMove, 50, {
+        //     context: grid
+        // }), false)
+        window.addEventListener('mousemove', throttle(handleMouseMove, 50, {
             context: grid
         }), false)
-        el.addEventListener('mouseup', handleMouseUp.bind(grid), false)
+        window.addEventListener('mouseup', handleMouseUp.bind(grid), false)
+        // el.addEventListener('mouseup', handleMouseUp.bind(grid), false)
         el.addEventListener('click', handleClick.bind(grid), false)
         el.addEventListener('dblclick', handleDbClick.bind(grid), false)
         el.addEventListener('mousewheel', handleScroll.bind(grid), false)

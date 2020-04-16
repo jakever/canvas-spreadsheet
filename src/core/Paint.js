@@ -28,10 +28,10 @@ class Paint {
   drawLine(points, options) {
       if (!points[0]) return;
       options = Object.assign({
+            lineCap: 'square',
+            lineJoin: 'miter',
             borderWidth: 1,
-            borderColor: undefined,
-            cap: 'square',
-            lineJoin: 'miter'
+            borderColor: undefined
       }, options);
 
       this.ctx.beginPath();
@@ -40,7 +40,7 @@ class Paint {
           this.ctx.lineTo(points[i][0], points[i][1]);
       }
       this.ctx.lineWidth = options.borderWidth;
-      this.ctx.lineCap = options.cap;
+      this.ctx.lineCap = options.lineCap;
       this.ctx.lineJoin = options.lineJoin;
 
       if (options.fillColor) {

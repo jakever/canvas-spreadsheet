@@ -23,10 +23,9 @@ class Row extends Context {
         this.rowHeader = new RowHeader(grid, rowIndex, x, y, ROW_INDEX_WIDTH, height, style)
 
         // cells对象集合
-        const len = columns.length
-        let everyOffsetX = ROW_INDEX_WIDTH + CHECK_BOX_WIDTH;
+        let everyOffsetX = grid.originFixedWidth;
 
-        for(let i = 0; i < len; i++) {
+        for(let i = 0; i < this.grid.columnsLength; i++) {
             const column = columns[i]
             const width = column.width || CELL_WIDTH
             const cell = new Cell(data[column.key], grid, i, rowIndex, everyOffsetX, y, width, this.height, column, style)
@@ -85,13 +84,25 @@ class Row extends Context {
     //     return null;
     // }
     resizeColumn(colIndex, width) {
-        let cell = this.cells[colIndex]
-        let oldWidth = cell.width;
-
+        const scrollRightBoundry = this.grid.width - this.grid.tableWidth === this.grid.scrollX
+        const cell = this.cells[colIndex]
+        const oldWidth = cell.width;
+        if (colIndex + 1 === this.grid.columnsLength - this.grid.fixedLeft - this.grid.fixedRight && width <= oldWidth) {
+            return
+        }
         cell.width = width;
-
-        for(let i = colIndex + 1; i < this.cells.length; i++) {
-            this.cells[i].x += (width - oldWidth);
+        if (scrollRightBoundry && width < oldWidth) {
+            this.cells[colIndex + 1].width += (oldWidth - width)
+            this.cells[colIndex + 1].x += (width - oldWidth)
+        } else {
+            for(let i = colIndex + 1; i < this.cells.length; i++) {
+                this.cells[i].x += (width - oldWidth);
+            }
+            for(let i = 0; i < this.fixedCells.length; i++) {
+                if (this.fixedCells[i].fixed === 'right') {
+                    this.fixedCells[i].x += (width - oldWidth);
+                }
+            }
         }
     }
     rePaint() {
@@ -119,7 +130,7 @@ class Row extends Context {
         }
         // 固定列阴影
         // if (this.grid.scrollX !== 0) {
-        //     this.grid.painter.drawRect(this.x, this.y + this.grid.scrollY, ROW_INDEX_WIDTH + CHECK_BOX_WIDTH + this.grid.fixedLeftWidth, this.height, {
+        //     this.grid.painter.drawRect(this.x, this.y + this.grid.scrollY, this.grid.originFixedWidth + this.grid.fixedLeftWidth, this.height, {
         //         fillColor: '#f9f9f9',
         //         shadowBlur: 10,
         //         shadowColor: 'rgba(0,0,0,0.2)',

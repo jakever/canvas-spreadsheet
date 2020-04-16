@@ -20,7 +20,7 @@ class ColumnHeader extends Context {
     draw() {
         // 绘制表头每个单元格框
         const x = this.fixed === 'right' ? 
-            this.grid.width - (this.grid.tableWidth - this.x - this.width) - this.width :
+            this.grid.width - (this.grid.tableWidth - this.x - this.width) - this.width - this.grid.scrollerTrackSize :
                 (this.fixed === 'left' ? this.x : this.x + this.grid.scrollX);
         const editor = this.grid.editor
         const selector = this.grid.selector
