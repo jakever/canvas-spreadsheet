@@ -3,16 +3,31 @@
         <div :class="`${CSS_PREFIX}-main`">
             <canvas :id="`${CSS_PREFIX}-target`" :class="`${CSS_PREFIX}-table`"></canvas>
             <div :class="`${CSS_PREFIX}-overlayer`">
-                <div :class="`${CSS_PREFIX}-editor`" v-show="show" ref="editor" @keydown="keydownHander">
+                <!-- <textarea ref="clipboard" style="position:absolute;left:-10000px;top:-10000px" @paste="handlePaste"></textarea> -->
+                <div :class="`${CSS_PREFIX}-editor`" ref="editor" :style="editorSty">
                     <div 
                         ref="text" 
                         contenteditable="true" 
                         v-if="isSimple"
                         @input="inputHandler"></div>
                     <el-date-picker
-                        ref="date"
+                        ref="month"
+                        v-else-if="dateType==='month'"
                         :class="`${CSS_PREFIX}-popup`"
+                        :style="popupSty"
+                        v-model="value"
+                        :editable="false"
+                        type="month"
+                        size="mini"
+                        placeholder="选择月份"
+                        format="yyyy-MM"
+                        value-format="yyyy-MM"
+                        @change="selectChange">
+                    </el-date-picker>
+                    <el-date-picker
+                        ref="date"
                         v-else-if="dateType==='date'"
+                        :class="`${CSS_PREFIX}-popup`"
                         :style="popupSty"
                         v-model="value"
                         :editable="false"
@@ -21,19 +36,31 @@
                         placeholder="选择日期"
                         format="yyyy-MM-dd"
                         value-format="yyyy-MM-dd"
-                        @change="dateChange">
+                        @change="selectChange">
                     </el-date-picker>
                     <el-select 
                         ref="select"
-                        :class="`${CSS_PREFIX}-popup`"
                         v-else-if="dateType==='select'"
+                        :class="`${CSS_PREFIX}-popup`"
                         :style="popupSty"
                         v-model="value" 
+                        clearable
+                        filterable
                         size="mini"
                         :automatic-dropdown="true"
                         @change="selectChange">
                         <el-option v-for="item in selectOptions" :value="item.value" :label="item.label" :key="item.value"></el-option>
                     </el-select>
+                    <!-- <el-cascader
+                        ref="cascader"
+                        v-else-if="dateType==='cascader'"
+                        :class="`${CSS_PREFIX}-popup`"
+                        :style="popupSty"
+                        v-model="cascader_value"
+                        size="mini"
+                        :options="selectOptions"
+                        @change="selectChange">
+                    </el-cascader> -->
                 </div>
             </div>
         </div>
@@ -78,6 +105,8 @@ export default {
             dateType: 'text',
             popWidth: 'auto',
             value: '',
+            editorSty: {},
+            cascader_value: [],
             selectOptions: []
         }
     },
@@ -101,28 +130,33 @@ export default {
         setFullScreen(){
             this.grid.resize()
         },
-        startEdit(cell) {
+        showEditor(cell) {
             this.show = true
             this.dateType = cell.dateType
             this.value = cell.value
             this.selectOptions = cell.options
             this.$refs.text.innerText = cell.value
-            this.popWidth = `${cell.width - 2}px`
-            this.setPosition(cell)
+            this.setStyle(cell)
             this.$nextTick(() => {
                 this.focus()
             })
         },
-        finishedEdit() {
+        hideEditor() {
+            this.editorSty = {
+                top: '-10000px',
+                left: '-10000px',
+            }
             this.show = false
             this.dateType = 'text'
-            this.grid.finishedEdit()
         },
-        setPosition(cell) {
-            this.$refs.editor.style.left = `${cell.x + cell.scrollX - 1}px`
-            this.$refs.editor.style.top = `${cell.y + cell.scrollY - 1}px`
+        setStyle(cell) {
+            this.editorSty = {
+                left: `${cell.x + cell.scrollX - 1}px`,
+                top: `${cell.y + cell.scrollY - 1}px`
+            }
             this.$refs.text.style['min-width'] = `${cell.width - 2}px`
             this.$refs.text.style['min-height'] = `${cell.height - 2}px`
+            this.popWidth = `${cell.width - 2}px`
         },
         focus(type) {
             let _type = type || this.dateType
@@ -131,7 +165,7 @@ export default {
             }
             const el = this.$refs[_type]
             if (typeof el.focus === 'function') {
-                if (_type === 'date' || _type === 'select') {
+                if (_type === 'month' || _type === 'date' || _type === 'select') {
                     el.focus()
                 } else {
                     if (window.getSelection) { // ie11 10 9 ff safari
@@ -153,22 +187,15 @@ export default {
             const val = e.target.innerText;
             this.grid.setData(val)
         },
-        keydownHander(e) {
-            // 编辑模式下按Enter／ESC
-            if (e.keyCode === 13 || e.keyCode === 27) {
-                e.preventDefault()
-                return this.finishedEdit()
-            }
-        },
         selectChange(val) {
             this.grid.setData(val)
         },
-        dateChange(val) {
-            this.grid.setData(val)
+        handlePaste(e) {
         }
     },
     created() {
         this.$nextTick(() => {
+            const self = this
             let el = document.getElementById(`${CSS_PREFIX}-target`);
 
             this.grid = new DataGrid(el, {
@@ -179,10 +206,12 @@ export default {
               columns: this.columns,
               data: this.data,
               onEditCell: (cell) => {
-                  this.startEdit(cell)
+                  self.showEditor(cell)
               },
               onSelectCell: () => {
-                  this.finishedEdit()
+                  self.hideEditor()
+                //   self.focus()
+                //   self.$refs.clipboard.focus()
               }
             });
         })

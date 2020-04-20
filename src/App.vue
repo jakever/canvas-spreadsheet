@@ -44,7 +44,48 @@ export default {
           { value: 1, label: '男' }, 
           { value: 2, label: '女'}
         ] },
-        { title: "生日", width: 140, key: "birthday", type: 'date', align: 'right' },
+        { title: "计薪月份", width: 120, key: "salary_month", type: 'month' },
+        { title: "出生日期", width: 140, key: "birthday", type: 'date' },
+        // { title: "爱好", width: 140, key: "hobby", type: 'cascader', options: [
+        //   {
+        //     value: '1',
+        //     label: '水果',
+        //     children: [
+        //       {
+        //         value: '11',
+        //         label: '苹果'
+        //       },
+        //       {
+        //         value: '12',
+        //         label: '香蕉'
+        //       }
+        //     ]
+        //   },
+        //   {
+        //     value: '2',
+        //     label: '书籍',
+        //     children: [
+        //       {
+        //         value: '21',
+        //         label: 'web前端',
+        //         children: [
+        //           {
+        //             value: '211',
+        //             label: 'Javascript程序设计',
+        //           },
+        //           {
+        //             value: '212',
+        //             label: 'NodeJs实战',
+        //           }
+        //         ]
+        //       },
+        //       {
+        //         value: '22',
+        //         label: '后端开发'
+        //       }
+        //     ]
+        //   }
+        // ] },
         { title: 
           "家庭地址", 
           key: "address", 
@@ -132,10 +173,10 @@ export default {
         data.push({
           emp_name: `张三${i}`,
           emp_no: 10 + i,
-          dep_name: `研发部${i}`,
+          dep_name: i === 4 ? null : `研发部${i}`,
           job_name: i === 5 ? '产品经理测试很长的名字' : `产品经理${i}`,
           phone: i === 4 ? '13159645561a' : 13159645561 + i,
-          sex: i % 4 === 0 ? 1 : 2,
+          sex: i % 4 === 0 ? 1 : (i === 3 ? null : 2),
           address:
             i === 1
               ? `海淀区北京路海淀区北京路十分地${i}号`
@@ -152,8 +193,10 @@ export default {
           company_age: 1 + i,
           contract_company: `飞鸟物流公司${i}`,
           qq: 35860567 + i,
+          salary_month: `${1996 + i}-09`,
           birthday: `${1996 + i}-09-21`,
           age: 1 + i,
+          hobby: '水果/苹果',
           brandName: `博世${i}`,
           goodsName: `电钻${i}`,
           sn: `SDFSD${i}`,

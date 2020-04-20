@@ -13,7 +13,8 @@ class Header extends Context {
 
         this.checked = false
 
-        this.fixedColumnHeaders = []
+        this.allColumnHeaders = [];
+        this.fixedColumnHeaders = [];
         this.columnHeaders = [];
 
         const len = this.grid.columnsLength
@@ -32,10 +33,13 @@ class Header extends Context {
             } else if (i > len - 1 - grid.fixedRight) {
                 column.fixed = 'right'
             }
+            const columnHeader = new ColumnHeader(grid, i, everyOffsetX, y, column, style)
+            
+            this.allColumnHeaders.push(columnHeader)
             if (column.fixed) {
-                this.fixedColumnHeaders.push(new ColumnHeader(grid, i, everyOffsetX, y, column, style));
+                this.fixedColumnHeaders.push(columnHeader);
             } else {
-                this.columnHeaders.push(new ColumnHeader(grid, i, everyOffsetX, y, column,style));
+                this.columnHeaders.push(columnHeader);
             }
 
             everyOffsetX += column.width || CELL_WIDTH;
@@ -50,11 +54,18 @@ class Header extends Context {
     }
     mouseMove(x, y) {
         if (this.isResizing) {
+            const index = this.resizeTarget.index
             const resizeDiffWidth = x - this.resizeOriginalX
-            this.grid.resizeColumn(this.resizeTarget.index, this.resizeOriginalWdith + resizeDiffWidth) 
+            const oldWidth = this.allColumnHeaders[index].width
+            const newWidth = this.resizeOriginalWdith + resizeDiffWidth
+            // 滚动列最后一列不允许调小宽度
+            if (index === this.grid.columnsLength - this.grid.fixedRight - 1 && newWidth <= oldWidth) {
+                return
+            }
+            this.grid.resizeColumn(index, newWidth) 
         } else { // 鼠标移动中 -> 寻找需要调整列宽的列目标
-            for(let i = 0; i < this.columnHeaders.length; i++) {
-                let columnHeader = this.columnHeaders[i];
+            for(let i = 0; i < this.grid.columnsLength; i++) {
+                let columnHeader = this.allColumnHeaders[i];
         
                 if(x > columnHeader.x + this.grid.scrollX + columnHeader.width - 4 && x < columnHeader.x + this.grid.scrollX + columnHeader.width + 4) {
                     this.grid.target.style.cursor = 'col-resize';
@@ -71,27 +82,17 @@ class Header extends Context {
         this.checked = !this.checked
     }
     resizeColumn(colIndex, width) {
-        const scrollRightBoundry = this.grid.width - this.grid.tableWidth === this.grid.scrollX
-        const columnHeader = this.columnHeaders[colIndex];
+        const scrollRightBoundry = this.grid.width - this.grid.tableWidth - this.grid.scrollerTrackSize === this.grid.scrollX
+        const columnHeader = this.allColumnHeaders[colIndex];
         const oldWidth = columnHeader.width;
-        // 滚动列最后一列不允许调小宽度
-        if (colIndex + 1 === this.grid.columnsLength - this.grid.fixedLeft - this.grid.fixedRight && width <= oldWidth) {
-            return
-        }
         columnHeader.width = width;
         if (scrollRightBoundry && width < oldWidth) {
-            this.columnHeaders[colIndex + 1].width += (oldWidth - width)
-            this.columnHeaders[colIndex + 1].x += (width - oldWidth)
+            this.allColumnHeaders[colIndex + 1].width += (oldWidth - width)
+            this.allColumnHeaders[colIndex + 1].x += (width - oldWidth)
         } else {
             // 该列之后的所有列的x轴位移需要更新
-            for(let i = colIndex + 1; i < this.columnHeaders.length; i++) {
-                this.columnHeaders[i].x += (width - oldWidth);
-            }
-            for(let i = 0; i < this.fixedColumnHeaders.length; i++) {
-                if (this.fixedColumnHeaders[i].fixed === 'right') {
-                    this.fixedColumnHeaders[i].x += (width - oldWidth);
-                }
-                
+            for(let i = colIndex + 1; i < this.grid.columnsLength; i++) {
+                this.allColumnHeaders[i].x += (width - oldWidth);
             }
         }
     }

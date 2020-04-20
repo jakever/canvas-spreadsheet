@@ -31,9 +31,10 @@ class Paint {
             lineCap: 'square',
             lineJoin: 'miter',
             borderWidth: 1,
-            borderColor: undefined
+            borderColor: undefined,
       }, options);
 
+      this.ctx.save()
       this.ctx.beginPath();
       this.ctx.moveTo(points[0][0], points[0][1]);
       for(let i = 1; i < points.length; i++) {
@@ -42,6 +43,10 @@ class Paint {
       this.ctx.lineWidth = options.borderWidth;
       this.ctx.lineCap = options.lineCap;
       this.ctx.lineJoin = options.lineJoin;
+      if (options.lineDash) {
+        this.ctx.lineDashOffset = 4
+        this.ctx.setLineDash(options.lineDash);
+      }
 
       if (options.fillColor) {
         this.ctx.fillStyle = options.fillColor;
@@ -51,6 +56,7 @@ class Paint {
         this.ctx.strokeStyle = options.borderColor;
         this.ctx.stroke();
       }
+      this.ctx.restore()
   }
   drawText(text, x, y, options) {
       const defautSty = {

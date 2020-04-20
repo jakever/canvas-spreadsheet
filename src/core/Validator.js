@@ -47,7 +47,7 @@ class Validator {
         Object.assign(this, column.rule)
     }
     filterValue (value) {
-        let label = value
+        let label = value === null || value === undefined ? '' : value
         if (this.type === 'select' && Array.isArray(this.options)) {
             for (let item of this.options) {
                 if (value === item.value) {
@@ -63,7 +63,7 @@ class Validator {
             required, validator, operator, options, type, descriptor
         } = this;
 
-        if (required && /^\s*$/.test(v)) {
+        if (required && !v) {
             return getValidation.call(this, false, 'required');
         }
 
@@ -73,14 +73,15 @@ class Validator {
         } else if (typeof validator === 'function') {
             return getValidation.call(this, validator(v), 'notIn');
         }
-        if (/^\s*$/.test(v)) return { flag: true };
+        if (!v) return { flag: true };
 
         if (rules[type] && !rules[type].test(v)) {
             return getValidation.call(this, false, 'notMatch');
         }
-        // if (type === 'select') {
-        //     return getValidation.call(this, options.includes(v), 'notIn');
-        // }
+        if (type === 'select') {
+            const flag = options.map(item => item.value).includes(v)
+            return getValidation.call(this, flag, 'notIn');
+        }
         // if (operator) {
         //     const v1 = parseValue.call(this, v);
         //     if (operator === 'be') {

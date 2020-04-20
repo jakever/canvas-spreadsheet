@@ -11,6 +11,7 @@ class Row extends Context {
         this.rowIndex = rowIndex;
         this.checked = false;
 
+        this.allCells = [];
         this.fixedCells = [];
         this.cells = [];
 
@@ -30,6 +31,7 @@ class Row extends Context {
             const width = column.width || CELL_WIDTH
             const cell = new Cell(data[column.key], grid, i, rowIndex, everyOffsetX, y, width, this.height, column, style)
             
+            this.allCells.push(cell)
             if (column.fixed) {
                 this.fixedCells.push(cell);
             } else {
@@ -39,6 +41,11 @@ class Row extends Context {
             everyOffsetX += width;
         }
     }
+    isInVerticalAutofill(mouseX, mouseY) {
+        return this.grid.autofill.yIndex === this.rowIndex &&
+            mouseY > this.y + this.grid.scrollY + this.height - 3 &&
+            mouseY < this.y + this.height + this.grid.scrollY + 3
+    }
     handleCheck() {
         this.checked = !this.checked
         this.rowHeader.handleCheck(this.checked)
@@ -46,33 +53,57 @@ class Row extends Context {
     mouseDown(x, y) {
         for(let i = 0; i < this.cells.length; i++) {
             if(this.cells[i].isInsideHorizontalBodyBoundary(x, y)) {
-                this.cells[i].mouseDown(x, y);
+                this.grid.selectCell(this.cells[i]);
             }
         }
     }
     mouseMove(x, y) {
         for(let i = 0; i < this.cells.length; i++) {
-            if(this.cells[i].isInsideHorizontalBodyBoundary(x, y)) {
-                this.cells[i].mouseMove(x, y);
+            const cell = this.cells[i]
+            if(cell.isInsideHorizontalBodyBoundary(x, y)) {
+                const {
+                    colIndex,
+                    rowIndex,
+                    x,
+                    y,
+                    width,
+                    valid,
+                    message
+                } = cell
+                this.grid.multiSelectCell(colIndex, rowIndex);
+                this.grid.tooltip.update({
+                    valid, 
+                    message, 
+                    x: x + width, 
+                    y,
+                })
             }
         }
     }
-    mouseUp(x, y) {
+    handleAutofill(x, y) {
         for(let i = 0; i < this.cells.length; i++) {
-            if(this.cells[i].isInsideHorizontalBodyBoundary(x, y)) {
-                this.cells[i].mouseUp(x, y);
+            if (this.cells[i].isInHorizontalAutofill(x, y)) {
+                this.grid.target.style.cursor = 'crosshair';
+            }
+        }
+    }
+    handleStartAutofill(x, y) {
+        for(let i = 0; i < this.cells.length; i++) {
+            if (this.cells[i].isInHorizontalAutofill(x, y)) {
+                this.grid.startAutofill()
             }
         }
     }
     click(x, y) {
         if(this.rowHeader.isInsideCheckboxBoundary(x, y)) {
-            this.rowHeader.click()
+            this.grid.handleCheckRow(this.rowIndex)
         }
     }
     dbClick(x, y) {
         for(let i = 0; i < this.cells.length; i++) {
-            if(this.cells[i].isInsideHorizontalBodyBoundary(x, y)) {
-                this.cells[i].dbClick(x, y);
+            const cell = this.cells[i]
+            if(cell.isInsideHorizontalBodyBoundary(x, y)) {
+                this.grid.startEdit()
             }
         }
     }
@@ -84,24 +115,16 @@ class Row extends Context {
     //     return null;
     // }
     resizeColumn(colIndex, width) {
-        const scrollRightBoundry = this.grid.width - this.grid.tableWidth === this.grid.scrollX
-        const cell = this.cells[colIndex]
+        const scrollRightBoundry = this.grid.width - this.grid.tableWidth - this.grid.scrollerTrackSize === this.grid.scrollX
+        const cell = this.allCells[colIndex]
         const oldWidth = cell.width;
-        if (colIndex + 1 === this.grid.columnsLength - this.grid.fixedLeft - this.grid.fixedRight && width <= oldWidth) {
-            return
-        }
         cell.width = width;
         if (scrollRightBoundry && width < oldWidth) {
-            this.cells[colIndex + 1].width += (oldWidth - width)
-            this.cells[colIndex + 1].x += (width - oldWidth)
+            this.allCells[colIndex + 1].width += (oldWidth - width)
+            this.allCells[colIndex + 1].x += (width - oldWidth)
         } else {
-            for(let i = colIndex + 1; i < this.cells.length; i++) {
-                this.cells[i].x += (width - oldWidth);
-            }
-            for(let i = 0; i < this.fixedCells.length; i++) {
-                if (this.fixedCells[i].fixed === 'right') {
-                    this.fixedCells[i].x += (width - oldWidth);
-                }
+            for(let i = colIndex + 1; i < this.grid.columnsLength; i++) {
+                this.allCells[i].x += (width - oldWidth);
             }
         }
     }

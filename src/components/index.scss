@@ -20,6 +20,8 @@ $css-prefix: xs-data-grid;
 }
 .#{$css-prefix}-editor {
     position: absolute;
+    top: -10000px;
+    left: -10000px;
     text-align: left;
     line-height: 0;
     z-index: 100;

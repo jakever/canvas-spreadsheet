@@ -19,8 +19,6 @@ class Scroller {
             size: 0,
             ratio: 1
         }
-
-        this.init()
     }
     init() {
         const {
@@ -47,7 +45,7 @@ class Scroller {
         }
         if (this.verticalScroller.size < 30) {
             this.verticalScroller.size = 30
-            this.verticalScroller.ratio = (height - 16) / (tableHeight - height)
+            this.verticalScroller.ratio = (height - 30) / (tableHeight - height)
         }
 
         // 计算滚动距离的比例
@@ -62,32 +60,54 @@ class Scroller {
             // (height - SCROLLER_TRACK_SIZE - this.verticalScroller.size) / 
             (tableHeight + SCROLLER_TRACK_SIZE - height)
     }
-    isInsideHorizontalScroller(mouseX, mouseY) {
-        return mouseX > this.grid.originFixedWidth &&
-            mouseX < this.grid.width - SCROLLER_TRACK_SIZE &&
-            mouseY > this.grid.height - SCROLLER_TRACK_SIZE &&
-            mouseY < this.grid.height;
-    }
-    isInsideVerticalScroller(mouseX, mouseY) {
-        return mouseX > this.grid.width - SCROLLER_TRACK_SIZE &&
-            mouseX < this.grid.width &&
-            mouseY > HEADER_HEIGHT &&
-            mouseY < this.grid.height - SCROLLER_TRACK_SIZE;
+    update(diff, dir) {
+        if (dir === 'HORIZONTAL') {
+            this.grid.scrollX += diff
+        } else if (dir === 'VERTICAL') {
+            this.grid.scrollY += diff
+        }
+        this.setPosition()
     }
     setPosition() {
         this.horizontalScroller.x = -parseInt(this.grid.scrollX * this.horizontalScrollRatio)
         this.verticalScroller.y = -parseInt(this.grid.scrollY * this.verticalScrollRatio)
     }
+    isInsideHorizontalScroller(mouseX, mouseY) {
+        return mouseX >= this.grid.originFixedWidth &&
+            mouseX <= this.grid.width - SCROLLER_TRACK_SIZE &&
+            mouseY > this.grid.height - SCROLLER_TRACK_SIZE &&
+            mouseY < this.grid.height - (SCROLLER_TRACK_SIZE - SCROLLER_SIZE) / 2;
+    }
+    isInsideHorizontalScrollerBar(mouseX, mouseY) {
+        return mouseX >= this.grid.originFixedWidth + this.horizontalScroller.x &&
+            mouseX <= this.grid.originFixedWidth + this.horizontalScroller.x + this.horizontalScroller.size + SCROLLER_SIZE &&
+            mouseY > this.grid.height - SCROLLER_TRACK_SIZE &&
+            mouseY < this.grid.height;
+    }
+    isInsideVerticalScroller(mouseX, mouseY) {
+        return mouseX > this.grid.width - SCROLLER_TRACK_SIZE &&
+            mouseX < this.grid.width - (SCROLLER_TRACK_SIZE - SCROLLER_SIZE) / 2 &&
+            mouseY > HEADER_HEIGHT &&
+            mouseY < this.grid.height - SCROLLER_TRACK_SIZE;
+    }
+    isInsideVerticalScrollerBar(mouseX, mouseY) {
+        return mouseX > this.grid.width - SCROLLER_TRACK_SIZE &&
+            mouseX < this.grid.width &&
+            mouseY > HEADER_HEIGHT + this.verticalScroller.y &&
+            mouseY < HEADER_HEIGHT + this.verticalScroller.y + this.verticalScroller.size + SCROLLER_SIZE
+    }
     mouseDown(x, y) {
-        if (this.isInsideHorizontalScroller(x, y)) {
+        if (this.isInsideHorizontalScrollerBar(x, y)) {
             this.mouseOriginalX = x;
             this.horizontalScroller.move = true
-        } else if (this.isInsideVerticalScroller(x, y)) {
+        } else if (this.isInsideVerticalScrollerBar(x, y)) {
             this.mouseOriginalY = y;
             this.verticalScroller.move = true
         }
     }
     mouseMove(x, y) {
+        this.horizontalScroller.focus = this.isInsideHorizontalScroller(x, y) ? true : false
+        this.verticalScroller.focus = this.isInsideVerticalScroller(x, y) ? true : false
         if (this.horizontalScroller.move) {
             const diffX = x - this.mouseOriginalX
             // const movedX = this.horizontalScroller.x - (this.grid.originFixedWidth + SCROLLER_SIZE / 2) + diffX
@@ -140,11 +160,7 @@ class Scroller {
         const scrollerWidth = this.grid.width - SCROLLER_TRACK_SIZE
         const scrollerHeight = this.grid.height - SCROLLER_TRACK_SIZE
         const trackOffset = SCROLLER_TRACK_SIZE / 2
-
         const thumbOffset = SCROLLER_SIZE / 2
-        // const horizontalThumbX = this.grid.originFixedWidth + thumbOffset - this.grid.scrollX * this.horizontalScrollRatio
-        // const horizontalThumbX = this.grid.originFixedWidth - this.grid.scrollX * this.horizontalScrollRatio
-        // const verticalThumbY = HEADER_HEIGHT + thumbOffset - this.grid.scrollY * this.verticalScrollRatio
 
         // 轨道
         this.grid.painter.drawRect(0, scrollerHeight, scrollerWidth, SCROLLER_TRACK_SIZE, {
@@ -162,14 +178,14 @@ class Scroller {
         })
         // 滑块
         this.grid.painter.drawLine([
-            [this.horizontalScroller.x + this.grid.originFixedWidth + thumbOffset, scrollerHeight + trackOffset],
-            [this.horizontalScroller.x + this.grid.originFixedWidth + thumbOffset + this.horizontalScroller.size, scrollerHeight + trackOffset]
-            // [this.horizontalScroller.x + this.grid.originFixedWidth, scrollerHeight + trackOffset],
-            // [this.horizontalScroller.x + this.grid.originFixedWidth + this.horizontalScroller.size, scrollerHeight + trackOffset]
+            [this.grid.originFixedWidth + this.horizontalScroller.x + thumbOffset, scrollerHeight + trackOffset],
+            [this.grid.originFixedWidth + this.horizontalScroller.x + thumbOffset + this.horizontalScroller.size, scrollerHeight + trackOffset]
+            // [this.grid.originFixedWidth + this.horizontalScroller.x, scrollerHeight + trackOffset],
+            // [this.grid.originFixedWidth + this.horizontalScroller.x + this.horizontalScroller.size, scrollerHeight + trackOffset]
             // [this.horizontalScroller.x, scrollerHeight + trackOffset],
             // [this.horizontalScroller.x + this.horizontalScroller.size, scrollerHeight + trackOffset]
         ], {
-            borderColor: this.grid.borderColor,
+            borderColor: this.horizontalScroller.move || this.horizontalScroller.focus ? '#bbbec4' : this.grid.borderColor,
             borderWidth: SCROLLER_SIZE,
             lineCap: 'round'
         })
@@ -195,7 +211,7 @@ class Scroller {
             // [scrollerWidth + trackOffset, this.verticalScroller.y + HEADER_HEIGHT],
             // [scrollerWidth + trackOffset, this.verticalScroller.y + HEADER_HEIGHT + this.verticalScroller.size]
         ], {
-            borderColor: this.grid.borderColor,
+            borderColor: this.verticalScroller.move || this.verticalScroller.focus ? '#bbbec4' : this.grid.borderColor,
             borderWidth: SCROLLER_SIZE,
             lineCap: 'round'
         })

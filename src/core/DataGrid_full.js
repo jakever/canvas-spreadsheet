@@ -29,8 +29,8 @@ class DataGrid {
         this.selector = {
             show: false, // 是否显示
             isSelected: false, // 单击鼠标按下代表即将要开始范围选择
-            selectedXArr: [0,0], // 选中区域
-            selectedYArr: [0,0]
+            xArr: [0,0], // 选中区域
+            yArr: [0,0]
         }
         // 自动填充
         this.autofill = {
@@ -171,8 +171,8 @@ class DataGrid {
         this.finishedEdit()
         this.clearMultiSelect();
         this.selector.show = true;
-        this.selector.selectedXArr = [x, x]
-        this.selector.selectedYArr = [y, y]
+        this.selector.xArr = [x, x]
+        this.selector.yArr = [y, y]
         this.selector.isSelected = true
 
         this.autofill.autofillXIndex = x
@@ -191,8 +191,8 @@ class DataGrid {
             const maxY = y > this.editor.editorYIndex ? y : this.editor.editorYIndex
             this.autofill.autofillXIndex = maxX
             this.autofill.autofillYIndex = maxY
-            this.selector.selectedXArr = [minX, maxX]
-            this.selector.selectedYArr = [minY, maxY]
+            this.selector.xArr = [minX, maxX]
+            this.selector.yArr = [minY, maxY]
         }
     }
     // mouseup事件 -> 结束批量选取
@@ -202,8 +202,8 @@ class DataGrid {
     // 清空批量选取
     clearMultiSelect() {
         this.selector.show = false;
-        this.selector.selectedXArr = [0,0];
-        this.selector.selectedYArr = [0,0];
+        this.selector.xArr = [0,0];
+        this.selector.yArr = [0,0];
     }
     // 开始编辑
     startEdit(cell) {
@@ -328,10 +328,10 @@ class DataGrid {
     }
     // drawSelector() {
     //     if (this.selector.show) {
-    //         const minX = this.selector.selectedXArr[0]
-    //         const maxX = this.selector.selectedXArr[1]
-    //         const minY = this.selector.selectedYArr[0]
-    //         const maxY = this.selector.selectedYArr[1]
+    //         const minX = this.selector.xArr[0]
+    //         const maxX = this.selector.xArr[1]
+    //         const minY = this.selector.yArr[0]
+    //         const maxY = this.selector.yArr[1]
     //         const minRow = this.body.getRow(minY)
     //         const x = minRow.cells[minX].x + this.scrollX
     //         const y = minRow.y + this.scrollY

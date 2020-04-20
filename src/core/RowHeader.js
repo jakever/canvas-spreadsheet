@@ -16,9 +16,6 @@ class RowHeader extends Context {
         
         Object.assign(this, options);
     }
-    click() {
-        this.grid.handleCheckRow(this.rowIndex)
-    }
     handleCheck(val) {
         this.checked = val
     }
@@ -40,8 +37,8 @@ class RowHeader extends Context {
          * 焦点高亮
          */
         if (selector.show || editor.show) {
-            const minY = selector.selectedYArr[0]
-            const maxY = selector.selectedYArr[1]
+            const minY = selector.yArr[0]
+            const maxY = selector.yArr[1]
 
             if (this.rowIndex >= minY && this.rowIndex <= maxY) {
                 const points = [

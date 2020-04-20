@@ -34,7 +34,9 @@ function throttle (func, time = 17, options = {
     return _throttle
 };
 function handleMouseDown(e) {
-    e.preventDefault();
+    if (e.target.tagName.toLowerCase() === 'canvas') {
+        e.preventDefault();
+    }
     const rect = e.target.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -45,7 +47,9 @@ function handleMouseDown(e) {
     this.scroller.mouseDown(x, y)
 }
 function handleMouseMove(e) {
-    e.preventDefault();
+    if (e.target.tagName.toLowerCase() === 'canvas') {
+        e.preventDefault();
+    }
     const rect = e.target.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -57,18 +61,22 @@ function handleMouseMove(e) {
     this.scroller.mouseMove(x, y)
 }
 function handleMouseUp(e) {
-    e.preventDefault();
+    if (e.target.tagName.toLowerCase() === 'canvas') {
+        e.preventDefault();
+    }
     const rect = e.target.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
     if(this.header.isInsideHeader(x, y) || this.header.isResizing) {
         this.header.mouseUp(x, y);
     }
-    this.body.mouseUp(x, y);
+    this.endMultiSelect();
     this.scroller.mouseUp(x, y)
 }
 function handleClick(e) {
-    e.preventDefault();
+    if (e.target.tagName.toLowerCase() === 'canvas') {
+        e.preventDefault();
+    }
     const rect = e.target.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -79,17 +87,56 @@ function handleClick(e) {
     }
 }
 function handleDbClick(e) {
-    e.preventDefault();
+    if (e.target.tagName.toLowerCase() === 'canvas') {
+        e.preventDefault();
+    }
     const rect = e.target.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
     this.body.dbClick(x, y);
 }
 function handleKeydown(e) {
-    if (e.metaKey || e.ctrlKey) { // 阻止CTRL+类型的事件
+    if (this.editor.show) { // 编辑模式按下按Enter／ESC退出编辑模式
+        if (e.keyCode === 13 || e.keyCode === 27) {
+            e.preventDefault()
+            this.doneEdit()
+        }
         return
     }
-    !this.editor.show && e.preventDefault()
+    // 未选中
+    if (!this.selector.show) {
+        return
+    }
+    // 撤销
+    if ((e.ctrlKey && e.keyCode === 90) || e.metaKey && !e.shiftKey && e.keyCode === 90) {
+        // e.preventDefault()
+        console.log('undo')
+    }
+    // 恢复
+    if ((e.ctrlKey && e.keyCode === 89) || (e.metaKey && e.shiftKey && e.keyCode === 90)) {
+        // e.preventDefault()
+        console.log('recovery')
+    }
+    // CTRL+C／Command+C
+    if ((e.ctrlKey && e.keyCode === 67) || (e.metaKey && e.keyCode === 67)) {
+        // e.preventDefault()
+        this.copy()
+    }
+    // CTRL+V／Command+V
+    // if ((e.ctrlKey && e.keyCode === 86) || (e.metaKey && e.keyCode === 86)) {
+    //     // e.preventDefault()
+    //     // this.paste(e)
+    //     console.log('paste')
+    // }
+    // CTRL+A／Command+A
+    if ((e.ctrlKey && e.keyCode) === 65 || (e.metaKey && e.keyCode === 65)) {
+        // e.preventDefault()
+        console.log('select all')
+    }
+    if (e.metaKey || e.ctrlKey) { // CTRL+R／CRTRL+F等类型的事件不禁用默认事件
+        return
+    }
+    e.preventDefault()
     const keyHandler = (k) => {
         if ((k >= 65 && k <= 90) || (k >= 48 && k <= 57) || (k >= 96 && k <= 107) || (k >= 109 && k <= 111) || k === 32 || (k >= 186 && k <= 222)) {
             return true
@@ -97,8 +144,36 @@ function handleKeydown(e) {
             return false
         }
     }
-    if (keyHandler(e.keyCode) && !this.editor.show) {
+    if (keyHandler(e.keyCode)) {
         return this.startEdit(e.key)
+    }
+    switch (e.keyCode) {
+        // 左
+        case 37:
+            this.moveFocus('LEFT')
+            break
+        // 上
+        case 38:
+            this.moveFocus('TOP')
+            break
+        // 右 或 Tab
+        case 9:
+        case 39:
+            this.moveFocus('RIGHT')
+            break
+        // 下
+        case 40:
+            this.moveFocus('BOTTOM')
+            break
+        case 8: // BackSpace／delede
+        case 46:
+            this.setData('')
+            break
+        case 13:
+            this.startEdit()
+            break
+        default:
+            //
     }
 }
 function handleScroll(e) {
@@ -130,11 +205,7 @@ function handleScroll(e) {
     this.scroller.setPosition()
 }
 function handleResize() {
-    const diffX = this.tableWidth - this.width + this.scrollX
     this.resize()
-    if (this.tableWidth - this.width + this.scrollX < 0) {
-        this.scrollX = this.width - this.tableWidth + diffX
-    }
 }
 
 class Events {
@@ -145,9 +216,7 @@ class Events {
         // el.addEventListener('mousemove', throttle(handleMouseMove, 50, {
         //     context: grid
         // }), false)
-        window.addEventListener('mousemove', throttle(handleMouseMove, 50, {
-            context: grid
-        }), false)
+        window.addEventListener('mousemove', handleMouseMove.bind(grid), false)
         window.addEventListener('mouseup', handleMouseUp.bind(grid), false)
         // el.addEventListener('mouseup', handleMouseUp.bind(grid), false)
         el.addEventListener('click', handleClick.bind(grid), false)

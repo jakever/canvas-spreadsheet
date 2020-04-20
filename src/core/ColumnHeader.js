@@ -7,15 +7,16 @@ class ColumnHeader extends Context {
         super(grid, x, y, width, CELL_HEIGHT)
 
         this.fixed = column.fixed
-        this.index = index - grid.fixedLeft;
+        // this.index = index - grid.fixedLeft;
+        this.index = index;
         this.text = column.title
 
         Object.assign(this, options);
     }
     // 表头是否超过了右侧可视区的边界
     isVisibleOnScreen() {
-        return !(this.x + this.width - this.grid.fixedLeftWidth + this.grid.scrollX < 0 || 
-            this.x + this.grid.scrollX > this.grid.width - this.grid.fixedRightWidth);
+        return !(this.x + this.width - this.grid.fixedLeftWidth + this.grid.scrollX <= 0 || 
+            this.x + this.grid.scrollX >= this.grid.width - this.grid.fixedRightWidth);
     }
     draw() {
         // 绘制表头每个单元格框
@@ -34,8 +35,8 @@ class ColumnHeader extends Context {
          * 焦点高亮
          */
         if (selector.show || editor.show) {
-            const minX = selector.selectedXArr[0]
-            const maxX = selector.selectedXArr[1]
+            const minX = selector.xArr[0]
+            const maxX = selector.xArr[1]
 
             if (this.index >= minX && this.index <= maxX) {
                 const points = [

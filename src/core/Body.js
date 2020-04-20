@@ -46,7 +46,68 @@ class Body {
     // 根据坐标获取cell对象
     getCell(x, y) {
         const row = this.rows[y]
-        return row.cells[x]
+        return row.allCells[x]
+    }
+    getSelectedData() {
+        const { xArr, yArr } = this.grid.selector
+        const rowsData = []
+        let text = ''
+        for (let ri = 0; ri <= yArr[1] - yArr[0]; ri++) {
+            const cellsData = []
+            for (let ci = 0; ci <= xArr[1] - xArr[0]; ci++) {
+                cellsData.push(this.rows[ri+yArr[0]].allCells[ci+xArr[0]].value)
+            }
+            text += cellsData.join('\t') + '\r'
+            rowsData.push(cellsData)
+        }
+        text = text ? text.replace(/\r$/, '') : ' ' // 去掉最后一个\n，否则会导致复制到excel里多一行空白
+        if (!text) {
+            text = ' ' // 替换为' '，是为了防止复制空的内容导致document.execCommand命令无效
+        }
+        return {
+            text,
+            value: rowsData
+        }
+    }
+    updateData(data) {
+        const {
+            editor
+        } = this.grid
+        for (let ri = 0; ri <= data.length - 1; ri++) {
+            const len = data[ri].length
+            for (let ci = 0; ci <= len - 1; ci++) {
+                const cells = this.rows[ri + editor.yIndex].allCells
+                const cell = cells[ci + editor.xIndex]
+                cell.setData(data[ri][ci])
+                cell.validate()
+            }
+        }
+    }
+    autofillData() {
+        const { value } = this.getSelectedData()
+        const xStep = value[0].length
+        const yStep = value.length
+        const { xArr, yArr } = this.grid.autofill
+
+        if (yArr[1] < 0 || xArr[1] < 0) return;
+
+        for (let ri = 0; ri <= yArr[1] - yArr[0]; ri++) {
+            for (let ci = 0; ci <= xArr[1] - xArr[0]; ci++) {
+                const colIndex = ci+xArr[0]
+                const rowIndex = ri+yArr[0]
+                const val = value[ri % yStep][ci % xStep]
+                const cell = this.rows[rowIndex].allCells[colIndex]
+                cell.setData(val)
+                cell.validate()
+            }
+        }
+        this.grid.clearAuaofill()
+    }
+    updateRowData(rowIndex) {
+
+    }
+    updateCellData(colIndex) {
+
     }
     resizeColumn(colIndex, width) {
         for(let i = 0; i < this.rows.length; i++) {
@@ -70,30 +131,27 @@ class Body {
             }
         }
     }
-    mouseDown(x, y) {
-        for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideVerticaBodyBoundary(x, y)) {
-                this.rows[i].mouseDown(x, y);
-            }
-        }
-    }
     mouseMove(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideVerticaBodyBoundary(x, y)) {
+            if(this.rows[i].isInVerticalAutofill(x, y)) {
+                this.rows[i].handleAutofill(x, y);
+            } else if(this.rows[i].isInsideVerticaBodyBoundary(x, y)) {
                 this.rows[i].mouseMove(x, y);
             }
         }
     }
-    mouseUp(x, y) {
+    mouseDown(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideVerticaBodyBoundary(x, y)) {
-                this.rows[i].mouseUp(x, y);
+            if(this.rows[i].isInVerticalAutofill(x, y)) {
+                this.rows[i].handleStartAutofill(x, y);
+            } else if(this.rows[i].isInsideVerticaBodyBoundary(x, y)) {
+                this.rows[i].mouseDown(x, y);
             }
         }
     }
     click(x, y) {
         for(let i = 0; i < this.rows.length; i++) {
-            if(this.rows[i].isInsideCheckboxBoundary(x, y)) {
+            if(this.rows[i].isInsideVerticaBodyBoundary(x, y)) {
                 this.rows[i].click(x, y);
             }
         }
