@@ -114,6 +114,17 @@ class Body {
             this.rows[i].resizeColumn(colIndex, width);
         }
     }
+    resizeAllColumn(width) {
+        for (let row of this.rows) {
+            let everyOffsetX = this.grid.originFixedWidth;
+            for (let i = 0; i < row.allCells.length; i++) {
+                const cell = row.allCells[i]
+                cell.width += width
+                cell.x = everyOffsetX
+                everyOffsetX += cell.width
+            }
+        }
+    }
     resizeRow(rowIndex, height) {
         if (height < MIN_CELL_HEIGHT) return;
 

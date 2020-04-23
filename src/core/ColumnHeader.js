@@ -1,13 +1,15 @@
-import { CELL_WIDTH, CELL_HEIGHT, SELECT_BORDER_COLOR } from './constants.js'
+import { 
+    CELL_HEIGHT, 
+    SELECT_BORDER_COLOR,
+    SELECT_BG_COLOR
+ } from './constants.js'
 import Context from './Context.js'
 
 class ColumnHeader extends Context {
     constructor(grid, index, x, y, column, options) {
-        const width = column.width || CELL_WIDTH
-        super(grid, x, y, width, CELL_HEIGHT)
+        super(grid, x, y, column.width, CELL_HEIGHT)
 
         this.fixed = column.fixed
-        // this.index = index - grid.fixedLeft;
         this.index = index;
         this.text = column.title
 
@@ -21,7 +23,7 @@ class ColumnHeader extends Context {
     draw() {
         // 绘制表头每个单元格框
         const x = this.fixed === 'right' ? 
-            this.grid.width - (this.grid.tableWidth - this.x - this.width) - this.width - this.grid.scrollerTrackSize :
+            this.grid.width - (this.grid.tableWidth - this.x - this.width) - this.width - this.grid.verticalScrollerSize :
                 (this.fixed === 'left' ? this.x : this.x + this.grid.scrollX);
         const editor = this.grid.editor
         const selector = this.grid.selector
@@ -38,6 +40,14 @@ class ColumnHeader extends Context {
             const minX = selector.xArr[0]
             const maxX = selector.xArr[1]
 
+            // 背景
+            if (this.index >= minX && this.index <= maxX) {
+                this.grid.painter.drawRect(x, this.y, this.width, this.height, {
+                    fillColor: SELECT_BG_COLOR
+                });
+            }
+
+            // 线
             if (this.index >= minX && this.index <= maxX) {
                 const points = [
                     [x + 1, this.y + this.height - 1],

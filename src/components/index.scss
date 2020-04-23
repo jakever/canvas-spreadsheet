@@ -27,14 +27,16 @@ $css-prefix: xs-data-grid;
     z-index: 100;
     overflow: hidden;
     background-color: #fff;
-    border: 2px solid #4b89ff;
-    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 6px;
+    border: 2px solid rgb(82,146,247);
+    box-sizing: border-box;
+    box-shadow: rgba(0, 0, 0, 0.2) 0px 6px 16px;
     pointer-events: auto;
 
     div[contenteditable="true"] {
         box-sizing: border-box;
         // border: 2px solid #4b89ff;
-        padding: 5px;
+        // padding: 5px;
+        padding: 8px;
         outline: none;
         // resize: none;
         // text-align: start;
@@ -45,6 +47,7 @@ $css-prefix: xs-data-grid;
         color: inherit;
         white-space: normal;
         word-wrap: break-word;
+        word-break: break-all;
         line-height: 18px;
         margin: 0;
         background: #fff;

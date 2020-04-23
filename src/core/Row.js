@@ -1,7 +1,9 @@
 import RowHeader from './RowHeader.js'
 import Cell from './Cell.js'
 import Context from './Context.js'
-import {CELL_WIDTH, ROW_INDEX_WIDTH, CHECK_BOX_WIDTH} from './constants';
+import { 
+    ROW_INDEX_WIDTH 
+} from './constants';
 
 class Row extends Context {
     constructor(grid, rowIndex, x, y, height, columns, data) {
@@ -28,7 +30,7 @@ class Row extends Context {
 
         for(let i = 0; i < this.grid.columnsLength; i++) {
             const column = columns[i]
-            const width = column.width || CELL_WIDTH
+            const width = column.width
             const cell = new Cell(data[column.key], grid, i, rowIndex, everyOffsetX, y, width, this.height, column, style)
             
             this.allCells.push(cell)
@@ -115,7 +117,7 @@ class Row extends Context {
     //     return null;
     // }
     resizeColumn(colIndex, width) {
-        const scrollRightBoundry = this.grid.width - this.grid.tableWidth - this.grid.scrollerTrackSize === this.grid.scrollX
+        const scrollRightBoundry = this.grid.width - this.grid.tableWidth - this.grid.verticalScrollerSize === this.grid.scrollX
         const cell = this.allCells[colIndex]
         const oldWidth = cell.width;
         cell.width = width;
@@ -152,15 +154,24 @@ class Row extends Context {
             }
         }
         // 固定列阴影
-        // if (this.grid.scrollX !== 0) {
-        //     this.grid.painter.drawRect(this.x, this.y + this.grid.scrollY, this.grid.originFixedWidth + this.grid.fixedLeftWidth, this.height, {
-        //         fillColor: '#f9f9f9',
-        //         shadowBlur: 10,
-        //         shadowColor: 'rgba(0,0,0,0.2)',
-        //         shadowOffsetX: 3,
-        //         shadowOffsetY: 3
-        //     })
-        // }
+        if (this.grid.scrollX !== 0) {
+            this.grid.painter.drawRect(this.x, this.y + this.grid.scrollY, this.grid.fixedLeftWidth, this.height, {
+                fillColor: '#f9f9f9',
+                shadowBlur: 6,
+                shadowColor: 'rgba(28,36,56,0.2)',
+                shadowOffsetX: 2,
+                shadowOffsetY: 6
+            })
+        }
+        if (this.grid.tableWidth + this.grid.verticalScrollerSize - this.grid.width + this.grid.scrollX > 0) {
+            this.grid.painter.drawRect(this.grid.width - this.grid.fixedRightWidth, this.y + this.grid.scrollY, this.grid.fixedRightWidth - this.grid.verticalScrollerSize, this.height, {
+                fillColor: '#f9f9f9',
+                shadowBlur: 6,
+                shadowColor: 'rgba(28,36,56,0.2)',
+                shadowOffsetX: -2,
+                shadowOffsetY: 6
+            })
+        }
 
         // 左右冻结列
         for(let i = 0; i < this.fixedCells.length; i++) {

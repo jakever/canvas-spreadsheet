@@ -148,6 +148,68 @@ class Paint {
       }
       this.ctx.restore()
   }
+  // 绘制圆角矩形路径
+  drawRoundRect(x, y, width, height, raidus, options) {
+    options = Object.assign({
+        borderWidth: 1,
+        borderColor: undefined,
+        fillColor: undefined,
+        shadowOffsetX: undefined,
+        shadowOffsetY: undefined,
+        shadowBlur: 0,
+        shadowColor: undefined
+    }, options);
+    this.ctx.save()
+    this.ctx.beginPath();
+
+    if(options.shadowOffsetX) {
+        this.ctx.shadowOffsetX = options.shadowOffsetX;
+    }
+    if(options.shadowOffsetY) {
+        this.ctx.shadowOffsetY = options.shadowOffsetY;
+    }
+    if(options.shadowBlur) {
+        this.ctx.shadowBlur = options.shadowBlur;
+    }
+    if(options.shadowColor) {
+        this.ctx.shadowColor = options.shadowColor;
+    }
+        
+    // 填充颜色
+    if(options.fillColor) {
+        this.ctx.fillStyle = options.fillColor;
+    }
+    
+    // 线条宽度及绘制颜色
+    if(options.borderColor) {
+        this.ctx.lineWidth = options.borderWidth;
+        this.ctx.strokeStyle = options.borderColor;
+    }
+    
+    this.ctx.moveTo(x + raidus, y);
+    this.ctx.arcTo(x + width, y, x + width, y + raidus, raidus); // draw right side and bottom right corner 
+    this.ctx.arcTo(x + width, y + height, x + width - raidus, y + height, raidus); // draw bottom and bottom left corner 
+    this.ctx.arcTo(x, y + height, x, y + height - raidus, raidus); // draw left and top left corner 
+    this.ctx.arcTo(x, y, x + raidus, y, raidus);
+
+    // this.ctx.moveTo(x+raidus, y);
+    // this.ctx.arcTo(x+width, y, x+width, y+height, raidus);
+    // this.ctx.arcTo(x+width, y+height, x, y+height, raidus);
+    // this.ctx.arcTo(x, y+height, x, y, raidus);
+    // this.ctx.arcTo(x, y, x+width, y, raidus);
+
+    
+    // 如果有填充色，则填充
+    if(options.fillColor) {
+        this.ctx.fill();
+    }
+    
+    // 如果有绘制色，则绘制
+    if(options.borderColor) {
+        this.ctx.stroke();
+    }
+    this.ctx.restore()
+}
   drawImage(img, x, y, width, height) {
       this.ctx.drawImage(img, x, y, width, height);
   }

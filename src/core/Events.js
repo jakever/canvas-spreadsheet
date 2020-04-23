@@ -181,25 +181,29 @@ function handleScroll(e) {
     if (this.editor.show) return;
     const { deltaX, deltaY } = e
     if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        const maxWidth = this.tableWidth;
-        if (this.scrollX - deltaX > 0) {
-            this.scrollX = 0
-        } else if (maxWidth + this.scrollerTrackSize - this.width + this.scrollX < deltaX) {
-            this.scrollX = this.width - maxWidth - this.scrollerTrackSize
-        } else {
-            e.preventDefault()
-            e.returnValue = false
-            this.scrollX -= 2 * deltaX;
+        if (this.scroller.horizontalScroller.has) {
+            const maxWidth = this.tableWidth;
+            if (this.scrollX - deltaX > 0) {
+                this.scrollX = 0
+            } else if (maxWidth + this.verticalScrollerSize - this.width + this.scrollX < deltaX) {
+                this.scrollX = this.width - maxWidth - this.verticalScrollerSize
+            } else {
+                e.preventDefault()
+                e.returnValue = false
+                this.scrollX -= 2 * deltaX;
+            }
         }
     } else {
-        if (this.scrollY - deltaY > 0) {
-            this.scrollY = 0
-        } else if (this.tableHeight + this.scrollerTrackSize - this.height + this.scrollY < deltaY) {
-            this.scrollY = this.height - this.tableHeight - this.scrollerTrackSize
-        } else {
-            e.preventDefault()
-            e.returnValue = false
-            this.scrollY -= 2 * deltaY;
+        if (this.scroller.verticalScroller.has) {
+            if (this.scrollY - deltaY > 0) {
+                this.scrollY = 0
+            } else if (this.tableHeight + this.horizontalScrollerSize - this.height + this.scrollY < deltaY) {
+                this.scrollY = this.height - this.tableHeight - this.horizontalScrollerSize
+            } else {
+                e.preventDefault()
+                e.returnValue = false
+                this.scrollY -= 2 * deltaY;
+            }
         }
     }
     this.scroller.setPosition()

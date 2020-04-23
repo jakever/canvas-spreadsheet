@@ -3,6 +3,7 @@ import {
     SELECT_AREA_COLOR, 
     SELECT_BG_COLOR, 
     READONLY_COLOR, 
+    READONLY_TEXT_COLOR,
     ERROR_TIP_COLOR
 } from './constants.js'
 import Context from './Context.js'
@@ -11,26 +12,28 @@ import Validator from './Validator.js'
 class Cell extends Context{
     constructor(value, grid, colIndex, rowIndex, x, y, width, height, column, options) {
         super(grid, x, y, width, height)
+        this.colIndex = colIndex;
+        this.rowIndex = rowIndex;
 
         this.fixed = column.fixed;
         this.readonly = column.readonly;
         this.textAlign = column.align
         this.textBaseline = column.baseline
-        this.colIndex = colIndex;
-        this.rowIndex = rowIndex;
-        this.dateType = column.type || 'text'
+        this.dataType = column.type || 'text'
         this.options = column.options
+        this.render = column.render
+
         this.value = value
         this.originalValue = value
 
         this.validator = new Validator(column)
-        this.label = this.validator.filterValue(value);
         this.valid = true;
         this.message = null;
 
         Object.assign(this, options, {
             fillColor: '#fff'
         });
+        this.setLabel(value)
         this.validate()
     }
     isInHorizontalAutofill(mouseX, mouseY) {
@@ -49,7 +52,7 @@ class Cell extends Context{
     setData(val) {
         if (this.readonly) return;
         this.value = val
-        this.label = this.validator.filterValue(val);
+        this.setLabel(val)
 
         // changed diff
         // if (this.value !== this.originalValue) {
@@ -57,6 +60,15 @@ class Cell extends Context{
         // } else {
         //     delete this.grid.hashChange[`${this.colIndex}-${this.rowIndex}`]
         // }
+    }
+    setLabel(val) {
+        let label = val
+        if (typeof this.render === 'function') {
+            label = this.render(val)
+        } else {
+            label = this.validator.filterValue(val);
+        }
+        this.label = label === null || label === undefined ? '' : label
     }
     draw() {
         const {
@@ -67,12 +79,12 @@ class Cell extends Context{
             copyyer,
             width,
             tableWidth,
-            scrollerTrackSize,
+            verticalScrollerSize,
             scrollX,
             scrollY
         } = this.grid
         const x = this.fixed === 'right' ? 
-            width - (tableWidth - this.x - this.width) - this.width - scrollerTrackSize :
+            width - (tableWidth - this.x - this.width) - this.width - verticalScrollerSize :
                 (this.fixed === 'left' ? this.x : this.x + scrollX);
         const y = this.y + scrollY
         
@@ -85,18 +97,18 @@ class Cell extends Context{
         /**
          * 选中当前焦点行、列
          */
-        if (selector.show || editor.show) {
-            if (this.rowIndex === editor.yIndex) {
-                painter.drawRect(x, y, this.width, this.height, {
-                    fillColor: SELECT_BG_COLOR
-                });
-            }
-            if (this.colIndex === editor.xIndex) {
-                painter.drawRect(x, y, this.width, this.height, {
-                    fillColor: SELECT_BG_COLOR
-                });
-            }
-        }
+        // if (selector.show || editor.show) {
+        //     if (this.rowIndex === editor.yIndex) {
+        //         painter.drawRect(x, y, this.width, this.height, {
+        //             fillColor: SELECT_BG_COLOR
+        //         });
+        //     }
+        //     if (this.colIndex === editor.xIndex) {
+        //         painter.drawRect(x, y, this.width, this.height, {
+        //             fillColor: SELECT_BG_COLOR
+        //         });
+        //     }
+        // }
 
         /**
          * 绘制错误提示
@@ -306,7 +318,7 @@ class Cell extends Context{
 
 
         painter.drawCellText(this.label, x, _y, this.width, 10, {
-            color: this.color,
+            color: this.readonly ? READONLY_TEXT_COLOR : this.color,
             align: this.textAlign,
             baseLine: this.textBaseline
         });

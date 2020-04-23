@@ -47,7 +47,7 @@ class Validator {
         Object.assign(this, column.rule)
     }
     filterValue (value) {
-        let label = value === null || value === undefined ? '' : value
+        let label = value
         if (this.type === 'select' && Array.isArray(this.options)) {
             for (let item of this.options) {
                 if (value === item.value) {
@@ -80,7 +80,11 @@ class Validator {
         }
         if (type === 'select') {
             const flag = options.map(item => item.value).includes(v)
-            return getValidation.call(this, flag, 'notIn');
+            return getValidation.call(this, flag, 'notMatch');
+        }
+        if (type === 'month' || type === 'date') {
+            const flag = isNaN(v) && !isNaN(Date.parse(v))
+            return getValidation.call(this, flag, 'notMatch');
         }
         // if (operator) {
         //     const v1 = parseValue.call(this, v);

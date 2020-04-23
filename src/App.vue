@@ -22,13 +22,13 @@ export default {
       isFullscreen: false,
       gridData: [],
       columns: [
-        { title: "姓名", key: "emp_name", width: 100 },
-        { title: "工号", key: "emp_no", width: 100 },
-        { title: "部门", key: "dep_name", width: 140, align: 'left', readonly: true },
+        { title: "姓名", key: "emp_name" },
+        { title: "工号", key: "emp_no" },
+        { title: "部门", key: "dep_name", size: 'small', align: 'left', readonly: true },
         { title: "岗位", 
           key: "job_name", 
-          width: 140, 
-          align: 'left', 
+          size: 'small',
+          align: 'left',
           rule: { 
             validator: function(value) {
               if (value.length > 10 || value.length < 1) {
@@ -39,14 +39,14 @@ export default {
             message: '岗位字段长度需要为0～10个字符哦！' 
           }
         },
-        { title: "手机号", key: "phone", width: 100, type: 'phone' },
-        { title: "性别", key: "sex", width: 80, type: 'select', options: [
+        { title: "手机号", key: "phone", type: 'phone' },
+        { title: "性别", key: "sex", type: 'select', options: [
           { value: 1, label: '男' }, 
           { value: 2, label: '女'}
         ] },
-        { title: "计薪月份", width: 120, key: "salary_month", type: 'month' },
-        { title: "出生日期", width: 140, key: "birthday", type: 'date' },
-        // { title: "爱好", width: 140, key: "hobby", type: 'cascader', options: [
+        { title: "计薪月份", size: 'small', key: "salary_month", type: 'month' },
+        { title: "出生日期", size: 'small', key: "birthday", type: 'date' },
+        // { title: "爱好", size: 'small', key: "hobby", type: 'cascader', options: [
         //   {
         //     value: '1',
         //     label: '水果',
@@ -89,7 +89,7 @@ export default {
         { title: 
           "家庭地址", 
           key: "address", 
-          width: 150, 
+          size: 'medium', 
           align: 'left',
           rule: { 
             required: true, 
@@ -98,35 +98,37 @@ export default {
         },
         { title: "物料编码", 
           key: "materialNo", 
-          width: 100, 
-          align: 'right' 
+          align: 'right',
+          render: function(val) {
+            const v = parseFloat(val)
+            return v.toFixed(2)
+          }
         },
-        { title: "数量", key: "requiredQuantity", type: "number", width: 70, align: 'right' },
-        { title: "单位", key: "unit", width: 70 },
-        { title: "工作性质", width: 100, key: "work_type" },
-        { title: "工作状态", width: 100, key: "work_status" },
-        { title: "户籍城市", width: 100, key: "household_city" },
-        { title: "户籍地址", width: 100, key: "household_address" },
-        { title: "民族", width: 80, key: "nation" },
-        { title: "工作地址", width: 140, key: "work_address" },
-        { title: "工作邮箱", width: 140, key: "work_email" },
-        { title: "个人邮箱", width: 140, key: "email" },
-        { title: "工龄", width: 100, key: "work_age" },
-        { title: "司龄", width: 100, key: "company_age" },
-        { title: "合同公司", width: 120, key: "contract_company" },
-        { title: "qq号", width: 80, key: "qq" },
-        { title: "年龄", width: 80, key: "age" },
-        { title: "品牌", key: "brandName", width: 80 },
-        { title: "商品名称", key: "goodsName", width: 150 },
-        { title: "规格型号", key: "sn", width: 100 },
-        { title: "客户备注", key: "customerRemarks", width: 150 },
+        { title: "数量", key: "requiredQuantity", type: "number", align: 'right' },
+        { title: "单位", key: "unit" },
+        { title: "工作性质", key: "work_type" },
+        { title: "工作状态", key: "work_status" },
+        { title: "户籍城市", key: "household_city" },
+        { title: "户籍地址", key: "household_address" },
+        { title: "民族", key: "nation" },
+        { title: "工作地址", size: 'small', key: "work_address" },
+        { title: "工作邮箱", size: 'small', key: "work_email" },
+        { title: "个人邮箱", size: 'small', key: "email" },
+        { title: "工龄", key: "work_age" },
+        { title: "司龄", key: "company_age" },
+        { title: "合同公司", size: 'small', key: "contract_company" },
+        { title: "qq号", key: "qq" },
+        { title: "年龄", key: "age" },
+        { title: "品牌", key: "brandName" },
+        { title: "商品名称", key: "goodsName" },
+        { title: "规格型号", key: "sn" },
+        { title: "客户备注", key: "customerRemarks", size: 'small' },
         {
           title: "采购价(元)",
           key: "purchasePrice",
-          type: "number",
-          width: 80
+          type: "number"
         },
-        { title: "销售价(元)", key: "salePrice", type: "number", width: 100 }
+        { title: "销售价(元)", key: "salePrice", type: "number" }
       ]
     };
   },

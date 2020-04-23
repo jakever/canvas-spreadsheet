@@ -16,7 +16,8 @@ import {
     ROW_INDEX_WIDTH, 
     CHECK_BOX_WIDTH,
     SCROLLER_TRACK_SIZE,
-    HEADER_HEIGHT
+    HEADER_HEIGHT,
+    CELL_HEIGHT
 } from './constants.js'
 // import './index.scss'
 
@@ -26,14 +27,10 @@ class DataGrid {
         this.scrollY = 0;
         this.scrollX = 0;
 
-        this.scrollerTrackSize = SCROLLER_TRACK_SIZE;
+        this.checkboxWidth = CHECK_BOX_WIDTH
+        this.horizontalScrollerSize = SCROLLER_TRACK_SIZE;
+        this.verticalScrollerSize = SCROLLER_TRACK_SIZE;
         this.fillCellWidth = 0; // 所有列宽总和若小于视宽，则需要补全
-        this.originFixedWidth = ROW_INDEX_WIDTH + CHECK_BOX_WIDTH
-        
-        this.color = '#495060'
-        this.borderColor = '#dee0e3'
-        this.fillColor = '#f8f9fa'
-        this.borderWidth = 1
 
         this.focusCell = null
 
@@ -70,6 +67,8 @@ class DataGrid {
 
         this.initConfig(options)
 
+        // this.initTableSize()
+
         // this.createContainer()
 
         this.createClipboard()
@@ -85,7 +84,7 @@ class DataGrid {
 
         this.setLayoutSize(options) // 设置容器宽高
 
-        this.setTableSize() // 设置网格实际宽高
+        this.initTableSize()
 
         this.tooltip = new Tooltip(this, 0, 0)
 
@@ -101,8 +100,8 @@ class DataGrid {
             columns: [],
             data: [],
             color: '#495060',
-            borderColor: '#dee0e3',
-            fillColor: '#f8f9fa',
+            borderColor: '#e1e6eb',
+            fillColor: '#fff',
             borderWidth: 1,
             fixedLeft: 0,
             fixedRight: 0,
@@ -121,6 +120,10 @@ class DataGrid {
             minY: 0,
             maxY: this.data.length - 1
         }
+        if (!this.showCheckbox) {
+            this.checkboxWidth = 0
+        }
+        this.originFixedWidth = ROW_INDEX_WIDTH + this.checkboxWidth
     }
     setLayoutSize(options = {}) {
         const el = this.target.parentElement
@@ -141,11 +144,60 @@ class DataGrid {
         el.style.height = this.height + "px";
         this.painter.scaleCanvas(dpr)
     }
+    getTableSize() {
+        let fixedLeftWidth = this.originFixedWidth
+        let fixedRightWidth = SCROLLER_TRACK_SIZE
+        this.header.fixedColumnHeaders.forEach(item => {
+            if (item.index < this.fixedLeft) {
+                fixedLeftWidth += item.width
+            }
+            if (item.index > this.columnsLength - 1 - this.fixedRight) {
+                fixedRightWidth += item.width
+            }
+        })
+        this.fixedLeftWidth = fixedLeftWidth
+        this.fixedRightWidth = fixedRightWidth
+        this.tableWidth = this.header.allColumnHeaders.reduce((sum, item) => {
+            return sum + item.width
+        }, this.originFixedWidth)
+        this.tableHeight = this.body.height
+
+        this.scroller.reset()
+    }
+    initTableSize() {
+        this.getTableSize()
+
+        this.fillTableWidth()
+    }
+    fillTableWidth() { // 宽度不够补余
+        if (this.tableWidth <= this.width - SCROLLER_TRACK_SIZE) { // 没有横向滚动条
+            this.fillCellWidth = (this.width - SCROLLER_TRACK_SIZE - this.tableWidth) / this.columnsLength
+            this.fillCellWidth && this.body.resizeAllColumn(this.fillCellWidth)
+            this.fillCellWidth && this.header.resizeAllColumn(this.fillCellWidth)
+            this.tableWidth = this.width - SCROLLER_TRACK_SIZE
+            this.fixedLeftWidth = 0
+            this.fixedRightWidth = SCROLLER_TRACK_SIZE
+            // this.hasHorizontalScroll = false
+        } else {
+            // this.fixedLeftWidth = fixedLeftWidth
+            // this.fixedRightWidth = fixedRightWidth + SCROLLER_TRACK_SIZE
+            // this.hasHorizontalScroll = true
+        }
+        if (this.tableHeight <= this.height - SCROLLER_TRACK_SIZE) { // 没有纵向滚动条
+            // this.hasVerticalScroll = false
+            // this.height = this.tableHeight + SCROLLER_TRACK_SIZE
+        } else {
+            // this.hasVerticalScroll = true
+        }
+        this.scroller.reset()
+    }
     resize() {
         const diffX = this.tableWidth - this.width + this.scrollX
         this.setLayoutSize()
-        this.scroller.init()
-        if (this.tableWidth - this.width + this.scrollX < 0) { // 小屏滚动到最右侧再调大屏幕断开的问题
+        
+        this.fillTableWidth()
+
+        if (this.tableWidth - (this.width - SCROLLER_TRACK_SIZE) + this.scrollX < 0) { // 小屏滚动到最右侧再调大屏幕断开的问题
             this.scrollX = this.width - this.tableWidth + diffX
         }
     }
@@ -197,26 +249,6 @@ class DataGrid {
             top: '-10000px'
         })
         document.body.appendChild(this.clipboardEl.el)
-    }
-    setTableSize() {
-        this.fixedLeftWidth = this.originFixedWidth
-        let rightWidth = 0
-        this.header.fixedColumnHeaders.forEach(item => {
-            if (item.index < this.fixedLeft) {
-                this.fixedLeftWidth += item.width
-            }
-            if (item.index > this.columnsLength - 1 - this.fixedRight) {
-                rightWidth += item.width
-            }
-        })
-        this.fixedRightWidth = rightWidth + this.scrollerTrackSize
-        this.tableWidth = this.header.columnHeaders.reduce((sum, item) => {
-            return sum + item.width
-        }, this.fixedLeftWidth + rightWidth)
-
-        this.tableHeight = this.body.height
-        
-        this.scroller.init()
     }
     /**
      * 选择、编辑相关
@@ -294,7 +326,7 @@ class DataGrid {
     // 开始编辑
     startEdit(value) {
         // this.editor.setData(cell.value)
-        // if (cell.dateType === 'date' || cell.dateType === 'select') {
+        // if (cell.dataType === 'date' || cell.dataType === 'select') {
         //     this.onEditCell(cell)
         // } else {
         //     this.selector.show = false;
@@ -310,7 +342,7 @@ class DataGrid {
                 y: this.focusCell.y,
                 width: this.focusCell.width,
                 height: this.focusCell.height,
-                dateType: this.focusCell.dateType,
+                dataType: this.focusCell.dataType,
                 options: this.focusCell.options,
                 scrollX: this.scrollX,
                 scrollY: this.scrollY
@@ -346,11 +378,11 @@ class DataGrid {
 
         this.body.resizeColumn(colIndex, width)
     
-        this.setTableSize()
+        this.getTableSize()
     }
     resizeRow(rowIndex, height) {
         this.body.resizeRow(rowIndex, height)
-        this.setTableSize()
+        this.getTableSize()
     }
     handleCheckRow(y) {
         this.body.handleCheckRow(y)
@@ -436,7 +468,7 @@ class DataGrid {
         const cellTotalViewWidth = this.focusCell.x + this.focusCell.width + this.scrollX
         const cellTotalViewHeight = this.focusCell.y + this.focusCell.height + this.scrollY
         const viewWidth = this.width - this.fixedRightWidth
-        const viewHeight = this.height - this.scrollerTrackSize
+        const viewHeight = this.height - this.verticalScrollerSize
         const diffLeft = this.focusCell.x + this.scrollX - this.fixedLeftWidth
         const diffRight = viewWidth - cellTotalViewWidth
         const diffTop = this.focusCell.y + this.scrollY - HEADER_HEIGHT

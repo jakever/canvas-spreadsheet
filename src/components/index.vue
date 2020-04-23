@@ -12,13 +12,13 @@
                         @input="inputHandler"></div>
                     <el-date-picker
                         ref="month"
-                        v-else-if="dateType==='month'"
+                        v-else-if="dataType==='month'"
                         :class="`${CSS_PREFIX}-popup`"
                         :style="popupSty"
                         v-model="value"
                         :editable="false"
                         type="month"
-                        size="mini"
+                        size="medium"
                         placeholder="选择月份"
                         format="yyyy-MM"
                         value-format="yyyy-MM"
@@ -26,13 +26,13 @@
                     </el-date-picker>
                     <el-date-picker
                         ref="date"
-                        v-else-if="dateType==='date'"
+                        v-else-if="dataType==='date'"
                         :class="`${CSS_PREFIX}-popup`"
                         :style="popupSty"
                         v-model="value"
                         :editable="false"
                         type="date"
-                        size="mini"
+                        size="medium"
                         placeholder="选择日期"
                         format="yyyy-MM-dd"
                         value-format="yyyy-MM-dd"
@@ -40,24 +40,24 @@
                     </el-date-picker>
                     <el-select 
                         ref="select"
-                        v-else-if="dateType==='select'"
+                        v-else-if="dataType==='select'"
                         :class="`${CSS_PREFIX}-popup`"
                         :style="popupSty"
                         v-model="value" 
                         clearable
                         filterable
-                        size="mini"
+                        size="medium"
                         :automatic-dropdown="true"
                         @change="selectChange">
                         <el-option v-for="item in selectOptions" :value="item.value" :label="item.label" :key="item.value"></el-option>
                     </el-select>
                     <!-- <el-cascader
                         ref="cascader"
-                        v-else-if="dateType==='cascader'"
+                        v-else-if="dataType==='cascader'"
                         :class="`${CSS_PREFIX}-popup`"
                         :style="popupSty"
                         v-model="cascader_value"
-                        size="mini"
+                        size="medium"
                         :options="selectOptions"
                         @change="selectChange">
                     </el-cascader> -->
@@ -71,6 +71,7 @@ import { CSS_PREFIX } from '../core/constants.js'
 import DataGrid from '../core/DataGrid.js'
 import './index.scss'
 const SIMPLE_DATE_TYPES = ['text', 'number', 'phone', 'email']
+const COMPLEX_DATE_TYPES = ['month','date','select']
 
 export default {
     name: 'DDataGrid',
@@ -102,10 +103,12 @@ export default {
         return {
             CSS_PREFIX,
             show: false,
-            dateType: 'text',
+            dataType: 'text',
             popWidth: 'auto',
             value: '',
-            editorSty: {},
+            editorSty: {
+                borderColor: 'rgb(82,146,247)'
+            },
             cascader_value: [],
             selectOptions: []
         }
@@ -113,11 +116,12 @@ export default {
     computed: {
         popupSty() {
             return {
-                width: this.popWidth
+                width: this.popWidth,
+                top: '-1px'
             }
         },
         isSimple() {
-            return SIMPLE_DATE_TYPES.includes(this.dateType)
+            return SIMPLE_DATE_TYPES.includes(this.dataType)
         }
     },
     methods: {
@@ -132,40 +136,47 @@ export default {
         },
         showEditor(cell) {
             this.show = true
-            this.dateType = cell.dateType
-            this.value = cell.value
+            this.dataType = cell.dataType
             this.selectOptions = cell.options
             this.$refs.text.innerText = cell.value
+            if (this.dataType === 'month' || this.dataType === 'date') {
+                if (isNaN(cell.value) && !isNaN(Date.parse(cell.value))) {
+                    this.value = cell.value
+                } else {
+                    this.value = ''
+                }
+            } else {
+                this.value = cell.value
+            }
             this.setStyle(cell)
             this.$nextTick(() => {
                 this.focus()
             })
         },
         hideEditor() {
-            this.editorSty = {
-                top: '-10000px',
-                left: '-10000px',
-            }
+            this.$refs.editor.style.left = '-10000px'
+            this.$refs.editor.style.top = '-10000px'
             this.show = false
-            this.dateType = 'text'
+            this.dataType = 'text'
         },
         setStyle(cell) {
-            this.editorSty = {
-                left: `${cell.x + cell.scrollX - 1}px`,
-                top: `${cell.y + cell.scrollY - 1}px`
-            }
+            this.$refs.editor.style.left = `${cell.x + cell.scrollX - 1}px`
+            this.$refs.editor.style.top = `${cell.y + cell.scrollY - 1}px`
             this.$refs.text.style['min-width'] = `${cell.width - 2}px`
             this.$refs.text.style['min-height'] = `${cell.height - 2}px`
             this.popWidth = `${cell.width - 2}px`
+            if (COMPLEX_DATE_TYPES.includes(this.dataType)) { // 下拉，日期控件高度比输入框高
+                this.$refs.editor.style.height = '38px'
+            }
         },
         focus(type) {
-            let _type = type || this.dateType
+            let _type = type || this.dataType
             if (this.isSimple) {
                 _type = 'text'
             }
             const el = this.$refs[_type]
             if (typeof el.focus === 'function') {
-                if (_type === 'month' || _type === 'date' || _type === 'select') {
+                if (COMPLEX_DATE_TYPES.includes(_type)) {
                     el.focus()
                 } else {
                     if (window.getSelection) { // ie11 10 9 ff safari

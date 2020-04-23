@@ -14,7 +14,7 @@ class Context {
     }
     isVerticalVisibleOnBody() {
         return !(this.y + this.height - HEADER_HEIGHT + this.grid.scrollY <= 0 || 
-            this.y + this.grid.scrollY >= this.grid.height - this.grid.scrollerTrackSize);
+            this.y + this.grid.scrollY >= this.grid.height - this.grid.horizontalScrollerSize);
     }
     // 鼠标坐标是否在body内
     isInsideHorizontalBodyBoundary(mouseX, mouseY) {
@@ -23,11 +23,16 @@ class Context {
             mouseX > this.grid.fixedLeftWidth && // 避免冻结列点击穿透了
             mouseX < this.grid.width - this.grid.fixedRightWidth; // 避免冻结列点击穿透了
     }
+    isInsideFixedHorizontalBodyBoundary(mouseX, mouseY) {
+        return mouseX >= this.grid.width - this.grid.fixedRightWidth &&
+            mouseX < this.grid.width - this.grid.fixedRightWidth + this.width
+    }
+
     isInsideVerticaBodyBoundary(mouseX, mouseY) {
         return mouseY > this.y + this.grid.scrollY &&
             mouseY < this.y + this.height + this.grid.scrollY &&
             mouseY > HEADER_HEIGHT &&
-            mouseY < this.grid.height - this.grid.scrollerTrackSize;
+            mouseY < this.grid.height - this.grid.horizontalScrollerSize;
     }
     isInsideHeader(mouseX, mouseY) {
         return mouseY > this.y &&

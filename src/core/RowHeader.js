@@ -1,4 +1,8 @@
-import { CHECK_BOX_WIDTH, SELECT_BORDER_COLOR } from './constants.js'
+import { 
+    CHECK_BOX_WIDTH, 
+    SELECT_BORDER_COLOR,
+    SELECT_BG_COLOR
+ } from './constants.js'
 import Context from './Context.js'
 
 const oncheck = new Image()
@@ -23,15 +27,28 @@ class RowHeader extends Context {
         const y = this.y + this.grid.scrollY
         const editor = this.grid.editor
         const selector = this.grid.selector
-        const checkEl = this.checked ? oncheck : offcheck
 
         // 绘制checkbox
-        this.grid.painter.drawRect(this.width, y, CHECK_BOX_WIDTH, this.height, {
-            borderColor: this.borderColor,
+        if (this.grid.showCheckbox) {
+            const checkEl = this.checked ? oncheck : offcheck
+            this.grid.painter.drawRect(this.width, y, CHECK_BOX_WIDTH, this.height, {
+                borderColor: this.borderColor,
+                fillColor: this.fillColor,
+                borderWidth: this.borderWidth
+            })
+            this.grid.painter.drawImage(checkEl, this.width + (CHECK_BOX_WIDTH - 20) / 2, y + (this.height - 20) / 2, 20, 20)
+        }
+
+        // 绘制每行的索引的边框
+        this.grid.painter.drawRect(this.x, y, this.width, this.height, {
             fillColor: this.fillColor,
+            // borderColor: this.borderColor,
             borderWidth: this.borderWidth
-        })
-        this.grid.painter.drawImage(checkEl, this.width + (CHECK_BOX_WIDTH - 20) / 2, y + (this.height - 20) / 2, 20, 20)
+        });
+        // 绘制每行的索引
+        this.grid.painter.drawText(this.text, this.x + this.width / 2, y + this.height / 2, {
+            color: this.color
+        });
 
         /**
          * 焦点高亮
@@ -41,9 +58,15 @@ class RowHeader extends Context {
             const maxY = selector.yArr[1]
 
             if (this.rowIndex >= minY && this.rowIndex <= maxY) {
+                this.grid.painter.drawRect(this.x, y, this.width + this.grid.checkboxWidth, this.height, {
+                    fillColor: SELECT_BG_COLOR
+                });
+            }
+
+            if (this.rowIndex >= minY && this.rowIndex <= maxY) {
                 const points = [
-                    [this.width + CHECK_BOX_WIDTH, y ],
-                    [this.width + CHECK_BOX_WIDTH, y + this.height]
+                    [this.width + this.grid.checkboxWidth, y ],
+                    [this.width + this.grid.checkboxWidth, y + this.height]
                 ]
                 this.grid.painter.drawLine(points, {
                     borderColor: SELECT_BORDER_COLOR,
@@ -51,17 +74,6 @@ class RowHeader extends Context {
                 })
             }
         }
-
-        // 绘制每行的索引的边框
-        this.grid.painter.drawRect(this.x, y, this.width, this.height, {
-            fillColor: this.fillColor,
-            borderColor: this.borderColor,
-            borderWidth: this.borderWidth
-        });
-        // 绘制每行的索引
-        this.grid.painter.drawText(this.text, this.x + this.width / 2, y + this.height / 2, {
-            color: this.color
-        });
     }
 }
 

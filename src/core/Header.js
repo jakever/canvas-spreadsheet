@@ -1,6 +1,11 @@
 import Context from './Context.js'
 import ColumnHeader from './ColumnHeader.js'
-import { CELL_WIDTH, HEADER_HEIGHT, ROW_INDEX_WIDTH, CHECK_BOX_WIDTH } from './constants.js'
+import { 
+    HEADER_HEIGHT, 
+    ROW_INDEX_WIDTH, 
+    CHECK_BOX_WIDTH,
+    SIZE_MAP
+} from './constants.js'
 
 const oncheck = new Image()
 const offcheck = new Image()
@@ -28,6 +33,8 @@ class Header extends Context {
                 borderColor: this.grid.borderColor,
                 borderWidth: this.grid.borderWidth
             }
+            column.width = SIZE_MAP[column.size || 'mini'] // 读取映射宽度
+            
             if (i < grid.fixedLeft) {
                 column.fixed = 'left'
             } else if (i > len - 1 - grid.fixedRight) {
@@ -42,13 +49,13 @@ class Header extends Context {
                 this.columnHeaders.push(columnHeader);
             }
 
-            everyOffsetX += column.width || CELL_WIDTH;
+            everyOffsetX += column.width;
         }
     }
     mouseDown(x, y) {
         if (this.resizeTarget) {
             this.resizeOriginalX = x;
-            this.resizeOriginalWdith = this.resizeTarget.width;
+            this.resizeOriginalWidth = this.resizeTarget.width;
             this.isResizing = true;
         }
     }
@@ -57,9 +64,11 @@ class Header extends Context {
             const index = this.resizeTarget.index
             const resizeDiffWidth = x - this.resizeOriginalX
             const oldWidth = this.allColumnHeaders[index].width
-            const newWidth = this.resizeOriginalWdith + resizeDiffWidth
+            const newWidth = this.resizeOriginalWidth + resizeDiffWidth
             // 滚动列最后一列不允许调小宽度
-            if (index === this.grid.columnsLength - this.grid.fixedRight - 1 && newWidth <= oldWidth) {
+            if ((index === this.grid.columnsLength - this.grid.fixedRight - 1 ||
+                this.grid.width === this.grid.tableWidth + this.grid.verticalScrollerSize)
+                && newWidth <= oldWidth) {
                 return
             }
             this.grid.resizeColumn(index, newWidth) 
@@ -82,7 +91,7 @@ class Header extends Context {
         this.checked = !this.checked
     }
     resizeColumn(colIndex, width) {
-        const scrollRightBoundry = this.grid.width - this.grid.tableWidth - this.grid.scrollerTrackSize === this.grid.scrollX
+        const scrollRightBoundry = this.grid.width - this.grid.tableWidth - this.grid.verticalScrollerSize === this.grid.scrollX
         const columnHeader = this.allColumnHeaders[colIndex];
         const oldWidth = columnHeader.width;
         columnHeader.width = width;
@@ -96,7 +105,26 @@ class Header extends Context {
             }
         }
     }
+    resizeAllColumn(width) {
+        let everyOffsetX = this.grid.originFixedWidth;
+        for (let i = 0; i < this.allColumnHeaders.length; i++) {
+            const columnHeader = this.allColumnHeaders[i]
+            columnHeader.width += width
+            columnHeader.x = everyOffsetX
+            everyOffsetX += columnHeader.width
+        }
+    }
     draw() {
+        if (this.grid.scrollY !== 0) {
+            this.grid.painter.drawRect(this.x, this.y, this.grid.width, this.height, {
+                fillColor: '#f9f9f9',
+                shadowBlur: 6,
+                shadowColor: 'rgba(28,36,56,0.2)',
+                shadowOffsetX: 0,
+                shadowOffsetY: 2
+            })
+        }
+        
         // 滚动表头
         for(let i = 0; i < this.columnHeaders.length; i++) {
             const columnHeader = this.columnHeaders[i];
@@ -104,6 +132,27 @@ class Header extends Context {
                 columnHeader.draw();
             }
         }
+
+        // 固定列阴影
+        if (this.grid.scrollX !== 0) {
+            this.grid.painter.drawRect(this.x, this.y, this.grid.fixedLeftWidth, this.height, {
+                fillColor: '#f9f9f9',
+                shadowBlur: 6,
+                shadowColor: 'rgba(28,36,56,0.2)',
+                shadowOffsetX: 2,
+                shadowOffsetY: -2
+            })
+        }
+        if (this.grid.tableWidth + this.grid.verticalScrollerSize - this.grid.width + this.grid.scrollX > 0) {
+            this.grid.painter.drawRect(this.grid.width - this.grid.fixedRightWidth, this.y, this.grid.fixedRightWidth, this.height, {
+                fillColor: '#f9f9f9',
+                shadowBlur: 6,
+                shadowColor: 'rgba(0,0,0,0.2)',
+                shadowOffsetX: -2,
+                shadowOffsetY: -2
+            })
+        }
+
         // 冻结表头
         for(let i = 0; i < this.fixedColumnHeaders.length; i++) {
             const columnHeader = this.fixedColumnHeaders[i];
@@ -111,14 +160,16 @@ class Header extends Context {
         }
 
         // 绘制checkbox
-        const checkEl = this.checked ? oncheck : offcheck
         const style = {
             borderColor: this.grid.borderColor,
             borderWidth: this.grid.borderWidth,
             fillColor: this.grid.fillColor
         }
-        this.grid.painter.drawRect(ROW_INDEX_WIDTH, 0, CHECK_BOX_WIDTH, HEADER_HEIGHT, style)
-        this.grid.painter.drawImage(checkEl, ROW_INDEX_WIDTH + (CHECK_BOX_WIDTH - 20) / 2, (HEADER_HEIGHT - 20) / 2, 20, 20)
+        if (this.grid.showCheckbox) {
+            const checkEl = this.checked ? oncheck : offcheck
+            this.grid.painter.drawRect(ROW_INDEX_WIDTH, 0, CHECK_BOX_WIDTH, HEADER_HEIGHT, style)
+            this.grid.painter.drawImage(checkEl, ROW_INDEX_WIDTH + (CHECK_BOX_WIDTH - 20) / 2, (HEADER_HEIGHT - 20) / 2, 20, 20)   
+        }
         
         // 最左上角方格
         this.grid.painter.drawRect(0, 0, ROW_INDEX_WIDTH, HEADER_HEIGHT, style)
