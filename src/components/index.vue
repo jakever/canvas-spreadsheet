@@ -125,11 +125,14 @@ export default {
         }
     },
     methods: {
-        getCheckedRow() {
-            return this.grid.getCheckedRow()
+        getData() {
+            return this.grid.getData()
         },
-        getChangedRow() {
-            return this.grid.getChangedRow()
+        getCheckedRows() {
+            return this.grid.getCheckedRows()
+        },
+        getChangedRows() {
+            return this.grid.getChangedRows()
         },
         setFullScreen(){
             this.grid.resize()
@@ -160,8 +163,8 @@ export default {
             this.dataType = 'text'
         },
         setStyle(cell) {
-            this.$refs.editor.style.left = `${cell.x + cell.scrollX - 1}px`
-            this.$refs.editor.style.top = `${cell.y + cell.scrollY - 1}px`
+            this.$refs.editor.style.left = `${cell.x - 1}px`
+            this.$refs.editor.style.top = `${cell.y - 1}px`
             this.$refs.text.style['min-width'] = `${cell.width - 2}px`
             this.$refs.text.style['min-height'] = `${cell.height - 2}px`
             this.popWidth = `${cell.width - 2}px`

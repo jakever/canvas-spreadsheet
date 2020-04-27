@@ -2,8 +2,9 @@
   <div id="app">
     <div id="data-grid-demo"></div>
     <div style="padding: 12px 0;">
-      <el-button size="small" @click="getCheckedRow">获取选中行数据</el-button>
-      <el-button size="small" @click="getChangedRow">获取已改变行数据</el-button>
+      <el-button size="small" @click="getData">获取数据</el-button>
+      <el-button size="small" @click="getCheckedRows">获取选中行数据</el-button>
+      <el-button size="small" @click="getChangedRows">获取已改变行数据</el-button>
       <el-button size="small" @click="setFullScreen">
         {{!isFullscreen ? '全屏' : '退出全屏'}}
       </el-button>
@@ -156,13 +157,18 @@ export default {
       }
       this.$refs.datagrid.setFullScreen()
     },
-    getCheckedRow() {
-      const data = this.$refs.datagrid.getCheckedRow()
+    getData() {
+       const data = this.$refs.datagrid.getData()
       console.log(data)
       alert('获取成功，请查看控制台')
     },
-    getChangedRow() {
-      const data = this.$refs.datagrid.getChangedRow()
+    getCheckedRows() {
+      const data = this.$refs.datagrid.getCheckedRows()
+      console.log(data)
+      alert('获取成功，请查看控制台')
+    },
+    getChangedRows() {
+      const data = this.$refs.datagrid.getChangedRows()
       console.log(data)
       alert('获取成功，请查看控制台')
     }
@@ -177,7 +183,7 @@ export default {
           emp_no: 10 + i,
           dep_name: i === 4 ? null : `研发部${i}`,
           job_name: i === 5 ? '产品经理测试很长的名字' : `产品经理${i}`,
-          phone: i === 4 ? '13159645561a' : 13159645561 + i,
+          phone: i === 4 ? '13159645561a' : `${13159645561 + i}`,
           sex: i % 4 === 0 ? 1 : (i === 3 ? null : 2),
           address:
             i === 1

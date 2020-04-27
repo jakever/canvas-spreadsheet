@@ -14,6 +14,9 @@ function parseValue(v) {
     return v;
 }
 function getValidation(flag, key) {
+    if (this.message) {
+        return { flag, message: this.message };
+    }
     let message = '';
     if (!flag) {
         switch(key) {
@@ -30,7 +33,7 @@ function getValidation(flag, key) {
                 message = `${this.validateTitle}字段是无效值哦！`;
         }
     }
-    return { flag, message: this.message || message };
+    return { flag, message };
   }
 
 class Validator {

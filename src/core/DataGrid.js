@@ -9,6 +9,7 @@ import Editor from './Editor.js'
 import Scroller from './Scroller.js'
 import Events from './Events.js'
 import Tooltip from './Tooltip.js'
+import Clipboard from './Clipboard.js'
 import { dpr } from './config.js'
 import { 
     CSS_PREFIX, 
@@ -16,8 +17,7 @@ import {
     ROW_INDEX_WIDTH, 
     CHECK_BOX_WIDTH,
     SCROLLER_TRACK_SIZE,
-    HEADER_HEIGHT,
-    CELL_HEIGHT
+    HEADER_HEIGHT
 } from './constants.js'
 // import './index.scss'
 
@@ -30,7 +30,6 @@ class DataGrid {
         this.checkboxWidth = CHECK_BOX_WIDTH
         this.horizontalScrollerSize = SCROLLER_TRACK_SIZE;
         this.verticalScrollerSize = SCROLLER_TRACK_SIZE;
-        this.fillCellWidth = 0; // 所有列宽总和若小于视宽，则需要补全
 
         this.focusCell = null
 
@@ -56,11 +55,6 @@ class DataGrid {
             xArr: [-1, -1], // 数据填充的范围
             yArr: [-1, -1]
         }
-        this.copyyer = {
-            show: false,
-            xArr: [-1, -1],
-            yArr: [-1, -1]
-        }
 
         // 生成主画笔
         this.painter = new Paint(target)
@@ -71,7 +65,7 @@ class DataGrid {
 
         // this.createContainer()
 
-        this.createClipboard()
+        this.clipboard = new Clipboard(this)
 
         // Headers 表头对象
         this.header = new Header(this, 0, 0, this.columns)
@@ -115,8 +109,8 @@ class DataGrid {
           }, options);
         this.columnsLength = this.columns.length
         this.range = { // 编辑器边界范围
-            minX: this.fixedLeft,
-            maxX: this.columns.length - 1 - this.fixedRight,
+            minX: 0,
+            maxX: this.columns.length - 1,
             minY: 0,
             maxY: this.data.length - 1
         }
@@ -169,11 +163,11 @@ class DataGrid {
 
         this.fillTableWidth()
     }
-    fillTableWidth() { // 宽度不够补余
+    fillTableWidth() { // 列较少时，宽度不够补余
         if (this.tableWidth <= this.width - SCROLLER_TRACK_SIZE) { // 没有横向滚动条
-            this.fillCellWidth = (this.width - SCROLLER_TRACK_SIZE - this.tableWidth) / this.columnsLength
-            this.fillCellWidth && this.body.resizeAllColumn(this.fillCellWidth)
-            this.fillCellWidth && this.header.resizeAllColumn(this.fillCellWidth)
+            const fillCellWidth = (this.width - SCROLLER_TRACK_SIZE - this.tableWidth) / this.columnsLength
+            fillCellWidth && this.body.resizeAllColumn(fillCellWidth)
+            fillCellWidth && this.header.resizeAllColumn(fillCellWidth)
             this.tableWidth = this.width - SCROLLER_TRACK_SIZE
             this.fixedLeftWidth = 0
             this.fixedRightWidth = SCROLLER_TRACK_SIZE
@@ -240,22 +234,12 @@ class DataGrid {
 
         this.target.appendChild(this.rootEl.el)
     }
-    createClipboard() {
-        this.clipboardEl = h('textarea', '')
-                    .on('paste', e => this.paste(e))
-        this.clipboardEl.css({
-            position: 'absolute',
-            left: '-10000px',
-            top: '-10000px'
-        })
-        document.body.appendChild(this.clipboardEl.el)
-    }
     /**
      * 选择、编辑相关
      */
     // mousedown事件 -> 开始拖拽批量选取
     selectCell({ colIndex, rowIndex }) {
-        this.clipboardEl.el.focus()
+        this.clipboard.el.focus()
         this.doneEdit()
         this.clearMultiSelect();
         this.editor.xIndex = colIndex
@@ -324,7 +308,7 @@ class DataGrid {
         this.autofill.yArr = [-1, -1];
     }
     // 开始编辑
-    startEdit(value) {
+    startEdit(val) {
         // this.editor.setData(cell.value)
         // if (cell.dataType === 'date' || cell.dataType === 'select') {
         //     this.onEditCell(cell)
@@ -332,20 +316,33 @@ class DataGrid {
         //     this.selector.show = false;
         //     this.editor.fire(cell);
         // }
+        const {
+            x,
+            y,
+            width,
+            height,
+            value,
+            fixed,
+            dataType,
+            options
+        } = this.focusCell
         if (this.focusCell && !this.focusCell.readonly) {
-            value && this.setData(value)
+            const _x = fixed === 'right' ? 
+                this.width - (this.tableWidth - x - width) - width - this.verticalScrollerSize :
+                (fixed === 'left' ? x : x + this.scrollX);
+            const _y = y + this.scrollY
+
+            val && this.setData(val)
             this.editor.show = true
             this.selector.show = false;
             this.onEditCell({
-                value: value || this.focusCell.value,
-                x: this.focusCell.x,
-                y: this.focusCell.y,
-                width: this.focusCell.width,
-                height: this.focusCell.height,
-                dataType: this.focusCell.dataType,
-                options: this.focusCell.options,
-                scrollX: this.scrollX,
-                scrollY: this.scrollY
+                value: val || value,
+                x: _x,
+                y: _y,
+                width,
+                height,
+                dataType,
+                options
             })
         }
     }
@@ -362,7 +359,7 @@ class DataGrid {
             this.editor.show = false
             this.selector.show = true; // 编辑完再选中该单元格
             this.onSelectCell(this.focusCell)
-            this.clearCopyyer()
+            this.clipboard.clear()
         }
     }
     setData(value) {
@@ -386,46 +383,6 @@ class DataGrid {
     }
     handleCheckRow(y) {
         this.body.handleCheckRow(y)
-    }
-    copy() {
-        const { text } = this.body.getSelectedData()
-        const textArea = document.createElement('textarea')
-        textArea.value = text
-        document.body.appendChild(textArea)
-        textArea.select()
-        document.execCommand('copy', false) // copy到剪切板
-        document.body.removeChild(textArea)
-        this.copyyer.show = true
-        this.copyyer.xArr = this.selector.xArr.slice()
-        this.copyyer.yArr = this.selector.yArr.slice()
-    }
-    clearCopyyer() {
-        this.copyyer.show = false
-        this.copyyer.xArr = [-1, -1]
-        this.copyyer.yArr = [-1, -1]
-    }
-    paste(e) {
-        let textArr
-        let rawText = e.clipboardData.getData('text/plain')
-        // let arr = isMac ? rawText.split('\r').map(item => item.split('\t')) : rawText.split('\r').map(item => item.split('\t')).slice(0, -1) // windows系统截取掉最后一个空白字符
-        let arr = rawText.split('\r')
-        if (arr.length === 1) {
-            let _arr = arr[0].split('\n')
-            textArr = _arr.map(item => item.split('\t'))
-        } else {
-            textArr = arr.map(item => item.split('\t'))
-        }
-        console.log(textArr)
-        if (textArr.length) {
-            this.body.updateData(textArr)
-            // // 复制完把被填充的区域选中，并把激活单元格定位到填充区域的第一个
-            this.selector.xArr.splice(1, 1, this.editor.xIndex + textArr[0].length - 1)
-            this.selector.yArr.splice(1, 1, this.editor.yIndex + textArr.length - 1)
-            this.autofill.xIndex = this.selector.xArr[1]
-            this.autofill.yIndex = this.selector.yArr[1]
-
-            this.clearCopyyer()
-        }
     }
     moveFocus(dir) {
         switch(dir) {
@@ -464,6 +421,8 @@ class DataGrid {
         this.selector.yArr = [this.editor.yIndex, this.editor.yIndex]
         this.autofill.xIndex = this.editor.xIndex
         this.autofill.yIndex = this.editor.yIndex
+
+        if (this.focusCell.fixed) return;
 
         const cellTotalViewWidth = this.focusCell.x + this.focusCell.width + this.scrollX
         const cellTotalViewHeight = this.focusCell.y + this.focusCell.height + this.scrollY
@@ -519,11 +478,14 @@ class DataGrid {
         // 绘制外层容器
         this.drawContainer()
     }
-    getCheckedRow() {
-        return this.body.getCheckedRow()
+    getData() {
+        return this.body.getData()
     }
-    getChangedRow() {
-        return this.body.getChangedRow()
+    getCheckedRows() {
+        return this.body.getCheckedRows()
+    }
+    getChangedRows() {
+        return this.body.getChangedRows()
     }
 }
 export default DataGrid

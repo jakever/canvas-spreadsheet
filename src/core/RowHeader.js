@@ -65,8 +65,8 @@ class RowHeader extends Context {
 
             if (this.rowIndex >= minY && this.rowIndex <= maxY) {
                 const points = [
-                    [this.width + this.grid.checkboxWidth, y ],
-                    [this.width + this.grid.checkboxWidth, y + this.height]
+                    [this.width + this.grid.checkboxWidth, y + 1 ],
+                    [this.width + this.grid.checkboxWidth, y + 1 + this.height]
                 ]
                 this.grid.painter.drawLine(points, {
                     borderColor: SELECT_BORDER_COLOR,

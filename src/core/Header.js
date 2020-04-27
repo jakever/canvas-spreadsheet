@@ -115,7 +115,7 @@ class Header extends Context {
         }
     }
     draw() {
-        if (this.grid.scrollY !== 0) {
+        // if (this.grid.scrollY !== 0) {
             this.grid.painter.drawRect(this.x, this.y, this.grid.width, this.height, {
                 fillColor: '#f9f9f9',
                 shadowBlur: 6,
@@ -123,7 +123,7 @@ class Header extends Context {
                 shadowOffsetX: 0,
                 shadowOffsetY: 2
             })
-        }
+        // }
         
         // 滚动表头
         for(let i = 0; i < this.columnHeaders.length; i++) {

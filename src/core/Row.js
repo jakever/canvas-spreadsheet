@@ -53,16 +53,17 @@ class Row extends Context {
         this.rowHeader.handleCheck(this.checked)
     }
     mouseDown(x, y) {
-        for(let i = 0; i < this.cells.length; i++) {
-            if(this.cells[i].isInsideHorizontalBodyBoundary(x, y)) {
-                this.grid.selectCell(this.cells[i]);
+        for(let i = 0; i < this.allCells.length; i++) {
+            const cell = this.allCells[i]
+            if(cell.isInsideHorizontalBodyBoundary(x, y) || cell.isInsideFixedHorizontalBodyBoundary(x, y)) {
+                this.grid.selectCell(cell);
             }
         }
     }
     mouseMove(x, y) {
-        for(let i = 0; i < this.cells.length; i++) {
-            const cell = this.cells[i]
-            if(cell.isInsideHorizontalBodyBoundary(x, y)) {
+        for(let i = 0; i < this.allCells.length; i++) {
+            const cell = this.allCells[i]
+            if(cell.isInsideHorizontalBodyBoundary(x, y) || cell.isInsideFixedHorizontalBodyBoundary(x, y)) {
                 const {
                     colIndex,
                     rowIndex,
@@ -70,30 +71,35 @@ class Row extends Context {
                     y,
                     width,
                     valid,
-                    message
+                    message,
+                    fixed
                 } = cell
                 this.grid.multiSelectCell(colIndex, rowIndex);
+                const _x = fixed === 'right' ? 
+                    this.grid.width - (this.grid.tableWidth - x - width) - width - this.grid.verticalScrollerSize - 1 : 
+                    x + width + 1;
                 this.grid.tooltip.update({
                     valid, 
                     message, 
-                    x: x + width, 
+                    x: _x, 
                     y,
+                    fixed
                 })
             }
         }
     }
     handleAutofill(x, y) {
-        for(let i = 0; i < this.cells.length; i++) {
-            if (this.cells[i].isInHorizontalAutofill(x, y)) {
-                this.grid.target.style.cursor = 'crosshair';
-            }
+        const cell = this.allCells[this.grid.autofill.xIndex]
+        if (!cell) return;
+        if (cell.isInHorizontalAutofill(x, y) || cell.isInsideFixedHorizontalAutofill(x, y)) {
+            this.grid.target.style.cursor = 'crosshair';
         }
     }
     handleStartAutofill(x, y) {
-        for(let i = 0; i < this.cells.length; i++) {
-            if (this.cells[i].isInHorizontalAutofill(x, y)) {
-                this.grid.startAutofill()
-            }
+        const cell = this.allCells[this.grid.autofill.xIndex]
+        if (!cell) return;
+        if (cell.isInHorizontalAutofill(x, y) || cell.isInsideFixedHorizontalAutofill(x, y)) {
+            this.grid.startAutofill()
         }
     }
     click(x, y) {
@@ -102,9 +108,9 @@ class Row extends Context {
         }
     }
     dbClick(x, y) {
-        for(let i = 0; i < this.cells.length; i++) {
-            const cell = this.cells[i]
-            if(cell.isInsideHorizontalBodyBoundary(x, y)) {
+        for(let i = 0; i < this.allCells.length; i++) {
+            const cell = this.allCells[i]
+            if(cell.isInsideHorizontalBodyBoundary(x, y) || cell.isInsideFixedHorizontalBodyBoundary(x, y)) {
                 this.grid.startEdit()
             }
         }
@@ -160,7 +166,7 @@ class Row extends Context {
                 shadowBlur: 6,
                 shadowColor: 'rgba(28,36,56,0.2)',
                 shadowOffsetX: 2,
-                shadowOffsetY: 6
+                shadowOffsetY: 2
             })
         }
         if (this.grid.tableWidth + this.grid.verticalScrollerSize - this.grid.width + this.grid.scrollX > 0) {
@@ -169,7 +175,7 @@ class Row extends Context {
                 shadowBlur: 6,
                 shadowColor: 'rgba(28,36,56,0.2)',
                 shadowOffsetX: -2,
-                shadowOffsetY: 6
+                shadowOffsetY: 2
             })
         }
 

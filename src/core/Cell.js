@@ -11,10 +11,11 @@ import Validator from './Validator.js'
 
 class Cell extends Context{
     constructor(value, grid, colIndex, rowIndex, x, y, width, height, column, options) {
-        super(grid, x, y, width, height)
+        super(grid, x, y, width, height, column.fixed)
         this.colIndex = colIndex;
         this.rowIndex = rowIndex;
 
+        this.key = column.key;
         this.fixed = column.fixed;
         this.readonly = column.readonly;
         this.textAlign = column.align
@@ -37,9 +38,19 @@ class Cell extends Context{
         this.validate()
     }
     isInHorizontalAutofill(mouseX, mouseY) {
-        return this.grid.autofill.xIndex === this.colIndex &&
-            mouseX > this.x + this.grid.scrollX + this.width - 3 &&
-            mouseX < this.x + this.grid.scrollX + this.width + 3
+        return mouseX > this.x + this.grid.scrollX + this.width - 3 &&
+            mouseX < this.x + this.grid.scrollX + this.width + 3 &&
+            mouseX > this.grid.fixedLeftWidth &&
+            mouseX < this.grid.width - this.grid.fixedRightWidth;
+    }
+    isInsideFixedHorizontalAutofill(mouseX, mouseY) {
+        const x = this.grid.width - (this.grid.tableWidth - this.x - this.width) - this.width - this.grid.verticalScrollerSize;
+        return mouseX >= x + this.width - 3 &&
+            mouseX < x + this.width + 3 &&
+            this.fixed === 'right' ||
+            (mouseX > this.x +this.width - 3 &&
+            mouseX < this.x + this.width + 3 &&
+            this.fixed === 'left')
     }
     validate() {
         const { 
@@ -55,11 +66,11 @@ class Cell extends Context{
         this.setLabel(val)
 
         // changed diff
-        // if (this.value !== this.originalValue) {
-        //     this.grid.hashChange[`${this.colIndex}-${this.rowIndex}`] = true
-        // } else {
-        //     delete this.grid.hashChange[`${this.colIndex}-${this.rowIndex}`]
-        // }
+        if (this.value !== this.originalValue) {
+            this.grid.hashChange[`${this.colIndex}-${this.rowIndex}`] = true
+        } else {
+            delete this.grid.hashChange[`${this.colIndex}-${this.rowIndex}`]
+        }
     }
     setLabel(val) {
         let label = val
@@ -76,7 +87,7 @@ class Cell extends Context{
             editor,
             selector,
             autofill,
-            copyyer,
+            clipboard,
             width,
             tableWidth,
             verticalScrollerSize,
@@ -140,8 +151,8 @@ class Cell extends Context{
                 });
             }
             // top／bottom border
-            if (this.colIndex >= minX && this.colIndex <= maxX && this.rowIndex + 1 === minY
-                || (this.colIndex >= minX && this.colIndex <= maxX && this.rowIndex === maxY)) {
+            if (this.colIndex >= minX && this.colIndex <= maxX && this.rowIndex + 1 === minY || 
+                (this.colIndex >= minX && this.colIndex <= maxX && this.rowIndex === maxY)) {
                 const points = [
                     [x, y + this.height - 1],
                     [x + this.width, y + this.height - 1]
@@ -151,8 +162,8 @@ class Cell extends Context{
                     borderWidth: 1
                 })
             }
-            if (this.colIndex >= minX && this.colIndex <= maxX && this.rowIndex === minY
-                || (this.colIndex >= minX && this.colIndex <= maxX && this.rowIndex -1 === maxY)) {
+            if (this.colIndex >= minX && this.colIndex <= maxX && this.rowIndex === minY || 
+                (this.colIndex >= minX && this.colIndex <= maxX && this.rowIndex -1 === maxY)) {
                 const points = [
                     [x, y],
                     [x + this.width, y]
@@ -163,7 +174,8 @@ class Cell extends Context{
                 })
             } 
             // left／right border
-            if (this.colIndex === minX && this.rowIndex >= minY && this.rowIndex <= maxY) {
+            if (this.colIndex === minX && this.rowIndex >= minY && this.rowIndex <= maxY ||
+                (this.colIndex - 1 === maxX && this.rowIndex >= minY && this.rowIndex <= maxY)) {
                 const points = [
                     [x, y],
                     [x, y + this.height]
@@ -173,10 +185,11 @@ class Cell extends Context{
                     borderWidth: 2
                 })
             }
-            if (this.colIndex - 1 === maxX && this.rowIndex >= minY && this.rowIndex <= maxY) {
+            if (this.colIndex + 1 === minX && this.rowIndex >= minY && this.rowIndex <= maxY ||
+                (this.colIndex === maxX && this.rowIndex >= minY && this.rowIndex <= maxY)) {
                 const points = [
-                    [x, y],
-                    [x, y + this.height]
+                    [x + this.width, y],
+                    [x + this.width, y + this.height]
                 ]
                 painter.drawLine(points, {
                     borderColor: SELECT_BORDER_COLOR,
@@ -185,9 +198,25 @@ class Cell extends Context{
             }
             // autofill
             if (!editor.show) {
-                if (this.colIndex - 1 === autofill.xIndex && this.rowIndex - 1 === autofill.yIndex) {
+                const autofill_width = 6
+                if (this.colIndex === autofill.xIndex && this.rowIndex === autofill.yIndex) {
                     // -2让触点覆盖于边框之上
-                    painter.drawRect(x - 3, y - 3, 6, 6, {
+                    painter.drawRect(x + this.width - 3, y + this.height + - 3, autofill_width, autofill_width, {
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        fillColor: SELECT_BORDER_COLOR
+                    })
+                }
+                if (this.colIndex - 1 === autofill.xIndex && this.rowIndex - 1 === autofill.yIndex && this.colIndex !== this.grid.fixedLeft) {
+                    // -2让触点覆盖于边框之上
+                    painter.drawRect(x - 3, y - 3, autofill_width, autofill_width, {
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        fillColor: SELECT_BORDER_COLOR
+                    })
+                }
+                if (this.colIndex === autofill.xIndex && this.rowIndex - 1 === autofill.yIndex) {
+                    painter.drawRect(x + this.width - 3, y - 3, autofill_width, autofill_width, {
                         borderColor: '#fff',
                         borderWidth: 2,
                         fillColor: SELECT_BORDER_COLOR
@@ -250,11 +279,11 @@ class Cell extends Context{
             }
         }
         // copy line
-        if (copyyer.show) {
-            const minX = copyyer.xArr[0]
-            const maxX = copyyer.xArr[1]
-            const minY = copyyer.yArr[0]
-            const maxY = copyyer.yArr[1]
+        if (clipboard.show) {
+            const minX = clipboard.xArr[0]
+            const maxX = clipboard.xArr[1]
+            const minY = clipboard.yArr[0]
+            const maxY = clipboard.yArr[1]
             // top／bottom border
             const lineDash = [4, 4];
             if (this.colIndex >= minX && this.colIndex <= maxX && this.rowIndex === minY) {

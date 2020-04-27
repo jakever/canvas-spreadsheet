@@ -81,7 +81,7 @@ class Paint {
     const defautSty = {
           font: 'normal 12px PingFang SC',
           color: '#495060',
-          align: 'center',
+          align: 'left',
           baseLine: 'middle'
     }
     Object.keys(defautSty).forEach(key => {

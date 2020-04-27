@@ -15,9 +15,11 @@ class Tooltip {
     }
     draw() {
         if (!this.valid && !this.grid.selector.isSelected) {
-            const x = this.x + this.grid.scrollX
+            const x = this.fixed === 'right' ? 
+                this.x  - this.width :
+                (this.fixed === 'left' ? this.x : this.x + this.grid.scrollX)
             const y = this.y + this.grid.scrollY
-            this.grid.painter.drawRoundRect(x + 1, y, this.width, this.height, 4, {
+            this.grid.painter.drawRoundRect(x, y, this.width, this.height, 4, {
                 shadowBlur: 16,
                 shadowColor: 'rgba(28,36,56,0.16)',
                 shadowOffsetX: 6,
@@ -33,20 +35,20 @@ class Tooltip {
             //     borderWidth: 2
             // })
 
-            const textArr = this.grid.painter.getTextWrapping(this.message, this.width, 18)
-            let _y = y + 50
-            for (let i = 0; i < textArr.length; i++) {
-                this.grid.painter.drawCellText(textArr[i], x, _y + i * 18, this.width, 18, {
-                    color: this.grid.color,
-                    align: 'left'
-                });
-            }
-
             this.grid.painter.drawCellText('数据错误', x, y + 24, this.width, 20, {
                 font: 'bold normal 14px PingFang SC',
                 color: ERROR_TIP_COLOR,
                 align: 'left'
             });
+
+            const textArr = this.grid.painter.getTextWrapping(this.message, this.width, 16)
+            let _y = y + 50
+            for (let i = 0; i < textArr.length; i++) {
+                this.grid.painter.drawCellText(textArr[i], x, _y + i * 18, this.width, 16, {
+                    color: this.grid.color,
+                    align: 'left'
+                });
+            }   
         }
     }
 }

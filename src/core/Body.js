@@ -40,35 +40,6 @@ class Body {
             return sum + item.height
         }, CELL_HEIGHT)
     }
-    getRow(y) {
-        return this.rows[y]
-    }
-    // 根据坐标获取cell对象
-    getCell(x, y) {
-        const row = this.rows[y]
-        return row.allCells[x]
-    }
-    getSelectedData() {
-        const { xArr, yArr } = this.grid.selector
-        const rowsData = []
-        let text = ''
-        for (let ri = 0; ri <= yArr[1] - yArr[0]; ri++) {
-            const cellsData = []
-            for (let ci = 0; ci <= xArr[1] - xArr[0]; ci++) {
-                cellsData.push(this.rows[ri+yArr[0]].allCells[ci+xArr[0]].value)
-            }
-            text += cellsData.join('\t') + '\r'
-            rowsData.push(cellsData)
-        }
-        text = text ? text.replace(/\r$/, '') : ' ' // 去掉最后一个\n，否则会导致复制到excel里多一行空白
-        if (!text) {
-            text = ' ' // 替换为' '，是为了防止复制空的内容导致document.execCommand命令无效
-        }
-        return {
-            text,
-            value: rowsData
-        }
-    }
     updateData(data) {
         const {
             editor
@@ -102,12 +73,6 @@ class Body {
             }
         }
         this.grid.clearAuaofill()
-    }
-    updateRowData(rowIndex) {
-
-    }
-    updateCellData(colIndex) {
-
     }
     resizeColumn(colIndex, width) {
         for(let i = 0; i < this.rows.length; i++) {
@@ -217,20 +182,84 @@ class Body {
             }
         }
     }
-    getCheckedRow() {
-        return this.rows.filter(item => item.checked)
+    getRow(y) {
+        return this.rows[y]
     }
-    getChangedRow() {
+    // 根据坐标获取cell对象
+    getCell(x, y) {
+        const row = this.rows[y]
+        return row.allCells[x]
+    }
+    getSelectedData() {
+        const { xArr, yArr } = this.grid.selector
+        const rowsData = []
+        let text = ''
+        for (let ri = 0; ri <= yArr[1] - yArr[0]; ri++) {
+            const cellsData = []
+            for (let ci = 0; ci <= xArr[1] - xArr[0]; ci++) {
+                cellsData.push(this.rows[ri+yArr[0]].allCells[ci+xArr[0]].value)
+            }
+            text += cellsData.join('\t') + '\r'
+            rowsData.push(cellsData)
+        }
+        text = text ? text.replace(/\r$/, '') : ' ' // 去掉最后一个\n，否则会导致复制到excel里多一行空白
+        if (!text) {
+            text = ' ' // 替换为' '，是为了防止复制空的内容导致document.execCommand命令无效
+        }
+        return {
+            text,
+            value: rowsData
+        }
+    }
+    getData() {
+        return this.rows.map(row => {
+            const cells = row.allCells
+            const _o = {}
+            cells.forEach(cell => {
+                _o[cell.key] = cell.value
+            })
+            return _o
+        })
+    }
+    getCheckedRows() {
+        return this.rows.filter(item => item.checked).map(row => {
+            const cells = row.allCells
+            const _o = {}
+            cells.forEach(cell => {
+                _o[cell.key] = cell.value
+            })
+            return _o
+        })
+    }
+    getChangedRows() {
         let arr = new Set()
         let rows = []
-        const hashChange = this.grid.hashChange
-        Object.keys(hashChange).forEach(key => {
+        Object.keys(this.grid.hashChange).forEach(key => {
             arr.add(Number(key.split('-')[1]))
         })
         arr.forEach(item => {
             rows.push(this.rows[item])
         })
-        return rows
+        return rows.map(row => {
+            const cells = row.allCells
+            const _o = {}
+            cells.forEach(cell => {
+                _o[cell.key] = cell.value
+            })
+            return _o
+        })
+    }
+    getRowData() {
+
+    }
+    getCellData() {
+
+    }
+    updateRowData(rowIndex) {
+
+    }
+    updateCellData(colIndex) {
+
     }
 }
 

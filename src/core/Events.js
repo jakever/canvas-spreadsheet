@@ -120,7 +120,7 @@ function handleKeydown(e) {
     // CTRL+C／Command+C
     if ((e.ctrlKey && e.keyCode === 67) || (e.metaKey && e.keyCode === 67)) {
         // e.preventDefault()
-        this.copy()
+        this.clipboard.copy()
     }
     // CTRL+V／Command+V
     // if ((e.ctrlKey && e.keyCode === 86) || (e.metaKey && e.keyCode === 86)) {

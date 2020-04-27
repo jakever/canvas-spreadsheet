@@ -1,12 +1,13 @@
 import { HEADER_HEIGHT, ROW_INDEX_WIDTH } from './constants.js'
 
 class Context {
-    constructor(grid, x, y, width, height) {
+    constructor(grid, x, y, width, height, fixed) {
         this.grid = grid;
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.fixed = fixed;
     }
     isHorizontalVisibleOnBody() {
         return !(this.x + this.width - this.grid.fixedLeftWidth + this.grid.scrollX <= 0 || 
@@ -24,10 +25,14 @@ class Context {
             mouseX < this.grid.width - this.grid.fixedRightWidth; // 避免冻结列点击穿透了
     }
     isInsideFixedHorizontalBodyBoundary(mouseX, mouseY) {
-        return mouseX >= this.grid.width - this.grid.fixedRightWidth &&
-            mouseX < this.grid.width - this.grid.fixedRightWidth + this.width
+        const x = this.grid.width - (this.grid.tableWidth - this.x - this.width) - this.width - this.grid.verticalScrollerSize;
+        return mouseX >= x &&
+            mouseX < x + this.width &&
+            this.fixed === 'right' ||
+            (mouseX > this.x &&
+            mouseX < this.x + this.width &&
+            this.fixed === 'left')
     }
-
     isInsideVerticaBodyBoundary(mouseX, mouseY) {
         return mouseY > this.y + this.grid.scrollY &&
             mouseY < this.y + this.height + this.grid.scrollY &&
