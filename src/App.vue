@@ -177,7 +177,7 @@ export default {
     // this.$nextTick(() => {
       let el = document.getElementById("data-grid-demo");
       let data = [];
-      for (let i = 0; i < 1000; i += 1) {
+      for (let i = 0; i < 5000; i += 1) {
         data.push({
           emp_name: `张三${i}`,
           emp_no: 10 + i,
@@ -216,7 +216,9 @@ export default {
           salePrice: 12.3 + i
         });
       }
-      this.gridData = data
+      // setTimeout(() => {
+        this.gridData = data
+      // }, 2000)
 
       // const Grid = new DataGrid(el, {
       //   // width: 1264,

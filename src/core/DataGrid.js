@@ -68,10 +68,10 @@ class DataGrid {
         this.clipboard = new Clipboard(this)
 
         // Headers 表头对象
-        this.header = new Header(this, 0, 0, this.columns)
+        this.header = new Header(this, 0, 0)
 
         // Body 主体
-        this.body = new Body(this, this.columns, this.data)
+        this.body = new Body(this, this.data)
 
         // 滚动条
         this.scroller = new Scroller(this)
@@ -477,6 +477,12 @@ class DataGrid {
 
         // 绘制外层容器
         this.drawContainer()
+    }
+    loadData(data) {
+        this.data = data
+        this.range.maxY = data.length - 1
+        this.body.paint(data)
+        this.getTableSize()
     }
     getData() {
         return this.body.getData()

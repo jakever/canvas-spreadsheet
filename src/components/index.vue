@@ -2,7 +2,7 @@
     <div :class="CSS_PREFIX">
         <div :class="`${CSS_PREFIX}-main`">
             <canvas :id="`${CSS_PREFIX}-target`" :class="`${CSS_PREFIX}-table`"></canvas>
-            <div :class="`${CSS_PREFIX}-overlayer`">
+            <div :class="`${CSS_PREFIX}-overlayer`" :style="{top: headerHeight + 'px'}" v-loading="loading">
                 <!-- <textarea ref="clipboard" style="position:absolute;left:-10000px;top:-10000px" @paste="handlePaste"></textarea> -->
                 <div :class="`${CSS_PREFIX}-editor`" ref="editor" :style="editorSty">
                     <div 
@@ -67,7 +67,7 @@
     </div>
 </template>
 <script>
-import { CSS_PREFIX } from '../core/constants.js'
+import { CSS_PREFIX, HEADER_HEIGHT } from '../core/constants.js'
 import DataGrid from '../core/DataGrid.js'
 import './index.scss'
 const SIMPLE_DATE_TYPES = ['text', 'number', 'phone', 'email']
@@ -102,6 +102,8 @@ export default {
     data() {
         return {
             CSS_PREFIX,
+            headerHeight: HEADER_HEIGHT,
+            loading: false,
             show: false,
             dataType: 'text',
             popWidth: 'auto',
@@ -111,6 +113,12 @@ export default {
             },
             cascader_value: [],
             selectOptions: []
+        }
+    },
+    watch: {
+        data(val) {
+            this.grid.loadData(val)
+            this.loading = false
         }
     },
     computed: {
@@ -164,7 +172,7 @@ export default {
         },
         setStyle(cell) {
             this.$refs.editor.style.left = `${cell.x - 1}px`
-            this.$refs.editor.style.top = `${cell.y - 1}px`
+            this.$refs.editor.style.top = `${cell.y - 1 - this.headerHeight}px`
             this.$refs.text.style['min-width'] = `${cell.width - 2}px`
             this.$refs.text.style['min-height'] = `${cell.height - 2}px`
             this.popWidth = `${cell.width - 2}px`
@@ -208,6 +216,7 @@ export default {
         }
     },
     created() {
+        this.loading = this.data.length > 0 ? false : true
         this.$nextTick(() => {
             const self = this
             let el = document.getElementById(`${CSS_PREFIX}-target`);
@@ -215,18 +224,18 @@ export default {
             this.grid = new DataGrid(el, {
                 width: this.width,
                 height: this.height,
-              fixedLeft: this.fixedLeft,
-              fixedRight: this.fixedRight,
-              columns: this.columns,
-              data: this.data,
-              onEditCell: (cell) => {
-                  self.showEditor(cell)
-              },
-              onSelectCell: () => {
-                  self.hideEditor()
-                //   self.focus()
-                //   self.$refs.clipboard.focus()
-              }
+                fixedLeft: this.fixedLeft,
+                fixedRight: this.fixedRight,
+                columns: this.columns,
+                data: this.data,
+                onEditCell: (cell) => {
+                    self.showEditor(cell)
+                },
+                onSelectCell: () => {
+                    self.hideEditor()
+                    //   self.focus()
+                    //   self.$refs.clipboard.focus()
+                }
             });
         })
     }

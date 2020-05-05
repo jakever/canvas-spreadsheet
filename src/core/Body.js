@@ -2,15 +2,18 @@ import { CELL_HEIGHT, HEADER_HEIGHT } from './constants.js'
 import Row from './Row.js'
 
 class Body {
-    constructor(grid, columns, data) {
+    constructor(grid, data) {
         this.grid = grid
+        
+        this.paint(data)
+    }
+    paint(data) {
         this.data = data
-
         this.rows = [];
-        const len = this.data.length
+        const len = data.length
         let everyOffsetY = HEADER_HEIGHT;
         for(let i = 0; i < len; i++) {
-            const rowData = this.data[i]
+            const rowData = data[i]
             
             let rowHeight = CELL_HEIGHT
             // 暂时注释text wrapping功能
@@ -32,7 +35,7 @@ class Body {
             //     }
             // }
 
-            this.rows.push(new Row(grid, i, 0, everyOffsetY, rowHeight, columns, rowData));
+            this.rows.push(new Row(this.grid, i, 0, everyOffsetY, rowHeight, rowData));
             everyOffsetY += rowHeight;
         }
 

@@ -6,7 +6,7 @@ import {
 } from './constants';
 
 class Row extends Context {
-    constructor(grid, rowIndex, x, y, height, columns, data) {
+    constructor(grid, rowIndex, x, y, height, data) {
         super(grid, x, y, null, height)
 
         this.data = data;
@@ -29,7 +29,7 @@ class Row extends Context {
         let everyOffsetX = grid.originFixedWidth;
 
         for(let i = 0; i < this.grid.columnsLength; i++) {
-            const column = columns[i]
+            const column = this.grid.columns[i]
             const width = column.width
             const cell = new Cell(data[column.key], grid, i, rowIndex, everyOffsetX, y, width, this.height, column, style)
             

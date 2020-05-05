@@ -18,6 +18,14 @@ $css-prefix: xs-data-grid;
     top: 0px;
     cursor: default;
 }
+.#{$css-prefix}-overlayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
 .#{$css-prefix}-editor {
     position: absolute;
     top: -10000px;

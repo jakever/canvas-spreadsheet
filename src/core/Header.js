@@ -13,7 +13,7 @@ oncheck.src = require('./images/oncheck.png')
 offcheck.src = require('./images/offcheck.png')
 
 class Header extends Context {
-    constructor(grid, x, y, columns) {
+    constructor(grid, x, y) {
         super(grid, x, y, null, HEADER_HEIGHT)
 
         this.checked = false
@@ -26,7 +26,7 @@ class Header extends Context {
         let everyOffsetX = this.grid.originFixedWidth;
 
         for(let i = 0; i < len; i++) {
-            const column = columns[i]
+            const column = this.grid.columns[i]
             const style = {
                 color: this.grid.color,
                 fillColor: this.grid.fillColor,

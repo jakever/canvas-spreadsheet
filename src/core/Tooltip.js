@@ -36,7 +36,7 @@ class Tooltip {
             // })
 
             this.grid.painter.drawCellText('数据错误', x, y + 24, this.width, 20, {
-                font: 'bold normal 14px PingFang SC',
+                font: 'bold 14px "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif',
                 color: ERROR_TIP_COLOR,
                 align: 'left'
             });
