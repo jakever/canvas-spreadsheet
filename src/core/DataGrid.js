@@ -61,8 +61,6 @@ class DataGrid {
 
     this.initConfig(options);
 
-    // this.initTableSize()
-
     // this.createContainer()
 
     this.clipboard = new Clipboard(this);
@@ -101,7 +99,7 @@ class DataGrid {
         borderWidth: 1,
         fixedLeft: 0,
         fixedRight: 0,
-        showCheckbox: true,
+        showCheckbox: false,
         onSelectCell: cell => {},
         onMultiSelectCell: cells => {},
         onEditCell: cell => {},
