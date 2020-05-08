@@ -1,6 +1,6 @@
 class Element {
-  constructor(tag, className = '') {
-    if (typeof tag === 'string') {
+  constructor(tag, className = "") {
+    if (typeof tag === "string") {
       this.el = document.createElement(tag);
       this.el.className = className;
     } else {
@@ -18,22 +18,25 @@ class Element {
   }
 
   on(eventNames, handler) {
-    const [fen, ...oen] = eventNames.split('.');
+    const [fen, ...oen] = eventNames.split(".");
     let eventName = fen;
-    if (eventName === 'mousewheel' && /Firefox/i.test(window.navigator.userAgent)) {
-      eventName = 'DOMMouseScroll';
+    if (
+      eventName === "mousewheel" &&
+      /Firefox/i.test(window.navigator.userAgent)
+    ) {
+      eventName = "DOMMouseScroll";
     }
-    this.el.addEventListener(eventName, (evt) => {
+    this.el.addEventListener(eventName, evt => {
       handler(evt);
       for (let i = 0; i < oen.length; i += 1) {
         const k = oen[i];
-        if (k === 'left' && evt.button !== 0) {
+        if (k === "left" && evt.button !== 0) {
           return;
         }
-        if (k === 'right' && evt.button !== 2) {
+        if (k === "right" && evt.button !== 2) {
           return;
         }
-        if (k === 'stop') {
+        if (k === "stop") {
           evt.stopPropagation();
         }
       }
@@ -43,19 +46,17 @@ class Element {
 
   offset(value) {
     if (value !== undefined) {
-      Object.keys(value).forEach((k) => {
+      Object.keys(value).forEach(k => {
         this.css(k, `${value[k]}px`);
       });
       return this;
     }
-    const {
-      offsetTop, offsetLeft, offsetHeight, offsetWidth,
-    } = this.el;
+    const { offsetTop, offsetLeft, offsetHeight, offsetWidth } = this.el;
     return {
       top: offsetTop,
       left: offsetLeft,
       height: offsetHeight,
-      width: offsetWidth,
+      width: offsetWidth
     };
   }
 
@@ -94,7 +95,7 @@ class Element {
 
   child(arg) {
     let ele = arg;
-    if (typeof arg === 'string') {
+    if (typeof arg === "string") {
       ele = document.createTextNode(arg);
     } else if (arg instanceof Element) {
       ele = arg.el;
@@ -129,7 +130,7 @@ class Element {
     return this;
   }
 
-  toggle(cls = 'active') {
+  toggle(cls = "active") {
     return this.toggleClass(cls);
   }
 
@@ -137,20 +138,20 @@ class Element {
     return this.el.classList.toggle(name);
   }
 
-  active(flag = true, cls = 'active') {
+  active(flag = true, cls = "active") {
     if (flag) this.addClass(cls);
     else this.removeClass(cls);
     return this;
   }
 
   checked(flag = true) {
-    this.active(flag, 'checked');
+    this.active(flag, "checked");
     return this;
   }
 
   disabled(flag = true) {
-    if (flag) this.addClass('disabled');
-    else this.removeClass('disabled');
+    if (flag) this.addClass("disabled");
+    else this.removeClass("disabled");
     return this;
   }
 
@@ -161,10 +162,10 @@ class Element {
     if (value !== undefined) {
       this.el.setAttribute(key, value);
     } else {
-      if (typeof key === 'string') {
+      if (typeof key === "string") {
         return this.el.getAttribute(key);
       }
-      Object.keys(key).forEach((k) => {
+      Object.keys(key).forEach(k => {
         this.el.setAttribute(k, key[k]);
       });
     }
@@ -193,17 +194,19 @@ class Element {
   }
 
   focus() {
-    if (window.getSelection) { // ie11 10 9 ff safari
-        this.el.focus() // 解决ff不获取焦点无法定位问题
-        const range = window.getSelection()// 创建range
-        range.selectAllChildren(this.el)// range 选择obj下所有子内容
-        range.collapseToEnd()// 光标移至最后
-    } else if (document.selection) { // ie10以下
-        const range = document.selection.createRange()// 创建选择对象
-        // var range = document.body.createTextRange();
-        range.moveToElementText(this.el)// range定位到obj
-        range.collapse(false)// 光标移至最后
-        range.select()
+    if (window.getSelection) {
+      // ie11 10 9 ff safari
+      this.el.focus(); // 解决ff不获取焦点无法定位问题
+      const range = window.getSelection(); // 创建range
+      range.selectAllChildren(this.el); // range 选择obj下所有子内容
+      range.collapseToEnd(); // 光标移至最后
+    } else if (document.selection) {
+      // ie10以下
+      const range = document.selection.createRange(); // 创建选择对象
+      // var range = document.body.createTextRange();
+      range.moveToElementText(this.el); // range定位到obj
+      range.collapse(false); // 光标移至最后
+      range.select();
     }
   }
 
@@ -216,8 +219,8 @@ class Element {
   // css( propertyName, value )
   // css( properties )
   css(name, value) {
-    if (value === undefined && typeof name !== 'string') {
-      Object.keys(name).forEach((k) => {
+    if (value === undefined && typeof name !== "string") {
+      Object.keys(name).forEach(k => {
         this.el.style[k] = name[k];
       });
       return this;
@@ -234,19 +237,16 @@ class Element {
   }
 
   show() {
-    this.css('display', 'block');
+    this.css("display", "block");
     return this;
   }
 
   hide() {
-    this.css('display', 'none');
+    this.css("display", "none");
     return this;
   }
 }
 
-const h = (tag, className = '') => new Element(tag, className);
+const h = (tag, className = "") => new Element(tag, className);
 
-export {
-  Element,
-  h,
-};
+export { Element, h };

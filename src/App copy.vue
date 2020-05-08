@@ -21,9 +21,15 @@ export default {
         { title: "岗位", key: "job_name", width: 140 },
         { title: "手机号", key: "phone", width: 100 },
         { title: "性别", key: "sex", width: 80 },
-        { title: "家庭地址", key: "address", width: 150},
-        { title: "物料编码", key: "materialNo", width: 100, align: 'right' },
-        { title: "数量", key: "requiredQuantity", type: "number", width: 70, align: 'right' },
+        { title: "家庭地址", key: "address", width: 150 },
+        { title: "物料编码", key: "materialNo", width: 100, align: "right" },
+        {
+          title: "数量",
+          key: "requiredQuantity",
+          type: "number",
+          width: 70,
+          align: "right"
+        },
         { title: "单位", key: "unit", width: 70 },
         { title: "工作性质", width: 100, key: "work_type" },
         { title: "工作状态", width: 100, key: "work_status" },
@@ -156,7 +162,7 @@ export default {
           salePrice: 12.3 + i
         });
 
-        this.gridGata = data
+        this.gridGata = data;
       }
 
       // const Grid = new DataGrid(el, {
