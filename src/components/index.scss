@@ -8,7 +8,8 @@ $css-prefix: xs-data-grid;
     position: relative;
     box-sizing: border-box;
     overflow: hidden;
-    // border: 1px solid #dee0e3;
+    border-right: 1px solid #e1e6eb;
+    border-bottom: 1px solid #e1e6eb;
 }
 .#{$css-prefix}-table {
     text-rendering: auto;

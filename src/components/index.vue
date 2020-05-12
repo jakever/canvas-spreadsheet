@@ -7,7 +7,7 @@
       ></canvas>
       <div
         :class="`${CSS_PREFIX}-overlayer`"
-        :style="{ top: headerHeight + 'px' }"
+        :style="{ top: `${headerHeight+1}px` }"
         v-loading="loading"
       >
         <!-- <textarea ref="clipboard" style="position:absolute;left:-10000px;top:-10000px" @paste="handlePaste"></textarea> -->
@@ -132,6 +132,10 @@ export default {
     };
   },
   watch: {
+    columns(val) {
+      this.grid.updateColumns(val)
+      this.grid.loadData(this.data);
+    },
     data(val) {
       this.grid.loadData(val);
       this.loading = false;
@@ -188,7 +192,7 @@ export default {
     },
     setStyle(cell) {
       this.$refs.editor.style.left = `${cell.x - 1}px`;
-      this.$refs.editor.style.top = `${cell.y - 1 - this.headerHeight}px`;
+      this.$refs.editor.style.top = `${cell.y - 2 - this.headerHeight}px`;
       this.$refs.text.style["min-width"] = `${cell.width - 2}px`;
       this.$refs.text.style["min-height"] = `${cell.height - 2}px`;
       this.popWidth = `${cell.width - 2}px`;

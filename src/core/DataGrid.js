@@ -124,7 +124,8 @@ class DataGrid {
   }
   setLayoutSize(options = {}) {
     const el = this.target.parentElement;
-    const { width, left, top } = el.getBoundingClientRect();
+    const rootEl = el.parentElement;
+    const { width, left, top } = rootEl.getBoundingClientRect();
     this.containerOriginX = left;
     this.containerOriginY = top;
     this.width = options.width || width; // 容器宽
@@ -134,6 +135,7 @@ class DataGrid {
     this.target.height = this.height * dpr;
     this.target.style.width = this.width + "px";
     this.target.style.height = this.height + "px";
+    el.style.width = this.width + "px";
     el.style.height = this.height + "px";
     this.painter.scaleCanvas(dpr);
   }
@@ -466,12 +468,17 @@ class DataGrid {
   drawContainer() {
     this.painter.drawRect(0, 0, this.width, this.height, {
       borderColor: this.borderColor,
-      // fillColor: '#fff',
+      fillColor: '#fff',
       borderWidth: this.borderWidth
     });
   }
   draw() {
     this.painter.clearCanvas();
+
+    // 绘制外层容器
+    this.drawContainer();
+
+    if (!this.columnsLength) return;
 
     // body
     this.body.draw();
@@ -485,8 +492,13 @@ class DataGrid {
     // 绘制滚动条
     this.scroller.draw();
 
-    // 绘制外层容器
-    this.drawContainer();
+  }
+  updateColumns(columns) {
+    this.columns = columns;
+    this.columnsLength = columns.length;
+    this.range.maxX = columns.length - 1;
+    this.header.paint()
+    this.getTableSize()
   }
   loadData(data) {
     this.data = data;

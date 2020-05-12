@@ -18,6 +18,9 @@ class Header extends Context {
 
     this.checked = false;
 
+    this.paint()
+  }
+  paint() {
     this.allColumnHeaders = [];
     this.fixedColumnHeaders = [];
     this.columnHeaders = [];
@@ -35,16 +38,16 @@ class Header extends Context {
       };
       column.width = SIZE_MAP[column.size || "mini"]; // 读取映射宽度
 
-      if (i < grid.fixedLeft) {
+      if (i < this.grid.fixedLeft) {
         column.fixed = "left";
-      } else if (i > len - 1 - grid.fixedRight) {
+      } else if (i > len - 1 - this.grid.fixedRight) {
         column.fixed = "right";
       }
       const columnHeader = new ColumnHeader(
-        grid,
+        this.grid,
         i,
         everyOffsetX,
-        y,
+        this.y,
         column,
         style
       );
