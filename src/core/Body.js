@@ -216,10 +216,11 @@ class Body {
   getData() {
     return this.rows.map(row => {
       const cells = row.allCells;
-      const _o = {};
+      let _o = {};
       cells.forEach(cell => {
         _o[cell.key] = cell.value;
       });
+      _o = Object.assign({}, row.data, _o)
       return _o;
     });
   }
@@ -228,10 +229,11 @@ class Body {
       .filter(item => item.checked)
       .map(row => {
         const cells = row.allCells;
-        const _o = {};
+        let _o = {};
         cells.forEach(cell => {
           _o[cell.key] = cell.value;
         });
+        _o = Object.assign({}, row.data, _o)
         return _o;
       });
   }
@@ -241,17 +243,35 @@ class Body {
     Object.keys(this.grid.hashChange).forEach(key => {
       arr.add(Number(key.split("-")[1]));
     });
-    arr.forEach(item => {
+    Array.from(arr).sort().forEach(item => {
       rows.push(this.rows[item]);
     });
     return rows.map(row => {
       const cells = row.allCells;
-      const _o = {};
+      let _o = {};
       cells.forEach(cell => {
         _o[cell.key] = cell.value;
       });
+      _o = Object.assign({}, row.data, _o)
       return _o;
     });
+  }
+  getValidations() {
+    const validFaildRows = []
+    this.rows.forEach(row => {
+      const validFaildCells = []
+      const cells = row.allCells;
+      cells.forEach(cell => {
+        !cell.valid && validFaildCells.push({
+          title: cell.title,
+          key: cell.key,
+          value: cell.value,
+          message: cell.message
+        })
+      });
+      validFaildCells.length && validFaildRows.push(validFaildCells)
+    })
+    return validFaildRows
   }
   getRowData() {}
   getCellData() {}

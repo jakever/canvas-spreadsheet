@@ -515,5 +515,8 @@ class DataGrid {
   getChangedRows() {
     return this.body.getChangedRows();
   }
+  getValidations() {
+    return this.body.getValidations()
+  }
 }
 export default DataGrid;

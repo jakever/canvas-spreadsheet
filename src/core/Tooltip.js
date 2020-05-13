@@ -15,18 +15,27 @@ class Tooltip {
   }
   draw() {
     if (!this.valid && !this.grid.selector.isSelected) {
-      const x =
-        this.fixed === "right"
-          ? this.x - this.width
-          : this.fixed === "left"
-          ? this.x
-          : this.x + this.grid.scrollX;
+      const poX = this.x + this.colWidth + 1
+      const isBeyondView = poX > this.grid.width // tooltip浮层是否超过可视区
+      let x = isBeyondView
+        ? this.fixed === 'right'
+          ? this.grid.width -
+            (this.grid.tableWidth - this.x - this.colWidth) -
+            this.colWidth -
+            this.grid.verticalScrollerSize -
+            this.width -
+            1
+          : this.x - this.width - 1
+        : poX;
+      if (!this.fixed) {
+        x += this.grid.scrollX;
+      }
       const y = this.y + this.grid.scrollY;
       this.grid.painter.drawRoundRect(x, y, this.width, this.height, 4, {
         shadowBlur: 16,
         shadowColor: "rgba(28,36,56,0.16)",
-        shadowOffsetX: 6,
-        shadowOffsetY: 6,
+        shadowOffsetX: 0,
+        shadowOffsetY: 0,
         fillColor: "#fff",
         borderWidth: 1
       });

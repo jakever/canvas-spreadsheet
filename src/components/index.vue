@@ -162,6 +162,9 @@ export default {
     getChangedRows() {
       return this.grid.getChangedRows();
     },
+    getValidations() {
+      return this.grid.getValidations();
+    },
     setFullScreen() {
       this.grid.resize();
     },

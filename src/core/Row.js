@@ -91,19 +91,12 @@ class Row extends Context {
       ) {
         const { colIndex, rowIndex, x, y, width, valid, message, fixed } = cell;
         this.grid.multiSelectCell(colIndex, rowIndex);
-        const _x =
-          fixed === "right"
-            ? this.grid.width -
-              (this.grid.tableWidth - x - width) -
-              width -
-              this.grid.verticalScrollerSize -
-              1
-            : x + width + 1;
         this.grid.tooltip.update({
           valid,
           message,
-          x: _x,
+          x,
           y,
+          colWidth: width,
           fixed
         });
       }

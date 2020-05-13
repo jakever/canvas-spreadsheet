@@ -26,6 +26,7 @@ class Cell extends Context {
     this.colIndex = colIndex;
     this.rowIndex = rowIndex;
 
+    this.title = column.title;
     this.key = column.key;
     this.fixed = column.fixed;
     this.readonly = column.readonly;

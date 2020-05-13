@@ -7,6 +7,9 @@
       <el-button size="small" @click="getChangedRows"
         >获取已改变行数据</el-button
       >
+      <el-button size="small" @click="getValidations"
+        >获取校验结果</el-button
+      >
       <el-button size="small" @click="setFullScreen">
         {{ !isFullscreen ? "全屏" : "退出全屏" }}
       </el-button>
@@ -15,8 +18,8 @@
       ref="datagrid"
       :columns="columns"
       :data="gridData"
-      :fixed-right="2"
-      :fixed-left="1"
+      :fixed-right="1"
+      :fixed-left="2"
     ></DataGrid>
   </div>
 </template>
@@ -71,12 +74,17 @@ export default {
       const data = this.$refs.datagrid.getChangedRows();
       console.log(data);
       alert("获取成功，请查看控制台");
+    },
+    getValidations() {
+      const data = this.$refs.datagrid.getValidations();
+      console.log(data);
+      alert("获取成功，请查看控制台");
     }
   },
   created() {
     const columns = [
       { title: "姓名", key: "emp_name" },
-      { title: "工号", key: "emp_no" },
+      { title: "工号", key: "emp_no", type: 'number' },
       {
         title: "部门",
         key: "dep_name",
@@ -209,8 +217,9 @@ export default {
     // this.$nextTick(() => {
     let el = document.getElementById("data-grid-demo");
     let data = [];
-    for (let i = 0; i < 1000; i += 1) {
+    for (let i = 0; i < 10; i += 1) {
       data.push({
+        id: i,
         emp_name: `张三${i}`,
         emp_no: 10 + i,
         dep_name: i === 4 ? null : `研发部${i}`,
