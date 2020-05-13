@@ -58,8 +58,18 @@ class ColumnHeader extends Context {
       // 线
       if (this.index >= minX && this.index <= maxX) {
         const points = [
-          [x + 1, this.y + this.height - 1],
-          [x + 1 + this.width, this.y + this.height - 1]
+          [x, this.y + this.height],
+          [x + this.width, this.y + this.height]
+        ];
+        this.grid.painter.drawLine(points, {
+          borderColor: SELECT_BORDER_COLOR,
+          borderWidth: 2
+        });
+      }
+      if (this.index - 1 === maxX) {
+        const points = [
+          [x - 1, this.y + this.height],
+          [x, this.y + this.height]
         ];
         this.grid.painter.drawLine(points, {
           borderColor: SELECT_BORDER_COLOR,

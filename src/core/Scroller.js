@@ -148,6 +148,7 @@ class Scroller {
     this.verticalScroller.focus = this.isInsideVerticalScroller(x, y)
       ? true
       : false;
+    if (this.grid.editor.show) return;
     if (this.horizontalScroller.move) {
       const diffX = x - this.mouseOriginalX;
       const movedX = this.horizontalScroller.x + diffX;
