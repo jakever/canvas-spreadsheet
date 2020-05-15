@@ -180,7 +180,7 @@ class Header extends Context {
       this.grid.painter.drawRect(
         this.grid.width - this.grid.fixedRightWidth,
         this.y,
-        this.grid.fixedRightWidth,
+        this.grid.fixedRightWidth - this.grid.verticalScrollerSize,
         this.height,
         {
           fillColor: "#f9f9f9",

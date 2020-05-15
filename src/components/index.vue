@@ -198,7 +198,7 @@ export default {
       this.$refs.editor.style.top = `${cell.y - 2 - this.headerHeight}px`;
       this.$refs.text.style["min-width"] = `${cell.width - 1}px`;
       this.$refs.text.style["min-height"] = `${cell.height - 1}px`;
-      this.popWidth = `${cell.width - 2}px`;
+      this.popWidth = `${cell.width - 1}px`;
       if (COMPLEX_DATE_TYPES.includes(this.dataType)) {
         // 下拉，日期控件高度比输入框高
         this.$refs.editor.style.height = "38px";
@@ -263,6 +263,9 @@ export default {
         }
       });
     });
+  },
+  destroyed() {
+    this.grid.events.destroy()
   }
 };
 </script>

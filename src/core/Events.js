@@ -1,3 +1,32 @@
+function bind(target, name, fn, useCapture) {
+  target.addEventListener(name, fn, useCapture);
+}
+function unbind(target, name, fn, useCapture) {
+  target.removeEventListener(name, fn, useCapture);
+}
+function unbindClickoutside(el) {
+  if (el.xclickoutside) {
+    unbind(window.document.body, 'mousedown', el.xclickoutside);
+    delete el.xclickoutside;
+  }
+}
+
+// the left mouse button: mousedown → mouseup → click
+// the right mouse button: mousedown → contenxtmenu → mouseup
+// the right mouse button in firefox(>65.0): mousedown → contenxtmenu → mouseup → click on window
+function bindClickoutside(el, cb) {
+  el.xclickoutside = (evt) => {
+    // ignore double click
+    // console.log('evt:', evt);
+    if (evt.detail === 2 || el.contains(evt.target)) return;
+    if (cb) cb(el);
+    else {
+      el.style.display = 'none'
+      unbindClickoutside(el);
+    }
+  };
+  bind(window.document.body, 'mousedown', el.xclickoutside);
+}
 function throttle(
   func,
   time = 17,
@@ -98,6 +127,9 @@ function handleDbClick(e) {
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
   this.body.dbClick(x, y);
+}
+function handleClickoutside() {
+  this.doneEdit();
 }
 function handleKeydown(e) {
   if (this.editor.show) {
@@ -244,25 +276,58 @@ function handleResize() {
 class Events {
   constructor(grid, el) {
     this.grid = grid;
+    this.el = el
+    this.isFirefox = typeof navigator !== 'undefined' && navigator.userAgent.toLowerCase().indexOf('firefox') > -1
 
-    el.addEventListener("mousedown", handleMouseDown.bind(grid), false);
-    // el.addEventListener('mousemove', throttle(handleMouseMove, 50, {
-    //     context: grid
-    // }), false)
-    window.addEventListener("mousemove", handleMouseMove.bind(grid), false);
-    window.addEventListener("mouseup", handleMouseUp.bind(grid), false);
-    // el.addEventListener('mouseup', handleMouseUp.bind(grid), false)
-    el.addEventListener("click", handleClick.bind(grid), false);
-    el.addEventListener("dblclick", handleDbClick.bind(grid), false);
-    el.addEventListener("mousewheel", handleScroll.bind(grid), false);
-    window.addEventListener("keydown", handleKeydown.bind(grid), false);
-    window.addEventListener(
-      "resize",
+    this.init()
+  }
+  init() {
+    const {
+      el,
+      grid,
+      isFirefox
+    } = this
+    const rootEl = el.parentElement;
+    bindClickoutside(rootEl, handleClickoutside.bind(grid))
+    bind(el, 'mousedown', handleMouseDown.bind(grid), false)
+    bind(window, 'mousemove', handleMouseMove.bind(grid), false)
+    bind(window, 'mouseup', handleMouseUp.bind(grid), false)
+    bind(el, 'click', handleClick.bind(grid), false)
+    bind(el, 'dblclick', handleDbClick.bind(grid), false)
+    bind(el, isFirefox ? 'DOMMouseScroll' : 'mousewheel', handleScroll.bind(grid), false)
+    bind(window, 'keydown', handleKeydown.bind(grid), false)
+    bind(
+      window, 
+      'resize',
       throttle(handleResize, 100, {
         context: grid
       }),
       false
-    );
+    )
+  }
+  destroy() {
+    const {
+      el,
+      grid,
+      isFirefox
+    } = this
+    const rootEl = el.parentElement;
+    unbindClickoutside(rootEl)
+    unbind(el, 'mousedown', handleMouseDown.bind(grid), false)
+    unbind(window, 'mousemove', handleMouseMove.bind(grid), false)
+    unbind(window, 'mouseup', handleMouseUp.bind(grid), false)
+    unbind(el, 'click', handleClick.bind(grid), false)
+    unbind(el, 'dblclick', handleDbClick.bind(grid), false)
+    unbind(el, isFirefox ? 'DOMMouseScroll' : 'mousewheel', handleScroll.bind(grid), false)
+    unbind(window, 'keydown', handleKeydown.bind(grid), false)
+    unbind(
+      window, 
+      'resize',
+      throttle(handleResize, 100, {
+        context: grid
+      }),
+      false
+    )
   }
 }
 export default Events;
