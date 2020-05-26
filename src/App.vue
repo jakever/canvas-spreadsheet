@@ -217,7 +217,7 @@ export default {
     // this.$nextTick(() => {
     let el = document.getElementById("data-grid-demo");
     let data = [];
-    for (let i = 0; i < 10; i += 1) {
+    for (let i = 0; i < 100; i += 1) {
       data.push({
         id: i,
         emp_name: `张三${i}`,

@@ -189,9 +189,9 @@ class Row extends Context {
     // 固定列阴影
     if (this.grid.scrollX !== 0) {
       this.grid.painter.drawRect(
-        this.x,
+        this.x + this.grid.originFixedWidth,
         this.y + this.grid.scrollY,
-        this.grid.fixedLeftWidth,
+        this.grid.fixedLeftWidth - this.grid.originFixedWidth,
         this.height,
         {
           fillColor: "#f9f9f9",

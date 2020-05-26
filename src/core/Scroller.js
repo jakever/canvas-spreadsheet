@@ -211,7 +211,7 @@ class Scroller {
     this.grid.painter.drawRect(
       0,
       scrollerHeight,
-      scrollerWidth,
+      scrollerWidth + SCROLLER_TRACK_SIZE,
       SCROLLER_TRACK_SIZE,
       {
         fillColor: this.grid.fillColor,
@@ -224,6 +224,17 @@ class Scroller {
       [
         [this.grid.originFixedWidth, scrollerHeight],
         [this.grid.originFixedWidth, scrollerHeight + SCROLLER_TRACK_SIZE]
+      ],
+      {
+        borderColor: this.grid.borderColor,
+        borderWidth: this.grid.borderWidth
+      }
+    );
+    // 滑块结束位置线条
+    this.grid.painter.drawLine(
+      [
+        [scrollerWidth, scrollerHeight],
+        [scrollerWidth, scrollerHeight + SCROLLER_TRACK_SIZE]
       ],
       {
         borderColor: this.grid.borderColor,
