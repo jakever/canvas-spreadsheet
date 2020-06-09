@@ -342,7 +342,6 @@ class DataGrid {
           : x + this.scrollX;
       const _y = y + this.scrollY;
 
-      val && this.setData(val);
       this.editor.show = true;
       this.selector.show = false;
       this.onEditCell({
@@ -367,6 +366,7 @@ class DataGrid {
       // this.editor.hide();
       this.editor.show = false;
       this.selector.show = true; // 编辑完再选中该单元格
+      this.clipboard.el.focus(); // 通过enter键变为非编辑模式，div编辑框不会失焦
       this.onSelectCell(this.focusCell);
       this.clipboard.clear();
     }

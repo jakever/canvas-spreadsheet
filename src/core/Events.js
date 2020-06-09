@@ -308,7 +308,7 @@ class Events {
     bind(el, 'click', this.eventTasks.click, false)
     bind(el, 'dblclick', this.eventTasks.dblclick, false)
     bind(el, isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.eventTasks.mousewheel, false)
-    bind(window, 'keydown', this.eventTasks.keydown, false)
+    bind(window, 'keydown', this.eventTasks.keydown, false) // canvas元素不支持keydown事件
     bind(window, 'resize', this.eventTasks.resize, false)
   }
   destroy() {

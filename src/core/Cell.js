@@ -21,11 +21,13 @@ class Cell extends Context {
     width,
     height,
     column,
+    rowData,
     options
   ) {
     super(grid, x, y, width, height, column.fixed);
     this.colIndex = colIndex;
     this.rowIndex = rowIndex;
+    this.rowData = rowData
 
     this.title = column.title;
     this.key = column.key;
@@ -77,17 +79,17 @@ class Cell extends Context {
         this.fixed === "left")
     );
   }
-  validate(row = {}) {
-    const { flag, message } = this.validator.validate(this.value, row);
+  validate() {
+    const { flag, message } = this.validator.validate(this.value, this.rowData);
     this.valid = flag;
     this.message = message;
   }
   setData(val) {
     if (this.readonly) return;
     this.value = val;
-    const rowData = this.grid.getRowData(this.rowIndex)
+    
     this.setLabel(val);
-    this.validate(rowData)
+    this.validate()
 
     // changed diff
     if (this.value !== this.originalValue) {

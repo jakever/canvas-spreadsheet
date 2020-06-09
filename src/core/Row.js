@@ -47,6 +47,7 @@ class Row extends Context {
         width,
         this.height,
         column,
+        data,
         style
       );
 
