@@ -27,3 +27,12 @@ export const SIZE_MAP = {
   medium: 200,
   large: 300
 };
+
+export const VALIDATOR_TYPES = [
+  'month',
+  'date',
+  'number',
+  'phone',
+  'email',
+  'select'
+]

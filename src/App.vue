@@ -98,13 +98,16 @@ export default {
         size: "small",
         align: "left",
         rule: {
-          validator: function(value) {
-            if (value.length > 10 || value.length < 1) {
-              return false;
+          validator: function(value, callback) {
+            if (value.length > 10) {
+              callback('岗位字段长度必须小于10个字符哦！')
+            } else if (value.length < 1) {
+              callback('岗位字段长度必须填哦！')
+            } else {
+              callback()
             }
-            return true;
           },
-          message: "岗位字段长度需要为0～10个字符哦！"
+          immediate: false
         }
       },
       { title: "手机号", key: "phone", type: "phone" },

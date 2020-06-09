@@ -41,7 +41,7 @@ class Validator {
     this.validateKey = column.key;
     this.validateTitle = column.title;
 
-    // type: date|number|phone|email|select
+    // type: month|date|number|phone|email|select
     // required
     // validator: RegExp|Function
     // message
@@ -72,7 +72,16 @@ class Validator {
       const pattern = new RegExp(validator);
       return getValidation.call(this, pattern.test(v), "notIn");
     } else if (typeof validator === "function") {
-      return getValidation.call(this, validator(v), "notIn");
+      let flag = true
+      validator(v, (res) => {
+        if (typeof res === 'string') {
+          this.message = res
+          flag = !res
+        } else if (res === false) {
+          flag = false
+        }
+      })
+      return getValidation.call(this, flag, "notIn");
     }
     if (!v) return { flag: true };
 

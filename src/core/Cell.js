@@ -4,7 +4,8 @@ import {
   SELECT_BG_COLOR,
   READONLY_COLOR,
   READONLY_TEXT_COLOR,
-  ERROR_TIP_COLOR
+  ERROR_TIP_COLOR,
+  VALIDATOR_TYPES
 } from "./constants.js";
 import Context from "./Context.js";
 import Validator from "./Validator.js";
@@ -47,7 +48,11 @@ class Cell extends Context {
       fillColor: "#fff"
     });
     this.setLabel(value);
-    this.validate();
+    if (column.rule && column.rule.immediate !== false) { // 编辑器初始化不需要校验
+      this.validate();
+    } else if (VALIDATOR_TYPES.includes(column.type)) {
+      this.validate();
+    }
   }
   isInHorizontalAutofill(mouseX, mouseY) {
     return (
@@ -81,6 +86,7 @@ class Cell extends Context {
     if (this.readonly) return;
     this.value = val;
     this.setLabel(val);
+    this.validate()
 
     // changed diff
     if (this.value !== this.originalValue) {

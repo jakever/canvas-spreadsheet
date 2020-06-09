@@ -16,7 +16,7 @@
             ref="text"
             contenteditable="true"
             v-if="isSimple"
-            @input="inputHandler"
+            @blur="changeHandler"
           ></div>
           <el-date-picker
             ref="month"
@@ -137,6 +137,7 @@ export default {
       this.grid.loadData(this.data);
     },
     data(val) {
+      this.grid.updateColumns(this.columns)
       this.grid.loadData(val);
       this.loading = false;
     }
@@ -232,6 +233,10 @@ export default {
       }
     },
     inputHandler(e) {
+      const val = e.target.innerText;
+      this.grid.setData(val);
+    },
+    changeHandler(e) {
       const val = e.target.innerText;
       this.grid.setData(val);
     },

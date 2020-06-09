@@ -365,7 +365,6 @@ class DataGrid {
       //     // this.rePaintRow(this.editor.yIndex)
       // }
       // this.editor.hide();
-      this.focusCell.validate();
       this.editor.show = false;
       this.selector.show = true; // 编辑完再选中该单元格
       this.onSelectCell(this.focusCell);
@@ -504,7 +503,7 @@ class DataGrid {
     this.data = data;
     this.range.maxY = data.length - 1;
     this.body.paint(data);
-    this.getTableSize();
+    this.initTableSize();
   }
   getData() {
     return this.body.getData();
