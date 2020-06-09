@@ -273,8 +273,22 @@ class Body {
     })
     return validFaildRows
   }
-  getRowData() {}
-  getCellData() {}
+  getRowData(y) {
+    return this.rows
+      .filter(item => item.rowIndex === y)
+      .map(row => {
+        const cells = row.allCells;
+        let _o = {};
+        cells.forEach(cell => {
+          _o[cell.key] = cell.value;
+        });
+        _o = Object.assign({}, row.data, _o)
+        return _o;
+      });
+  }
+  getCellData(x, y) {
+    
+  }
   updateRowData(rowIndex) {}
   updateCellData(colIndex) {}
 }

@@ -508,6 +508,9 @@ class DataGrid {
   getData() {
     return this.body.getData();
   }
+  getRowData(y) {
+    return this.body.getRowData(y)
+  }
   getCheckedRows() {
     return this.body.getCheckedRows();
   }

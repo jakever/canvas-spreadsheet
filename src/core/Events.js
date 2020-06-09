@@ -288,46 +288,44 @@ class Events {
       isFirefox
     } = this
     const rootEl = el.parentElement;
-    bindClickoutside(rootEl, handleClickoutside.bind(grid))
-    bind(el, 'mousedown', handleMouseDown.bind(grid), false)
-    bind(window, 'mousemove', handleMouseMove.bind(grid), false)
-    bind(window, 'mouseup', handleMouseUp.bind(grid), false)
-    bind(el, 'click', handleClick.bind(grid), false)
-    bind(el, 'dblclick', handleDbClick.bind(grid), false)
-    bind(el, isFirefox ? 'DOMMouseScroll' : 'mousewheel', handleScroll.bind(grid), false)
-    bind(window, 'keydown', handleKeydown.bind(grid), false)
-    bind(
-      window, 
-      'resize',
-      throttle(handleResize, 100, {
+    this.eventTasks = {
+      'clickoutside': handleClickoutside.bind(grid),
+      'mousedown': handleMouseDown.bind(grid),
+      'mousemove': handleMouseMove.bind(grid),
+      'mouseup': handleMouseUp.bind(grid),
+      'click': handleClick.bind(grid),
+      'dblclick': handleDbClick.bind(grid),
+      'mousewheel': handleScroll.bind(grid),
+      'keydown': handleKeydown.bind(grid),
+      'resize': throttle(handleResize, 100, {
         context: grid
       }),
-      false
-    )
+    }
+    bindClickoutside(rootEl, handleClickoutside.bind(grid))
+    bind(el, 'mousedown', this.eventTasks.mousedown, false)
+    bind(window, 'mousemove', this.eventTasks.mousemove, false)
+    bind(window, 'mouseup', this.eventTasks.mouseup, false)
+    bind(el, 'click', this.eventTasks.click, false)
+    bind(el, 'dblclick', this.eventTasks.dblclick, false)
+    bind(el, isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.eventTasks.mousewheel, false)
+    bind(window, 'keydown', this.eventTasks.keydown, false)
+    bind(window, 'resize', this.eventTasks.resize, false)
   }
   destroy() {
     const {
       el,
-      grid,
       isFirefox
     } = this
     const rootEl = el.parentElement;
     unbindClickoutside(rootEl)
-    unbind(el, 'mousedown', handleMouseDown.bind(grid), false)
-    unbind(window, 'mousemove', handleMouseMove.bind(grid), false)
-    unbind(window, 'mouseup', handleMouseUp.bind(grid), false)
-    unbind(el, 'click', handleClick.bind(grid), false)
-    unbind(el, 'dblclick', handleDbClick.bind(grid), false)
-    unbind(el, isFirefox ? 'DOMMouseScroll' : 'mousewheel', handleScroll.bind(grid), false)
-    unbind(window, 'keydown', handleKeydown.bind(grid), false)
-    unbind(
-      window, 
-      'resize',
-      throttle(handleResize, 100, {
-        context: grid
-      }),
-      false
-    )
+    unbind(el, 'mousedown', this.eventTasks.mousedown, false)
+    unbind(window, 'mousemove', this.eventTasks.mousemove, false)
+    unbind(window, 'mouseup', this.eventTasks.mouseup, false)
+    unbind(el, 'click', this.eventTasks.click, false)
+    unbind(el, 'dblclick', this.eventTasks.dblclick, false)
+    unbind(el, isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.eventTasks.mousewheel, false)
+    unbind(window, 'keydown', this.eventTasks.keydown, false)
+    unbind(window, 'resize', this.eventTasks.resize, false)
   }
 }
 export default Events;

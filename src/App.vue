@@ -98,7 +98,7 @@ export default {
         size: "small",
         align: "left",
         rule: {
-          validator: function(value, callback) {
+          validator: function(value, row, callback) {
             if (value.length > 10) {
               callback('岗位字段长度必须小于10个字符哦！')
             } else if (value.length < 1) {

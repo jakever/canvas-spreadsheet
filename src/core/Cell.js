@@ -77,16 +77,17 @@ class Cell extends Context {
         this.fixed === "left")
     );
   }
-  validate() {
-    const { flag, message } = this.validator.validate(this.value);
+  validate(row = {}) {
+    const { flag, message } = this.validator.validate(this.value, row);
     this.valid = flag;
     this.message = message;
   }
   setData(val) {
     if (this.readonly) return;
     this.value = val;
+    const rowData = this.grid.getRowData(this.rowIndex)
     this.setLabel(val);
-    this.validate()
+    this.validate(rowData)
 
     // changed diff
     if (this.value !== this.originalValue) {
