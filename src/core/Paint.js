@@ -242,7 +242,7 @@ class Paint {
   }
   getTextWrapping(text, width, padding) {
     if (!text && text !== 0) {
-      return null;
+      return '';
     }
     this.ctx.font =
       'normal 12px "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif';

@@ -61,7 +61,8 @@ class Validator {
     }
     return label;
   }
-  validate(v, row) {
+  async validate(v, row) {
+    const self = this
     const { required, validator, operator, options, type, descriptor } = this;
 
     if (required && !v) {
@@ -73,9 +74,9 @@ class Validator {
       return getValidation.call(this, pattern.test(v), "notIn");
     } else if (typeof validator === "function") {
       let flag = true
-      validator(v, row, (res) => {
+      await validator(v, row, (res) => {
         if (typeof res === 'string') {
-          this.message = res
+          self.message = res
           flag = !res
         } else if (res === false) {
           flag = false

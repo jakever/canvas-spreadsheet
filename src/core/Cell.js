@@ -79,8 +79,8 @@ class Cell extends Context {
         this.fixed === "left")
     );
   }
-  validate() {
-    const { flag, message } = this.validator.validate(this.value, this.rowData);
+  async validate() {
+    const { flag, message } = await this.validator.validate(this.value, this.rowData);
     this.valid = flag;
     this.message = message;
   }
