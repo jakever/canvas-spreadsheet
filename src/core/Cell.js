@@ -79,17 +79,17 @@ class Cell extends Context {
         this.fixed === "left")
     );
   }
-  async validate() {
-    const { flag, message } = await this.validator.validate(this.value, this.rowData);
+  async validate(data) {
+    const { flag, message } = await this.validator.validate(this.value, data || this.rowData);
     this.valid = flag;
     this.message = message;
   }
   setData(val) {
     if (this.readonly) return;
     this.value = val;
-    
+    const rowData = this.grid.body.getRowData(this.rowIndex)
     this.setLabel(val);
-    this.validate()
+    this.validate(rowData)
 
     // changed diff
     if (this.value !== this.originalValue) {

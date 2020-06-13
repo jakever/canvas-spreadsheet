@@ -48,6 +48,21 @@
             @change="selectChange"
           >
           </el-date-picker>
+          <el-date-picker
+            ref="datetime"
+            v-else-if="dataType === 'datetime'"
+            :class="`${CSS_PREFIX}-popup`"
+            :style="popupSty"
+            v-model="value"
+            :editable="false"
+            type="datetime"
+            size="medium"
+            placeholder="选择日期时间"
+            format="yyyy-MM-dd HH:mm:ss"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            @change="selectChange"
+          >
+          </el-date-picker>
           <el-select
             ref="select"
             v-else-if="dataType === 'select'"
@@ -87,7 +102,7 @@ import { CSS_PREFIX, HEADER_HEIGHT } from "../core/constants.js";
 import DataGrid from "../core/DataGrid.js";
 import "./index.scss";
 const SIMPLE_DATE_TYPES = ["text", "number", "phone", "email"];
-const COMPLEX_DATE_TYPES = ["month", "date", "select"];
+const COMPLEX_DATE_TYPES = ["month", "date", "datetime", "select"];
 
 export default {
   name: "DDataGrid",
@@ -174,7 +189,7 @@ export default {
       this.dataType = cell.dataType;
       this.selectOptions = cell.options;
       this.$refs.text.innerText = cell.value;
-      if (this.dataType === "month" || this.dataType === "date") {
+      if (this.dataType === "month" || this.dataType === "date" || this.dataType === "datetime") {
         if (isNaN(cell.value) && !isNaN(Date.parse(cell.value))) {
           this.value = cell.value;
         } else {

@@ -178,6 +178,12 @@ export default {
         }
       },
       {
+        title: "请假开始时间",
+        size: "small",
+        key: "start_dt",
+        type: "datetime"
+      },
+      {
         title: "物料编码",
         key: "materialNo",
         align: "right",

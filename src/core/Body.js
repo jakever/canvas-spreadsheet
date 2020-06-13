@@ -53,7 +53,6 @@ class Body {
         const cells = this.rows[ri + editor.yIndex].allCells;
         const cell = cells[ci + editor.xIndex];
         cell.setData(data[ri][ci]);
-        cell.validate();
       }
     }
   }
@@ -72,7 +71,6 @@ class Body {
         const val = value[ri % yStep][ci % xStep];
         const cell = this.rows[rowIndex].allCells[colIndex];
         cell.setData(val);
-        cell.validate();
       }
     }
     this.grid.clearAuaofill();

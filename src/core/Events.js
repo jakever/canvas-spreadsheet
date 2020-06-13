@@ -15,10 +15,14 @@ function unbindClickoutside(el) {
 // the right mouse button: mousedown → contenxtmenu → mouseup
 // the right mouse button in firefox(>65.0): mousedown → contenxtmenu → mouseup → click on window
 function bindClickoutside(el, cb) {
+  const self = this
   el.xclickoutside = (evt) => {
     // ignore double click
     // console.log('evt:', evt);
-    if (evt.detail === 2 || el.contains(evt.target)) return;
+    const pointX = evt.clientX - self.containerOriginX
+    const pointY = evt.clientY - self.containerOriginY
+    const isInTable = pointX > 0 && pointX < self.width && pointY > 0 && pointY < self.height
+    if (evt.detail === 2 || el.contains(evt.target) || isInTable) return;
     if (cb) cb(el);
     else {
       el.style.display = 'none'
@@ -301,7 +305,7 @@ class Events {
         context: grid
       }),
     }
-    bindClickoutside(rootEl, handleClickoutside.bind(grid))
+    bindClickoutside.call(grid, rootEl, handleClickoutside.bind(grid))
     bind(el, 'mousedown', this.eventTasks.mousedown, false)
     bind(window, 'mousemove', this.eventTasks.mousemove, false)
     bind(window, 'mouseup', this.eventTasks.mouseup, false)

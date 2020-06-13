@@ -41,7 +41,7 @@ class Validator {
     this.validateKey = column.key;
     this.validateTitle = column.title;
 
-    // type: month|date|number|phone|email|select
+    // type: month|date|datetime|number|phone|email|select
     // required
     // validator: RegExp|Function
     // message
@@ -93,7 +93,7 @@ class Validator {
       const flag = options.map(item => item.value).includes(v);
       return getValidation.call(this, flag, "notMatch");
     }
-    if (type === "month" || type === "date") {
+    if (type === "month" || type === "date" || type === "datetime") {
       const flag = isNaN(v) && !isNaN(Date.parse(v));
       return getValidation.call(this, flag, "notMatch");
     }
