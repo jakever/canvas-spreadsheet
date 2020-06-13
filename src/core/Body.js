@@ -272,17 +272,12 @@ class Body {
     return validFaildRows
   }
   getRowData(y) {
-    return this.rows
-      .filter(item => item.rowIndex === y)
-      .map(row => {
-        const cells = row.allCells;
-        let _o = {};
-        cells.forEach(cell => {
-          _o[cell.key] = cell.value;
-        });
-        _o = Object.assign({}, row.data, _o)
-        return _o;
-      });
+    const row = this.getRow(y);
+    let _o = {};
+    row.allCells.forEach(cell => {
+      _o[cell.key] = cell.value;
+    });
+    return Object.assign({}, row.data, _o)
   }
   getCellData(x, y) {
     
