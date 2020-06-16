@@ -4,8 +4,7 @@ import {
   SELECT_BG_COLOR,
   READONLY_COLOR,
   READONLY_TEXT_COLOR,
-  ERROR_TIP_COLOR,
-  VALIDATOR_TYPES
+  ERROR_TIP_COLOR
 } from "./constants.js";
 import Context from "./Context.js";
 import Validator from "./Validator.js";
@@ -50,11 +49,8 @@ class Cell extends Context {
       fillColor: "#fff"
     });
     this.setLabel(value);
-    if (column.rule && column.rule.immediate !== false) { // 编辑器初始化不需要校验
-      this.validate();
-    } else if (VALIDATOR_TYPES.includes(column.type)) {
-      this.validate();
-    }
+    if (column.rule && column.rule.immediate === false) return; // 编辑器初始化不需要校验
+    this.validate();
   }
   isInHorizontalAutofill(mouseX, mouseY) {
     return (
@@ -103,9 +99,21 @@ class Cell extends Context {
     if (typeof this.render === "function") {
       label = this.render(val);
     } else {
-      label = this.validator.filterValue(val);
+      label = this.getMapValue(val);
     }
     this.label = label === null || label === undefined ? "" : label;
+  }
+  getMapValue(value) {
+    let label = value;
+    if (this.dataType === "select" && Array.isArray(this.options)) {
+      for (let item of this.options) {
+        if (value === item.value) {
+          label = item.label;
+          break;
+        }
+      }
+    }
+    return label;
   }
   draw() {
     const {

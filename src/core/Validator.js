@@ -49,18 +49,6 @@ class Validator {
     this.options = column.options;
     Object.assign(this, column.rule);
   }
-  filterValue(value) {
-    let label = value;
-    if (this.type === "select" && Array.isArray(this.options)) {
-      for (let item of this.options) {
-        if (value === item.value) {
-          label = item.label;
-          break;
-        }
-      }
-    }
-    return label;
-  }
   async validate(v, row) {
     const self = this
     const { required, validator, operator, options, type, descriptor } = this;

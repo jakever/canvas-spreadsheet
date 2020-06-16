@@ -31,6 +31,7 @@ export const SIZE_MAP = {
 export const VALIDATOR_TYPES = [
   'month',
   'date',
+  'datetime',
   'number',
   'phone',
   'email',
