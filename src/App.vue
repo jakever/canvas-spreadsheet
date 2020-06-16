@@ -10,6 +10,9 @@
       <el-button size="small" @click="getValidations"
         >获取校验结果</el-button
       >
+      <el-button size="small" @click="setValidations"
+        >设置校验结果</el-button
+      >
       <el-button size="small" @click="setFullScreen">
         {{ !isFullscreen ? "全屏" : "退出全屏" }}
       </el-button>
@@ -79,6 +82,21 @@ export default {
       const data = this.$refs.datagrid.getValidations();
       console.log(data);
       alert("获取成功，请查看控制台");
+    },
+    setValidations() {
+      const errors = [
+        {
+          id: 1,
+          'emp_name': '错误111',
+          'emp_no': '错误222'
+        },
+        {
+          id: 3,
+          'job_name': '错误333',
+          'emp_no': '错误444'
+        }
+      ]
+      this.$refs.datagrid.setValidations(errors);
     }
   },
   created() {

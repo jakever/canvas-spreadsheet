@@ -520,5 +520,8 @@ class DataGrid {
   getValidations() {
     return this.body.getValidations()
   }
+  setValidations(errors) {
+    return this.body.setValidations(errors)
+  }
 }
 export default DataGrid;

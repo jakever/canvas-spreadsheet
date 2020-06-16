@@ -58,8 +58,8 @@
             type="datetime"
             size="medium"
             placeholder="选择日期时间"
-            format="yyyy-MM-dd HH:mm:ss"
-            value-format="yyyy-MM-dd HH:mm:ss"
+            format="yyyy-MM-dd HH:mm"
+            value-format="yyyy-MM-dd HH:mm"
             @change="selectChange"
           >
           </el-date-picker>
@@ -107,6 +107,10 @@ const COMPLEX_DATE_TYPES = ["month", "date", "datetime", "select"];
 export default {
   name: "DDataGrid",
   props: {
+    rowKey: {
+      type: String,
+      default: 'id'
+    },
     fixedLeft: {
       type: Number,
       default: 0
@@ -180,6 +184,9 @@ export default {
     },
     getValidations() {
       return this.grid.getValidations();
+    },
+    setValidations(errors) {
+      return this.grid.setValidations(errors);
     },
     setFullScreen() {
       this.grid.resize();
@@ -267,6 +274,7 @@ export default {
       let el = document.getElementById(`${CSS_PREFIX}-target`);
 
       this.grid = new DataGrid(el, {
+        rowKey: this.rowKey,
         width: this.width,
         height: this.height,
         fixedLeft: this.fixedLeft,

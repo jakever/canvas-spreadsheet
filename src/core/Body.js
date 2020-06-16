@@ -271,6 +271,24 @@ class Body {
     })
     return validFaildRows
   }
+  setValidations(errors) {
+    if (errors && Array.isArray(errors)) {
+      errors.forEach(item => {
+        this.rows.map(row => {
+          if (row.data[this.grid.rowKey] === item[this.grid.rowKey]) {
+            const cells = row.allCells;
+            cells.forEach(cell => {
+              const valid = !item[cell.key]
+              if (item.hasOwnProperty(cell.key)) {
+                cell.message = item[cell.key]
+                cell.valid = valid
+              }
+            });
+          }
+        });
+      })
+    }
+  }
   getRowData(y) {
     const row = this.getRow(y);
     let _o = {};
