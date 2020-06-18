@@ -517,11 +517,17 @@ class DataGrid {
   getChangedRows() {
     return this.body.getChangedRows();
   }
+  validateFields(fields) {
+    return this.body.validateFields(fields);
+  }
   getValidations() {
     return this.body.getValidations()
   }
   setValidations(errors) {
     return this.body.setValidations(errors)
+  }
+  clearValidations() {
+    return this.body.clearValidations()
   }
 }
 export default DataGrid;

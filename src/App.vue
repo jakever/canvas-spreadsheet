@@ -7,11 +7,17 @@
       <el-button size="small" @click="getChangedRows"
         >获取已改变行数据</el-button
       >
+      <el-button size="small" @click="validateFields"
+        >触发校验函数</el-button
+      >
       <el-button size="small" @click="getValidations"
         >获取校验结果</el-button
       >
       <el-button size="small" @click="setValidations"
         >设置校验结果</el-button
+      >
+      <el-button size="small" @click="clearValidations"
+        >清空校验结果</el-button
       >
       <el-button size="small" @click="setFullScreen">
         {{ !isFullscreen ? "全屏" : "退出全屏" }}
@@ -78,6 +84,9 @@ export default {
       console.log(data);
       alert("获取成功，请查看控制台");
     },
+    validateFields() {
+      this.$refs.datagrid.validateFields();
+    },
     getValidations() {
       const data = this.$refs.datagrid.getValidations();
       console.log(data);
@@ -97,6 +106,9 @@ export default {
         }
       ]
       this.$refs.datagrid.setValidations(errors);
+    },
+    clearValidations() {
+      this.$refs.datagrid.clearValidations();
     }
   },
   created() {

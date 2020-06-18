@@ -254,6 +254,29 @@ class Body {
       return _o;
     });
   }
+  validateFields(fields) {
+    if (fields && Array.isArray(fields)) { // 校验指定数据单元格
+      fields.forEach(item => {
+        this.rows.forEach(row => {
+          if (row.data[this.grid.rowKey] === item[this.grid.rowKey]) {
+            const cells = row.allCells;
+            cells.forEach(cell => {
+              if (item.fields.includes(cell.key)) {
+                cell.validate()
+              }
+            });
+          }
+        });
+      })
+    } else { // 校验全部
+      this.rows.forEach(row => {
+        const cells = row.allCells;
+        cells.forEach(cell => {
+          cell.validate()
+        });
+      })
+    }
+  }
   getValidations() {
     const validFaildRows = []
     this.rows.forEach(row => {
@@ -274,20 +297,27 @@ class Body {
   setValidations(errors) {
     if (errors && Array.isArray(errors)) {
       errors.forEach(item => {
-        this.rows.map(row => {
+        this.rows.forEach(row => {
           if (row.data[this.grid.rowKey] === item[this.grid.rowKey]) {
             const cells = row.allCells;
             cells.forEach(cell => {
               const valid = !item[cell.key]
               if (item.hasOwnProperty(cell.key)) {
-                cell.message = item[cell.key]
-                cell.valid = valid
+                cell.resetValidate(valid, item[cell.key])
               }
             });
           }
         });
       })
     }
+  }
+  clearValidations() {
+    this.rows.forEach(row => {
+      const cells = row.allCells;
+      cells.forEach(cell => {
+        cell.resetValidate()
+      });
+    })
   }
   getRowData(y) {
     const row = this.getRow(y);

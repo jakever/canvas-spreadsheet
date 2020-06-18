@@ -80,6 +80,10 @@ class Cell extends Context {
     this.valid = flag;
     this.message = message;
   }
+  resetValidate(flag = true, message = null) {
+    this.valid = flag;
+    this.message = message;
+  }
   setData(val) {
     if (this.readonly) return;
     this.value = val;

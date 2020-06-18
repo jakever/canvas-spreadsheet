@@ -182,11 +182,17 @@ export default {
     getChangedRows() {
       return this.grid.getChangedRows();
     },
+    validateFields(fields) {
+      return this.grid.validateFields(fields);
+    },
     getValidations() {
       return this.grid.getValidations();
     },
     setValidations(errors) {
       return this.grid.setValidations(errors);
+    },
+    clearValidations() {
+      return this.grid.clearValidations();
     },
     setFullScreen() {
       this.grid.resize();
