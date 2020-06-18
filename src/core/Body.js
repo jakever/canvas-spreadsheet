@@ -254,6 +254,18 @@ class Body {
       return _o;
     });
   }
+  validate(callback) {
+    this.rows.forEach(row => {
+      const cells = row.allCells;
+      cells.forEach(cell => {
+        cell.validate()
+      });
+    })
+    setTimeout(() => {
+      const errors = this.getValidations()
+      typeof callback === 'function' && callback(!errors.length)
+    }, 0)
+  }
   validateFields(fields) {
     if (fields && Array.isArray(fields)) { // 校验指定数据单元格
       fields.forEach(item => {
@@ -266,13 +278,6 @@ class Body {
               }
             });
           }
-        });
-      })
-    } else { // 校验全部
-      this.rows.forEach(row => {
-        const cells = row.allCells;
-        cells.forEach(cell => {
-          cell.validate()
         });
       })
     }

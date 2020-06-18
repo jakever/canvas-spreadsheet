@@ -517,6 +517,9 @@ class DataGrid {
   getChangedRows() {
     return this.body.getChangedRows();
   }
+  validate(callback) {
+    return this.body.validate(callback);
+  }
   validateFields(fields) {
     return this.body.validateFields(fields);
   }

@@ -182,6 +182,9 @@ export default {
     getChangedRows() {
       return this.grid.getChangedRows();
     },
+    validate(callback) {
+      return this.grid.validate(callback);
+    },
     validateFields(fields) {
       return this.grid.validateFields(fields);
     },
