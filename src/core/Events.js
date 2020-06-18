@@ -305,7 +305,7 @@ class Events {
         context: grid
       }),
     }
-    bindClickoutside.call(grid, rootEl, handleClickoutside.bind(grid))
+    // bindClickoutside.call(grid, rootEl, handleClickoutside.bind(grid))
     bind(el, 'mousedown', this.eventTasks.mousedown, false)
     bind(window, 'mousemove', this.eventTasks.mousemove, false)
     bind(window, 'mouseup', this.eventTasks.mouseup, false)
@@ -321,7 +321,7 @@ class Events {
       isFirefox
     } = this
     const rootEl = el.parentElement;
-    unbindClickoutside(rootEl)
+    // unbindClickoutside(rootEl)
     unbind(el, 'mousedown', this.eventTasks.mousedown, false)
     unbind(window, 'mousemove', this.eventTasks.mousemove, false)
     unbind(window, 'mouseup', this.eventTasks.mouseup, false)
