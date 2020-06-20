@@ -7,9 +7,6 @@
       <el-button size="small" @click="getChangedRows"
         >获取已改变行数据</el-button
       >
-      <el-button size="small" @click="validateFields"
-        >触发校验函数</el-button
-      >
       <el-button size="small" @click="getValidations"
         >获取校验结果</el-button
       >
@@ -83,9 +80,6 @@ export default {
       const data = this.$refs.datagrid.getChangedRows();
       console.log(data);
       alert("获取成功，请查看控制台");
-    },
-    validateFields() {
-      this.$refs.datagrid.validateFields();
     },
     getValidations() {
       const data = this.$refs.datagrid.getValidations();

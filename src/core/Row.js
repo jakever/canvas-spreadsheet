@@ -68,8 +68,8 @@ class Row extends Context {
       mouseY < this.y + this.height + this.grid.scrollY + 3
     );
   }
-  handleCheck() {
-    this.checked = !this.checked;
+  handleCheck(checked) {
+    this.checked = typeof checked === 'boolean' ? checked : !this.checked;
     this.rowHeader.handleCheck(this.checked);
   }
   mouseDown(x, y) {
@@ -83,21 +83,22 @@ class Row extends Context {
       }
     }
   }
-  mouseMove(x, y) {
+  mouseMove(mouseX, mouseY) {
     for (let i = 0; i < this.allCells.length; i++) {
       const cell = this.allCells[i];
       if (
-        cell.isInsideHorizontalBodyBoundary(x, y) ||
-        cell.isInsideFixedHorizontalBodyBoundary(x, y)
+        cell.isInsideHorizontalTableBoundary(mouseX, mouseY) ||
+        cell.isInsideFixedHorizontalBodyBoundary(mouseX, mouseY)
       ) {
-        const { colIndex, rowIndex, x, y, width, valid, message, fixed } = cell;
-        this.grid.multiSelectCell(colIndex, rowIndex);
+        const { colIndex, rowIndex, x, y, width, height, valid, message, fixed } = cell;
+        this.grid.multiSelectCell(colIndex, rowIndex, mouseX, mouseY);
         this.grid.tooltip.update({
           valid,
           message,
           x,
           y,
           colWidth: width,
+          colHeight: height,
           fixed
         });
       }
@@ -125,7 +126,7 @@ class Row extends Context {
   }
   click(x, y) {
     if (this.rowHeader.isInsideCheckboxBoundary(x, y)) {
-      this.grid.handleCheckRow(this.rowIndex);
+      this.handleCheck();
     }
   }
   dbClick(x, y) {

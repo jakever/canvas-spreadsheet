@@ -31,6 +31,13 @@ class Context {
       mouseX < this.grid.width - this.grid.fixedRightWidth
     ); // 避免冻结列点击穿透了
   }
+  isInsideHorizontalTableBoundary(mouseX, mouseY) {
+    return (
+      mouseX > this.x + this.grid.scrollX &&
+      mouseX < this.x + this.grid.scrollX + this.width &&
+      mouseX > this.grid.fixedLeftWidth
+    );
+  }
   isInsideFixedHorizontalBodyBoundary(mouseX, mouseY) {
     const x =
       this.grid.width -
@@ -48,6 +55,13 @@ class Context {
       mouseY < this.y + this.height + this.grid.scrollY &&
       mouseY > HEADER_HEIGHT &&
       mouseY < this.grid.height - this.grid.horizontalScrollerSize
+    );
+  }
+  isInsideVerticaTableBoundary(mouseX, mouseY) {
+    return (
+      mouseY > this.y + this.grid.scrollY &&
+      mouseY < this.y + this.height + this.grid.scrollY &&
+      mouseY > HEADER_HEIGHT
     );
   }
   isInsideHeader(mouseX, mouseY) {

@@ -144,10 +144,24 @@ class Cell extends Context {
         : this.x + scrollX;
     const y = this.y + scrollY;
 
+    /**
+     * 绘制单元格边框
+     */
+    painter.ctx.save()
     painter.drawRect(x, y, this.width, this.height, {
       fillColor: this.readonly ? READONLY_COLOR : this.fillColor,
       borderColor: this.borderColor,
       borderWidth: 1
+    });
+    painter.ctx.clip()
+    /**
+     * 绘制单元格内容
+     */
+    let _y = y + this.height / 2;
+    painter.drawCellText(this.label, x, _y, this.width, 10, {
+      color: this.readonly ? READONLY_TEXT_COLOR : this.color,
+      align: this.textAlign,
+      baseLine: this.textBaseline
     });
 
     /**
@@ -494,24 +508,6 @@ class Cell extends Context {
         });
       }
     }
-
-    // const textArr = painter.getTextWrapping(this.value, this.width)
-    let _y = y + this.height / 2;
-    // // 如果文本超出列宽，则不再已列高／2垂直剧中
-    // if (textArr && textArr.length > 1) {
-    //     _y = y + 10
-    // }
-    // for (let i = 0; i < textArr.length; i++) {
-    //     painter.drawText(textArr[i], x + this.width / 2, _y + i * 18, {
-    //         color: this.color
-    //     });
-    // }
-
-    painter.drawCellText(this.label, x, _y, this.width, 10, {
-      color: this.readonly ? READONLY_TEXT_COLOR : this.color,
-      align: this.textAlign,
-      baseLine: this.textBaseline
-    });
   }
 }
 

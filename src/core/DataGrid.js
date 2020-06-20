@@ -244,7 +244,6 @@ class DataGrid {
   // mousedown事件 -> 开始拖拽批量选取
   selectCell({ colIndex, rowIndex }) {
     this.clipboard.el.focus();
-    this.doneEdit();
     this.clearMultiSelect();
     this.editor.xIndex = colIndex;
     this.editor.yIndex = rowIndex;
@@ -253,7 +252,7 @@ class DataGrid {
     this.adjustBoundaryPosition();
   }
   // mousemove事件 -> 更新选取范围
-  multiSelectCell(x, y) {
+  multiSelectCell(x, y, mouseX, mouseY) {
     const selector = this.selector;
     if (selector.isSelected) {
       const minX = x > this.editor.xIndex ? this.editor.xIndex : x;
@@ -264,9 +263,11 @@ class DataGrid {
       this.autofill.yIndex = maxY;
       selector.xArr = [minX, maxX];
       selector.yArr = [minY, maxY];
+      this.adjustPosition(x, y, mouseX, mouseY)
     }
     // 设置autofill填充区域
     if (this.autofill.enable) {
+      this.adjustPosition(x, y, mouseX, mouseY)
       this.autofill.xArr = selector.xArr.slice();
       this.autofill.yArr = selector.yArr.slice();
       if (y >= selector.yArr[0] && y <= selector.yArr[1]) {
@@ -374,6 +375,9 @@ class DataGrid {
   setData(value) {
     this.focusCell && this.focusCell.setData(value);
   }
+  clearSelectedData() {
+    this.body.clearSelectedData()
+  }
   /**
    * 调整列宽、行宽
    */
@@ -421,6 +425,17 @@ class DataGrid {
         break;
       default:
       //
+    }
+  }
+  adjustPosition(x, y, mouseX, mouseY) {
+    // const cell = this.body.getCell(x, y);
+    const diffX = mouseX - this.width + SCROLLER_TRACK_SIZE
+    const diffY = mouseY - this.height + SCROLLER_TRACK_SIZE
+    if (diffX > 0) {
+      this.scroller.update(-12, "HORIZONTAL");
+    }
+    if (diffY > 0) {
+      this.scroller.update(-12, "VERTICAL");
     }
   }
   adjustBoundaryPosition() {
@@ -520,8 +535,8 @@ class DataGrid {
   validate(callback) {
     return this.body.validate(callback);
   }
-  validateFields(fields) {
-    return this.body.validateFields(fields);
+  validateField(ci, ri) {
+    return this.body.validateField(ci, ri);
   }
   getValidations() {
     return this.body.getValidations()

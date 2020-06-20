@@ -1,5 +1,5 @@
 <template>
-  <div :class="CSS_PREFIX">
+  <div :class="CSS_PREFIX" v-clickoutside="handleclickoutside">
     <div :class="`${CSS_PREFIX}-main`">
       <canvas
         :id="`${CSS_PREFIX}-target`"
@@ -100,7 +100,7 @@
 <script>
 import { CSS_PREFIX, HEADER_HEIGHT } from "../core/constants.js";
 import DataGrid from "../core/DataGrid.js";
-import "./index.scss";
+import Clickoutside from './clickoutside.js'
 const SIMPLE_DATE_TYPES = ["text", "number", "phone", "email"];
 const COMPLEX_DATE_TYPES = ["month", "date", "datetime", "select"];
 
@@ -133,6 +133,9 @@ export default {
         return [];
       }
     }
+  },
+  directives: {
+    Clickoutside
   },
   data() {
     return {
@@ -185,8 +188,8 @@ export default {
     validate(callback) {
       return this.grid.validate(callback);
     },
-    validateFields(fields) {
-      return this.grid.validateFields(fields);
+    validateField(ci, ri) {
+      return this.grid.validateField(ci, ri);
     },
     getValidations() {
       return this.grid.getValidations();
@@ -274,7 +277,10 @@ export default {
     selectChange(val) {
       this.grid.setData(val);
     },
-    handlePaste(e) {}
+    handlePaste(e) {},
+    handleclickoutside() {
+      this.grid.doneEdit()
+    }
   },
   created() {
     this.loading = this.data.length > 0 ? false : true;
@@ -306,3 +312,4 @@ export default {
   }
 };
 </script>
+<style lang="scss" src="./index.scss"></style>

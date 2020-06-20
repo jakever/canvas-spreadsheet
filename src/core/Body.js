@@ -15,30 +15,10 @@ class Body {
     for (let i = 0; i < len; i++) {
       const rowData = data[i];
 
-      let rowHeight = CELL_HEIGHT;
-      // 暂时注释text wrapping功能
-      // let textWrap = null
-      // for(let j = 0; j < this.columns.length; j++) {
-      //     const column = this.columns[j]
-      //     const value = rowData[column.key]
-      //     if (value || value === 0) {
-      //         textWrap = this.painter.getTextWrapping(value, column.width)
-      //         let textWrapCount = 0
-      //         if (textWrap) {
-      //             textWrapCount = textWrap.length
-      //         }
-      //         if (textWrapCount > 1) {
-      //             if (rowHeight < CELL_HEIGHT + ((textWrapCount - 1) * 18)) {
-      //                 rowHeight = CELL_HEIGHT + ((textWrapCount - 1) * 18)
-      //             }
-      //         }
-      //     }
-      // }
-
       this.rows.push(
-        new Row(this.grid, i, 0, everyOffsetY, rowHeight, rowData)
+        new Row(this.grid, i, 0, everyOffsetY, CELL_HEIGHT, rowData)
       );
-      everyOffsetY += rowHeight;
+      everyOffsetY += CELL_HEIGHT;
     }
 
     this.height = this.rows.reduce((sum, item) => {
@@ -102,8 +82,9 @@ class Body {
     if (typeof y === "number") {
       this.rows[y].handleCheck();
     } else {
+      const isChecked = this.grid.header.checked
       for (let row of this.rows) {
-        row.handleCheck();
+        row.handleCheck(isChecked);
       }
     }
   }
@@ -111,7 +92,7 @@ class Body {
     for (let i = 0; i < this.rows.length; i++) {
       if (this.rows[i].isInVerticalAutofill(x, y)) {
         this.rows[i].handleAutofill(x, y);
-      } else if (this.rows[i].isInsideVerticaBodyBoundary(x, y)) {
+      } else if (this.rows[i].isInsideVerticaTableBoundary(x, y)) {
         this.rows[i].mouseMove(x, y);
       }
     }
@@ -211,6 +192,15 @@ class Body {
       value: rowsData
     };
   }
+  clearSelectedData() {
+    const { xArr, yArr } = this.grid.selector;
+    for (let ri = 0; ri <= yArr[1] - yArr[0]; ri++) {
+      for (let ci = 0; ci <= xArr[1] - xArr[0]; ci++) {
+        const cell = this.rows[ri + yArr[0]].allCells[ci + xArr[0]]
+        cell.setData("")
+      }
+    }
+  }
   getData() {
     return this.rows.map(row => {
       const cells = row.allCells;
@@ -266,20 +256,10 @@ class Body {
       typeof callback === 'function' && callback(!errors.length)
     }, 0)
   }
-  validateFields(fields) {
-    if (fields && Array.isArray(fields)) { // 校验指定数据单元格
-      fields.forEach(item => {
-        this.rows.forEach(row => {
-          if (row.data[this.grid.rowKey] === item[this.grid.rowKey]) {
-            const cells = row.allCells;
-            cells.forEach(cell => {
-              if (item.fields.includes(cell.key)) {
-                cell.validate()
-              }
-            });
-          }
-        });
-      })
+  validateField(ci, ri) {
+    if (typeof ri === 'number' && typeof ci === 'number') { // 校验指定某个数据单元格
+      const cell = this.getCell(ci, ri)      
+      cell && cell.validate()
     }
   }
   getValidations() {

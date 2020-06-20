@@ -98,12 +98,13 @@ class Paint {
       padding,
       options.align
     );
-
+    
     this.ctx.font = options.font;
     this.ctx.fillStyle = options.color;
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = options.baseLine;
     this.ctx.fillText(text, x + startOffset, y);
+    this.ctx.restore()
   }
   drawRect(x, y, width, height, options) {
     options = Object.assign(

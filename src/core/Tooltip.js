@@ -19,6 +19,7 @@ class Tooltip {
       scrollX,
       scrollY,
       width,
+      height,
       tableWidth,
       verticalScrollerSize,
       color,
@@ -26,8 +27,10 @@ class Tooltip {
     } = this.grid
     if (!this.valid && !selector.isSelected) {
       const poX = this.x + this.colWidth + 1
-      const isBeyondView = poX + this.width + scrollX > width // tooltip浮层是否超过可视区
-      let x = isBeyondView
+      const poY = this.y + 1
+      const isBeyondHorizontalView = poX + this.width + scrollX > width // tooltip浮层是否超过水平可视区
+      const isBeyondVerticalView = poY + this.height + scrollY > height // tooltip浮层是否超过垂直可视区
+      let x = isBeyondHorizontalView
         ? this.fixed === 'right'
           ? width -
             (tableWidth - this.x - this.colWidth) -
@@ -40,7 +43,10 @@ class Tooltip {
       if (!this.fixed) {
         x += scrollX;
       }
-      const y = this.y + scrollY;
+      let y = isBeyondVerticalView
+        ? this.y - (this.height - this.colHeight) - 1
+        : this.y
+      y += scrollY;
       painter.drawRoundRect(x, y, this.width, this.height, 4, {
         shadowBlur: 16,
         shadowColor: "rgba(28,36,56,0.16)",

@@ -71,9 +71,8 @@ function throttle(
   return _throttle;
 }
 function handleMouseDown(e) {
-  if (e.target.tagName.toLowerCase() === "canvas") {
-    e.preventDefault();
-  }
+  e.preventDefault();
+  this.doneEdit();
   const rect = e.target.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
@@ -222,7 +221,7 @@ function handleKeydown(e) {
       break;
     case 8: // BackSpace／delede
     case 46:
-      this.setData("");
+      this.clearSelectedData()
       break;
     case 13:
       this.startEdit();
