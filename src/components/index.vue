@@ -179,6 +179,9 @@ export default {
     }
   },
   methods: {
+    reload() {
+      return this.grid.resize()
+    },
     getData() {
       return this.grid.getData();
     },
