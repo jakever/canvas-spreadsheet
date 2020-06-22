@@ -1,5 +1,5 @@
 <template>
-  <div :class="CSS_PREFIX" v-clickoutside="handleclickoutside">
+  <div :class="CSS_PREFIX" v-clickoutside="handleclickoutside" @paste="doPaste">
     <div :class="`${CSS_PREFIX}-main`">
       <canvas
         :id="`${CSS_PREFIX}-target`"
@@ -10,17 +10,17 @@
         :style="{ top: `${headerHeight+1}px` }"
         v-loading="loading"
       >
-        <!-- <textarea ref="clipboard" style="position:absolute;left:-10000px;top:-10000px" @paste="handlePaste"></textarea> -->
         <div :class="`${CSS_PREFIX}-editor`" ref="editor" :style="editorSty">
           <div
             ref="text"
             contenteditable="true"
-            v-if="isSimple"
-            @blur="changeHandler"
+            v-show="isSimple"
+            @input="inputHandler"
+            @keydown.tab.prevent @keydown.enter.prevent @keydown.esc.prevent
           ></div>
           <el-date-picker
             ref="month"
-            v-else-if="dataType === 'month'"
+            v-if="dataType === 'month'"
             :class="`${CSS_PREFIX}-popup`"
             :style="popupSty"
             v-model="value"
@@ -145,10 +145,13 @@ export default {
       show: false,
       dataType: "text",
       popWidth: "auto",
+      isEditing: false,
+      isPaste: false,
       value: "",
       editorSty: {
         borderColor: "rgb(82,146,247)"
       },
+      focusCell: null,
       cascader_value: [],
       selectOptions: []
     };
@@ -203,41 +206,67 @@ export default {
     setFullScreen() {
       this.grid.resize();
     },
-    showEditor(cell) {
+    doPaste() {
+      this.isPaste = true
+    },
+    editCell() {
+      const {
+        dataType,
+        options,
+        value
+      } = this.focusCell
       this.show = true;
-      this.dataType = cell.dataType;
-      this.selectOptions = cell.options;
-      this.$refs.text.innerText = cell.value;
+      this.dataType = dataType;
+      this.selectOptions = options;
+      this.$refs.text.innerHTML = value;
+      this.grid.setTempData(value)
       if (this.dataType === "month" || this.dataType === "date" || this.dataType === "datetime") {
-        if (isNaN(cell.value) && !isNaN(Date.parse(cell.value))) {
-          this.value = cell.value;
+        if (isNaN(value) && !isNaN(Date.parse(value))) {
+          this.value = value;
         } else {
           this.value = "";
         }
       } else {
-        this.value = cell.value;
+        this.value = value;
       }
-      this.setStyle(cell);
+      this.showEditor();
       this.$nextTick(() => {
         this.focus();
       });
     },
+    selectCell(cell) {
+      this.focusCell = cell
+      this.clearEditor()
+      this.hideEditor();
+      this.focus()
+    },
+    showEditor() {
+      const {
+        x,
+        y,
+        width,
+        height
+      } = this.focusCell
+      this.isEditing = true
+      this.$refs.editor.style.left = `${x - 1}px`;
+      this.$refs.editor.style.top = `${y - 2 - this.headerHeight}px`;
+      this.$refs.text.style["min-width"] = `${width - 1}px`;
+      this.$refs.text.style["min-height"] = `${height - 1}px`;
+      this.popWidth = `${width - 1}px`;
+      if (COMPLEX_DATE_TYPES.includes(this.dataType)) {
+        // 下拉，日期控件高度比输入框高
+        this.$refs.editor.style.height = "38px";
+      }
+    },
     hideEditor() {
+      this.isEditing = false
       this.$refs.editor.style.left = "-10000px";
       this.$refs.editor.style.top = "-10000px";
       this.show = false;
       this.dataType = "text";
     },
-    setStyle(cell) {
-      this.$refs.editor.style.left = `${cell.x - 1}px`;
-      this.$refs.editor.style.top = `${cell.y - 2 - this.headerHeight}px`;
-      this.$refs.text.style["min-width"] = `${cell.width - 1}px`;
-      this.$refs.text.style["min-height"] = `${cell.height - 1}px`;
-      this.popWidth = `${cell.width - 1}px`;
-      if (COMPLEX_DATE_TYPES.includes(this.dataType)) {
-        // 下拉，日期控件高度比输入框高
-        this.$refs.editor.style.height = "38px";
-      }
+    clearEditor() {
+      this.$refs.text.innerHTML = ''
     },
     focus(type) {
       let _type = type || this.dataType;
@@ -268,14 +297,58 @@ export default {
     },
     inputHandler(e) {
       const val = e.target.innerText;
-      this.grid.setData(val);
-    },
-    changeHandler(e) {
-      const val = e.target.innerText;
-      this.grid.setData(val);
+      if (!this.isPaste) {
+        this.showEditor()
+        this.grid.setTempData(val)
+      } else if (!this.isEditing) {
+        this.isPaste = false
+
+        let textArr = [];
+        let arr = val.split("\r");
+        if (arr.length === 1) {
+          let _arr = arr[0].split("\n");
+          textArr = _arr.map(item => item.split("\t"));
+        } else {
+          textArr = arr.map(item => item.split("\t"));
+        }
+
+        // const objE = document.createElement('div')
+        // objE.innerHTML = e.target.innerHTML
+        // const dom = objE.childNodes
+        // e.target.innerHTML = ''
+        // const pasteData = []
+        // const modifyData = []
+        // for (let i = 0; i < dom.length; i += 1) {
+        //     if (dom[i].tagName === 'TABLE') {
+        //         const trs = dom[i].querySelectorAll('tr')
+        //         for (const tr of trs) {
+        //             const arrTmp = []
+        //             for (const td of tr.cells) {
+        //                 let str = td.innerText
+        //                 str = str.replace(/^\s+|\s+$/g, '')
+        //                 arrTmp.push(str)
+        //                 const colspan = td.getAttribute('colspan')
+        //                 if (colspan) {
+        //                     for (let i = 1; i < colspan; i += 1) {
+        //                         arrTmp.push('')
+        //                     }
+        //                 }
+        //             }
+        //             pasteData.push(arrTmp)
+        //         }
+        //     } else {
+        //         pasteData.push([this.val])
+        //     }
+        // }
+
+        this.grid.pasteData(textArr)
+      } else {
+        this.isPaste = false
+        this.grid.setTempData(val)
+      }
     },
     selectChange(val) {
-      this.grid.setData(val);
+      this.grid.setTempData(val)
     },
     handlePaste(e) {},
     handleclickoutside() {
@@ -296,13 +369,11 @@ export default {
         fixedRight: this.fixedRight,
         columns: this.columns,
         data: this.data,
-        onEditCell: cell => {
-          self.showEditor(cell);
+        onEditCell: () => {
+          self.editCell();
         },
-        onSelectCell: () => {
-          self.hideEditor();
-          //   self.focus()
-          //   self.$refs.clipboard.focus()
+        onSelectCell: (cell) => {
+          self.selectCell(cell)
         }
       });
     });

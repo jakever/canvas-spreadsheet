@@ -183,24 +183,24 @@ function handleKeydown(e) {
     // CTRL+R／CRTRL+F等类型的事件不禁用默认事件
     return;
   }
-  e.preventDefault();
-  const keyHandler = k => {
-    if (
-      (k >= 65 && k <= 90) ||
-      (k >= 48 && k <= 57) ||
-      (k >= 96 && k <= 107) ||
-      (k >= 109 && k <= 111) ||
-      k === 32 ||
-      (k >= 186 && k <= 222)
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-  if (keyHandler(e.keyCode)) {
-    return this.startEdit(e.key);
-  }
+  // e.preventDefault();
+  // const keyHandler = k => {
+  //   if (
+  //     (k >= 65 && k <= 90) ||
+  //     (k >= 48 && k <= 57) ||
+  //     (k >= 96 && k <= 107) ||
+  //     (k >= 109 && k <= 111) ||
+  //     k === 32 ||
+  //     (k >= 186 && k <= 222)
+  //   ) {
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // };
+  // if (keyHandler(e.keyCode)) {
+  //   return this.startEdit(e.key);
+  // }
   switch (e.keyCode) {
     // 左
     case 37:

@@ -6,7 +6,7 @@ class Clipboard {
     this.show = false;
     this.xArr = [-1, -1];
     this.yArr = [-1, -1];
-    this.init();
+    // this.init();
   }
   init() {
     const clipboardEl = h("textarea", "").on("paste", e => this.paste(e));
@@ -43,17 +43,18 @@ class Clipboard {
     } else {
       textArr = arr.map(item => item.split("\t"));
     }
-    console.log(textArr);
     if (textArr.length) {
       body.updateData(textArr);
-      // // 复制完把被填充的区域选中，并把激活单元格定位到填充区域的第一个
-      selector.xArr.splice(1, 1, editor.xIndex + textArr[0].length - 1);
-      selector.yArr.splice(1, 1, editor.yIndex + textArr.length - 1);
-      autofill.xIndex = selector.xArr[1];
-      autofill.yIndex = selector.yArr[1];
-
-      this.clear();
     }
+  }
+  select(textArr) {
+    // 复制完把被填充的区域选中，并把激活单元格定位到填充区域的第一个
+    const { editor, selector, autofill } = this.grid;
+    selector.xArr.splice(1, 1, editor.xIndex + textArr[0].length - 1);
+    selector.yArr.splice(1, 1, editor.yIndex + textArr.length - 1);
+    autofill.xIndex = selector.xArr[1];
+    autofill.yIndex = selector.yArr[1];
+    this.clear();
   }
   clear() {
     this.show = false;

@@ -31,6 +31,7 @@ class DataGrid {
     this.horizontalScrollerSize = SCROLLER_TRACK_SIZE;
     this.verticalScrollerSize = SCROLLER_TRACK_SIZE;
 
+    this.tempValue = '';
     this.focusCell = null;
 
     this.hashChange = {}; // diff changed
@@ -243,13 +244,46 @@ class DataGrid {
    */
   // mousedown事件 -> 开始拖拽批量选取
   selectCell({ colIndex, rowIndex }) {
-    this.clipboard.el.focus();
+    // this.clipboard.el.focus();
     this.clearMultiSelect();
     this.editor.xIndex = colIndex;
     this.editor.yIndex = rowIndex;
     this.selector.show = true;
     this.selector.isSelected = true;
     this.adjustBoundaryPosition();
+
+    this.putCell()
+  }
+  putCell() { // 将数据填充到div编辑器中
+    const {
+      x,
+      y,
+      width,
+      height,
+      value,
+      fixed,
+      dataType,
+      options
+    } = this.focusCell;
+    const _x =
+      fixed === "right"
+        ? this.width -
+          (this.tableWidth - x - width) -
+          width -
+          this.verticalScrollerSize
+        : fixed === "left"
+        ? x
+        : x + this.scrollX;
+    const _y = y + this.scrollY;
+    this.onSelectCell({
+      value,
+      x: _x,
+      y: _y,
+      width,
+      height,
+      dataType,
+      options
+    });
   }
   // mousemove事件 -> 更新选取范围
   multiSelectCell(x, y, mouseX, mouseY) {
@@ -313,67 +347,37 @@ class DataGrid {
     this.autofill.yArr = [-1, -1];
   }
   // 开始编辑
-  startEdit(val) {
-    // this.editor.setData(cell.value)
-    // if (cell.dataType === 'date' || cell.dataType === 'select') {
-    //     this.onEditCell(cell)
-    // } else {
-    //     this.selector.show = false;
-    //     this.editor.fire(cell);
-    // }
-    const {
-      x,
-      y,
-      width,
-      height,
-      value,
-      fixed,
-      dataType,
-      options
-    } = this.focusCell;
+  startEdit() {
     if (this.focusCell && !this.focusCell.readonly) {
-      const _x =
-        fixed === "right"
-          ? this.width -
-            (this.tableWidth - x - width) -
-            width -
-            this.verticalScrollerSize
-          : fixed === "left"
-          ? x
-          : x + this.scrollX;
-      const _y = y + this.scrollY;
-
       this.editor.show = true;
       this.selector.show = false;
-      this.onEditCell({
-        value: val || value,
-        x: _x,
-        y: _y,
-        width,
-        height,
-        dataType,
-        options
-      });
+      this.onEditCell();
     }
   }
   // 完成编辑
   doneEdit() {
     if (this.editor.show && this.focusCell) {
-      // const cell = this.body.getCell(this.editor.xIndex, this.editor.yIndex)
-      // if (cell) {
-      //     cell.value = this.editor.value
-      //     // this.rePaintRow(this.editor.yIndex)
-      // }
-      // this.editor.hide();
       this.editor.show = false;
       this.selector.show = true; // 编辑完再选中该单元格
-      this.clipboard.el.focus(); // 通过enter键变为非编辑模式，div编辑框不会失焦
-      this.onSelectCell(this.focusCell);
+      this.focusCell.setData(this.tempValue)
+      // this.clipboard.el.focus(); // 通过enter键变为非编辑模式，div编辑框不会失焦
+      this.putCell()
       this.clipboard.clear();
     }
   }
   setData(value) {
     this.focusCell && this.focusCell.setData(value);
+  }
+  setTempData(value) {
+    this.editor.show = true;
+    this.selector.show = false;
+    this.tempValue = value
+  }
+  pasteData(arr) {
+    if (arr.length > 0) {
+      this.body.updateData(arr);
+      this.clipboard.select(arr)
+    }
   }
   clearSelectedData() {
     this.body.clearSelectedData()
@@ -426,6 +430,7 @@ class DataGrid {
       default:
       //
     }
+    this.putCell()
   }
   adjustPosition(x, y, mouseX, mouseY) {
     // const cell = this.body.getCell(x, y);
