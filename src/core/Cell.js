@@ -99,7 +99,7 @@ class Cell extends Context {
     }
   }
   setLabel(val) {
-    let label = val;
+    let label;
     if (typeof this.render === "function") {
       label = this.render(val);
     } else {
@@ -110,8 +110,13 @@ class Cell extends Context {
   getMapValue(value) {
     let label = value;
     if (this.dataType === "select" && Array.isArray(this.options)) {
+      let val = value
       for (let item of this.options) {
-        if (value === item.value) {
+        if (!isNaN(item.value)) { // 兼容copy出来的数据都是字符串类型，而下拉枚举的value值为数值类型
+          val = Number(val)
+        }
+        if (val === item.value) {
+          this.value = val
           label = item.label;
           break;
         }
