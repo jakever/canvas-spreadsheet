@@ -169,11 +169,10 @@ function handleKeydown(e) {
     this.clipboard.copy();
   }
   // CTRL+V／Command+V
-  // if ((e.ctrlKey && e.keyCode === 86) || (e.metaKey && e.keyCode === 86)) {
-  //     // e.preventDefault()
-  //     // this.paste(e)
-  //     console.log('paste')
-  // }
+  if ((e.ctrlKey && e.keyCode === 86) || (e.metaKey && e.keyCode === 86)) {
+      // e.preventDefault()
+      this.clipboard.paste();
+  }
   // CTRL+A／Command+A
   if ((e.ctrlKey && e.keyCode) === 65 || (e.metaKey && e.keyCode === 65)) {
     // e.preventDefault()

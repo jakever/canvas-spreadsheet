@@ -4,6 +4,7 @@ class Clipboard {
   constructor(grid) {
     this.grid = grid;
     this.show = false;
+    this.isPaste = false
     this.xArr = [-1, -1];
     this.yArr = [-1, -1];
     // this.init();
@@ -31,7 +32,10 @@ class Clipboard {
     this.xArr = selector.xArr.slice();
     this.yArr = selector.yArr.slice();
   }
-  paste(e) {
+  paste() {
+    this.isPaste = true
+  }
+  paste2(e) {
     const { editor, selector, autofill, body } = this.grid;
     let textArr;
     let rawText = e.clipboardData.getData("text/plain");
@@ -48,6 +52,7 @@ class Clipboard {
     }
   }
   select(textArr) {
+    this.isPaste = false
     // 复制完把被填充的区域选中，并把激活单元格定位到填充区域的第一个
     const { editor, selector, autofill } = this.grid;
     selector.xArr.splice(1, 1, editor.xIndex + textArr[0].length - 1);

@@ -178,7 +178,7 @@ class Body {
     for (let ri = 0; ri <= yArr[1] - yArr[0]; ri++) {
       const cellsData = [];
       for (let ci = 0; ci <= xArr[1] - xArr[0]; ci++) {
-        cellsData.push(this.rows[ri + yArr[0]].allCells[ci + xArr[0]].value);
+        cellsData.push(this.rows[ri + yArr[0]].allCells[ci + xArr[0]].label);
       }
       text += cellsData.join("\t") + "\r";
       rowsData.push(cellsData);

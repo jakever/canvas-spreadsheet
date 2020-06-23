@@ -86,9 +86,17 @@ class Cell extends Context {
   }
   setData(val) {
     if (this.readonly) return;
-    this.value = val;
     const rowData = this.grid.body.getRowData(this.rowIndex)
-    this.setLabel(val);
+
+    if (this.grid.clipboard.isPaste) {
+      const value = this.getMapValue(val)
+      this.label = val
+      this.value = value
+    } else {
+      this.value = val;
+      this.setLabel(val);
+    }
+    
     this.validate(rowData)
 
     // changed diff
@@ -103,20 +111,27 @@ class Cell extends Context {
     if (typeof this.render === "function") {
       label = this.render(val);
     } else {
-      label = this.getMapValue(val);
+      label = this.getMapLabel(val);
     }
     this.label = label === null || label === undefined ? "" : label;
   }
-  getMapValue(value) {
+  getMapValue(label) { // label => value
+    let value = label;
+    if (this.dataType === "select" && Array.isArray(this.options)) {
+      for (let item of this.options) {
+        if (label === item.label) {
+          value = item.value;
+          break;
+        }
+      }
+    }
+    return value;
+  }
+  getMapLabel(value) { // value => label
     let label = value;
     if (this.dataType === "select" && Array.isArray(this.options)) {
-      let val = value
       for (let item of this.options) {
-        if (!isNaN(item.value)) { // 兼容copy出来的数据都是字符串类型，而下拉枚举的value值为数值类型
-          val = Number(val)
-        }
-        if (val === item.value) {
-          this.value = val
+        if (value === item.value) {
           label = item.label;
           break;
         }
