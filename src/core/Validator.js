@@ -53,7 +53,7 @@ class Validator {
     const self = this
     const { required, validator, operator, options, type, descriptor } = this;
 
-    if (required && !v) {
+    if (required && !v && v !== 0) {
       return getValidation.call(this, false, "required");
     }
 

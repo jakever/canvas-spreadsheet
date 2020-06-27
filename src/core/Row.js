@@ -73,6 +73,15 @@ class Row extends Context {
     this.rowHeader.handleCheck(this.checked);
   }
   mouseDown(x, y) {
+    // 如果位于autofill触点上则不执行发选择单元格
+    const cell = this.allCells[this.grid.autofill.xIndex];
+    if (cell && (
+      cell.isInHorizontalAutofill(x, y) ||
+      cell.isInsideFixedHorizontalAutofill(x, y)
+    )) {
+      return
+    }
+
     for (let i = 0; i < this.allCells.length; i++) {
       const cell = this.allCells[i];
       if (

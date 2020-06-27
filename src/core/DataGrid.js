@@ -526,24 +526,31 @@ class DataGrid {
     this.initTableSize();
   }
   getData() {
+    this.doneEdit()
     return this.body.getData();
   }
   getRowData(y) {
+    this.doneEdit()
     return this.body.getRowData(y)
   }
   getCheckedRows() {
+    this.doneEdit()
     return this.body.getCheckedRows();
   }
   getChangedRows() {
+    this.doneEdit()
     return this.body.getChangedRows();
   }
   validate(callback) {
+    this.doneEdit()
     return this.body.validate(callback);
   }
   validateField(ci, ri) {
+    this.doneEdit()
     return this.body.validateField(ci, ri);
   }
   getValidations() {
+    this.doneEdit()
     return this.body.getValidations()
   }
   setValidations(errors) {

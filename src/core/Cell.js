@@ -88,7 +88,7 @@ class Cell extends Context {
     if (this.readonly) return;
     const rowData = this.grid.body.getRowData(this.rowIndex)
 
-    if (this.grid.clipboard.isPaste) {
+    if (this.grid.clipboard.isPaste || this.grid.autofill.enable) {
       const value = this.getMapValue(val)
       this.label = val
       this.value = value
@@ -323,6 +323,7 @@ class Cell extends Context {
         });
       }
       // autofill
+      // autofill触点
       if (!editor.show) {
         const autofill_width = 6;
         if (
@@ -387,6 +388,7 @@ class Cell extends Context {
           });
         }
       }
+      // autofill选区
       if (autofill.enable) {
         const lineDash = [4, 4];
         const minX = autofill.xArr[0];
