@@ -48,7 +48,7 @@ class Clipboard {
       textArr = arr.map(item => item.split("\t"));
     }
     if (textArr.length) {
-      body.updateData(textArr);
+      body.pasteData(textArr);
     }
   }
   select(textArr) {

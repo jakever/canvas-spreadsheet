@@ -3,6 +3,7 @@
     <div id="data-grid-demo"></div>
     <div style="padding: 12px 0;">
       <el-button size="small" @click="getData">获取数据</el-button>
+      <el-button size="small" @click="updateData">更新行数据</el-button>
       <el-button size="small" @click="getCheckedRows">获取选中行数据</el-button>
       <el-button size="small" @click="getChangedRows"
         >获取已改变行数据</el-button
@@ -70,6 +71,21 @@ export default {
       const data = this.$refs.datagrid.getData();
       console.log(data);
       alert("获取成功，请查看控制台");
+    },
+    updateData() {
+      const data = [
+        {
+          id: 1,
+          'emp_name': '数据111',
+          'emp_no': '数据222'
+        },
+        {
+          id: 3,
+          'job_name': '数据333',
+          'emp_no': '数据444'
+        }
+      ]
+      this.$refs.datagrid.updateData(data);
     },
     getCheckedRows() {
       const data = this.$refs.datagrid.getCheckedRows();

@@ -86,7 +86,6 @@ class Cell extends Context {
   }
   setData(val) {
     if (this.readonly) return;
-    const rowData = this.grid.body.getRowData(this.rowIndex)
 
     if (this.grid.clipboard.isPaste || this.grid.autofill.enable) {
       const value = this.getMapValue(val)
@@ -97,6 +96,7 @@ class Cell extends Context {
       this.setLabel(val);
     }
     
+    const rowData = this.grid.body.getRowData(this.rowIndex)
     this.validate(rowData)
 
     // changed diff

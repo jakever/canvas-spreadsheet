@@ -206,6 +206,9 @@ export default {
     clearValidations() {
       return this.grid.clearValidations();
     },
+    updateData(data) {
+      return this.grid.updateData(data);
+    },
     setFullScreen() {
       this.grid.resize();
     },

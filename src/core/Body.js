@@ -25,7 +25,7 @@ class Body {
       return sum + item.height;
     }, CELL_HEIGHT);
   }
-  updateData(data) {
+  pasteData(data) {
     const { editor } = this.grid;
     for (let ri = 0; ri <= data.length - 1; ri++) {
       const len = data[ri].length;
@@ -248,7 +248,8 @@ class Body {
     this.rows.forEach(row => {
       const cells = row.allCells;
       cells.forEach(cell => {
-        cell.validate()
+        const rowData = this.getRowData(cell.rowIndex)
+        cell.validate(rowData)
       });
     })
     setTimeout(() => {
@@ -258,8 +259,11 @@ class Body {
   }
   validateField(ci, ri) {
     if (typeof ri === 'number' && typeof ci === 'number') { // 校验指定某个数据单元格
-      const cell = this.getCell(ci, ri)      
-      cell && cell.validate()
+      const cell = this.getCell(ci, ri)
+      if (cell) {
+        const rowData = this.getRowData(cell.rowIndex)
+        cell.validate(rowData)
+      }      
     }
   }
   getValidations() {
@@ -313,9 +317,28 @@ class Body {
     return Object.assign({}, row.data, _o)
   }
   getCellData(x, y) {
-    
+    const cell = this.getCell(x, y)
+    return {
+      title: cell.title,
+      key: cell.key,
+      value: cell.value
+    }
   }
-  updateRowData(rowIndex) {}
+  updateData(data) {
+    if (data && Array.isArray(data)) {
+      data.forEach(item => {
+        this.rows.forEach(row => {
+          if (row.data[this.grid.rowKey] === item[this.grid.rowKey]) {
+            const cells = row.allCells;
+            cells.forEach(cell => {
+              const v = item.hasOwnProperty(cell.key) ? item[cell.key] : cell.value
+              cell.setData(v)
+            });
+          }
+        });
+      })
+    }
+  }
   updateCellData(colIndex) {}
 }
 

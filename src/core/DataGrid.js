@@ -375,7 +375,7 @@ class DataGrid {
   }
   pasteData(arr) {
     if (arr.length > 0) {
-      this.body.updateData(arr);
+      this.body.pasteData(arr);
       this.clipboard.select(arr)
     }
   }
@@ -558,6 +558,9 @@ class DataGrid {
   }
   clearValidations() {
     return this.body.clearValidations()
+  }
+  updateData(data) {
+    return this.body.updateData(data)
   }
 }
 export default DataGrid;
