@@ -331,8 +331,9 @@ class Body {
           if (row.data[this.grid.rowKey] === item[this.grid.rowKey]) {
             const cells = row.allCells;
             cells.forEach(cell => {
-              const v = item.hasOwnProperty(cell.key) ? item[cell.key] : cell.value
-              cell.setData(v)
+              if (item.hasOwnProperty(cell.key)) {
+                cell.setData(item[cell.key])
+              }
             });
           }
         });
