@@ -194,6 +194,9 @@ export default {
     validate(callback) {
       return this.grid.validate(callback);
     },
+    validateChanged(callback) {
+      return this.grid.validateChanged(callback);
+    },
     validateField(ci, ri) {
       return this.grid.validateField(ci, ri);
     },
@@ -244,7 +247,9 @@ export default {
       this.focusCell = cell
       this.clearEditor()
       this.hideEditor();
-      this.focus()
+      this.$nextTick(() => {
+        this.focus();
+      });
     },
     showEditor() {
       const {

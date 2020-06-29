@@ -257,6 +257,27 @@ class Body {
       typeof callback === 'function' && callback(!errors.length)
     }, 0)
   }
+  validateChanged(callback) {
+    let arr = new Set();
+    let rows = [];
+    Object.keys(this.grid.hashChange).forEach(key => {
+      arr.add(Number(key.split("-")[1]));
+    });
+    Array.from(arr).sort().forEach(item => {
+      rows.push(this.rows[item]);
+    });
+    rows.map(row => {
+      const cells = row.allCells;
+      cells.forEach(cell => {
+        const rowData = this.getRowData(cell.rowIndex)
+        cell.validate(rowData)
+      });
+    });
+    setTimeout(() => {
+      const errors = this.getValidations()
+      typeof callback === 'function' && callback(!errors.length)
+    }, 0)
+  }
   validateField(ci, ri) {
     if (typeof ri === 'number' && typeof ci === 'number') { // 校验指定某个数据单元格
       const cell = this.getCell(ci, ri)

@@ -545,6 +545,10 @@ class DataGrid {
     this.doneEdit()
     return this.body.validate(callback);
   }
+  validateChanged(callback) {
+    this.doneEdit()
+    return this.body.validateChanged(callback);
+  }
   validateField(ci, ri) {
     this.doneEdit()
     return this.body.validateField(ci, ri);
