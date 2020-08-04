@@ -12,6 +12,11 @@ import Tooltip from "./Tooltip.js";
 import Clipboard from "./Clipboard.js";
 import { dpr } from "./config.js";
 import {
+  toLeaf,
+  getMaxRow,
+  calCrossSpan
+} from './util.js'
+import {
   CSS_PREFIX,
   MIN_CELL_WIDTH,
   ROW_INDEX_WIDTH,
@@ -92,7 +97,6 @@ class DataGrid {
     Object.assign(
       this,
       {
-        columns: [],
         data: [],
         color: "#495060",
         borderColor: "#e1e6eb",
@@ -100,7 +104,7 @@ class DataGrid {
         borderWidth: 1,
         fixedLeft: 0,
         fixedRight: 0,
-        showCheckbox: false,
+        showCheckbox: true,
         onSelectCell: cell => {},
         onMultiSelectCell: cells => {},
         onEditCell: cell => {},
@@ -110,6 +114,10 @@ class DataGrid {
       },
       options
     );
+    const maxHeaderRow = getMaxRow(options.columns)
+    this.tableHeaderHeight = HEADER_HEIGHT * maxHeaderRow
+    this.headers = calCrossSpan(options.columns, maxHeaderRow)
+    this.columns = toLeaf(options.columns)
     this.columnsLength = this.columns.length;
     this.range = {
       // 编辑器边界范围
@@ -153,7 +161,7 @@ class DataGrid {
     });
     this.fixedLeftWidth = fixedLeftWidth;
     this.fixedRightWidth = fixedRightWidth;
-    this.tableWidth = this.header.allColumnHeaders.reduce((sum, item) => {
+    this.tableWidth = this.header.allColumnHeaders.filter(item => !item.level).reduce((sum, item) => {
       return sum + item.width;
     }, this.originFixedWidth);
     this.tableHeight = this.body.height;
@@ -461,7 +469,7 @@ class DataGrid {
     const viewHeight = this.height - this.verticalScrollerSize;
     const diffLeft = this.focusCell.x + this.scrollX - this.fixedLeftWidth;
     const diffRight = viewWidth - cellTotalViewWidth;
-    const diffTop = this.focusCell.y + this.scrollY - HEADER_HEIGHT;
+    const diffTop = this.focusCell.y + this.scrollY - this.tableHeaderHeight;
     const diffBottom = viewHeight - cellTotalViewHeight;
     // const fillWidth = this.focusCell.colIndex < this.columnsLength - 1 - this.fixedRight ?
     //     this.focusCell.x + this.scrollX - viewWidth
@@ -513,8 +521,12 @@ class DataGrid {
 
   }
   updateColumns(columns) {
-    this.columns = columns;
-    this.columnsLength = columns.length;
+    const maxHeaderRow = getMaxRow(columns)
+    this.tableHeaderHeight = HEADER_HEIGHT * maxHeaderRow
+    this.headers = calCrossSpan(columns, maxHeaderRow)
+    this.columns = toLeaf(columns)
+    this.columnsLength = this.columns.length;
+
     this.range.maxX = columns.length - 1;
     this.header.paint()
     this.getTableSize()

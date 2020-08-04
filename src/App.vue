@@ -25,8 +25,8 @@
       ref="datagrid"
       :columns="columns"
       :data="gridData"
-      :fixed-right="1"
       :fixed-left="2"
+      :fixed-right="1"
     ></DataGrid>
   </div>
 </template>
@@ -151,6 +151,34 @@ export default {
         }
       },
       { title: "手机号", key: "phone", type: "phone" },
+      { 
+        title: "配送信息", 
+        key: "delivery_info",
+        children: [
+          {
+            title: "寄件人", 
+            key: "delivery_name",
+          },
+          {
+            title: "配送地址", 
+            key: "delivery_address",
+            children: [
+              {
+                title: "省", 
+                key: "province",
+              },
+              {
+                title: "市", 
+                key: "city",
+              },
+              {
+                title: "区", 
+                key: "region",
+              }
+            ]
+          }
+        ]
+      },
       {
         title: "性别",
         key: "sex",
@@ -305,13 +333,16 @@ export default {
         requiredQuantity: 10,
         customerRemarks: `测试测试${i}`,
         purchasePrice: 10.2 + i,
-        salePrice: 12.3 + i
+        salePrice: 12.3 + i,
+        delivery_name: `王麻子${i}`,
+        delivery_address: `民族大道${i}号`,
+        province: `湖北省${i}`
       });
     }
     this.columns = columns;
-    // setTimeout(() => {
+    setTimeout(() => {
       this.gridData = data;
-    // }, 2000)
+    }, 2000)
 
     // const Grid = new DataGrid(el, {
     //   // width: 1264,

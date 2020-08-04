@@ -2,8 +2,7 @@ import {
   SCROLLER_SIZE,
   SCROLLER_TRACK_SIZE,
   SCROLLER_COLOR,
-  SCROLLER_FOCUS_COLOR,
-  HEADER_HEIGHT
+  SCROLLER_FOCUS_COLOR
 } from "./constants.js";
 
 class Scroller {
@@ -31,11 +30,12 @@ class Scroller {
       tableWidth,
       tableHeight,
       originFixedWidth,
+      tableHeaderHeight,
       verticalScrollerSize,
       horizontalScrollerSize
     } = this.grid;
     const viewWidth = width - originFixedWidth - verticalScrollerSize;
-    const viewHeight = height - HEADER_HEIGHT - horizontalScrollerSize;
+    const viewHeight = height - tableHeaderHeight - horizontalScrollerSize;
     const horizontalRatio = viewWidth / tableWidth;
     const verticalRatio = viewHeight / tableHeight;
     if (horizontalRatio >= 1) {
@@ -69,7 +69,7 @@ class Scroller {
       : 0;
     this.verticalScroller.ratio = this.verticalScroller.has
       ? (height -
-          HEADER_HEIGHT -
+          tableHeaderHeight -
           SCROLLER_TRACK_SIZE -
           this.verticalScroller.size -
           SCROLLER_SIZE) /
@@ -116,7 +116,7 @@ class Scroller {
     return (
       mouseX > this.grid.width - SCROLLER_TRACK_SIZE &&
       mouseX < this.grid.width - (SCROLLER_TRACK_SIZE - SCROLLER_SIZE) / 2 &&
-      mouseY > HEADER_HEIGHT &&
+      mouseY > this.grid.tableHeaderHeight &&
       mouseY < this.grid.height - SCROLLER_TRACK_SIZE
     );
   }
@@ -124,9 +124,9 @@ class Scroller {
     return (
       mouseX > this.grid.width - SCROLLER_TRACK_SIZE &&
       mouseX < this.grid.width &&
-      mouseY > HEADER_HEIGHT + this.verticalScroller.y &&
+      mouseY > this.grid.tableHeaderHeight + this.verticalScroller.y &&
       mouseY <
-        HEADER_HEIGHT +
+      this.grid.tableHeaderHeight +
           this.verticalScroller.y +
           this.verticalScroller.size +
           SCROLLER_SIZE
@@ -177,7 +177,7 @@ class Scroller {
       const movedY = this.verticalScroller.y + diffY;
       const trackHeight =
         this.grid.height -
-        HEADER_HEIGHT -
+        this.grid.tableHeaderHeight -
         this.verticalScroller.size -
         SCROLLER_TRACK_SIZE -
         SCROLLER_SIZE;
@@ -285,8 +285,8 @@ class Scroller {
     // 滑块起始位置线条
     this.grid.painter.drawLine(
       [
-        [scrollerWidth, HEADER_HEIGHT],
-        [scrollerWidth + SCROLLER_TRACK_SIZE, HEADER_HEIGHT]
+        [scrollerWidth, this.grid.tableHeaderHeight],
+        [scrollerWidth + SCROLLER_TRACK_SIZE, this.grid.tableHeaderHeight]
       ],
       {
         borderColor: this.grid.borderColor,
@@ -299,13 +299,13 @@ class Scroller {
         [
           [
             scrollerWidth + trackOffset,
-            this.verticalScroller.y + thumbOffset + HEADER_HEIGHT
+            this.verticalScroller.y + thumbOffset + this.grid.tableHeaderHeight
           ],
           [
             scrollerWidth + trackOffset,
             this.verticalScroller.y +
               thumbOffset +
-              HEADER_HEIGHT +
+              this.grid.tableHeaderHeight +
               this.verticalScroller.size
           ]
         ],

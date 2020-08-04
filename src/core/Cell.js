@@ -38,7 +38,7 @@ class Cell extends Context {
     this.options = column.options;
     this.render = column.render;
 
-    this.value = value;
+    this.value = value === null || value === undefined ? "" : value;
     this.originalValue = value;
 
     this.validator = new Validator(column);
@@ -48,7 +48,7 @@ class Cell extends Context {
     Object.assign(this, options, {
       fillColor: "#fff"
     });
-    this.setLabel(value);
+    this.setLabel(this.value);
     if (column.rule && column.rule.immediate === false) return; // 编辑器初始化不需要校验
     this.validate();
   }
@@ -113,7 +113,7 @@ class Cell extends Context {
     } else {
       label = this.getMapLabel(val);
     }
-    this.label = label === null || label === undefined ? "" : label;
+    this.label = label;
   }
   getMapValue(label) { // label => value
     let value = label;

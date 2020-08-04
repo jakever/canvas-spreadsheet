@@ -1,4 +1,4 @@
-import { CELL_HEIGHT, HEADER_HEIGHT } from "./constants.js";
+import { CELL_HEIGHT } from "./constants.js";
 import Row from "./Row.js";
 
 class Body {
@@ -11,7 +11,7 @@ class Body {
     this.data = data;
     this.rows = [];
     const len = data.length;
-    let everyOffsetY = HEADER_HEIGHT;
+    let everyOffsetY = this.grid.tableHeaderHeight;
     for (let i = 0; i < len; i++) {
       const rowData = data[i];
 
@@ -23,7 +23,7 @@ class Body {
 
     this.height = this.rows.reduce((sum, item) => {
       return sum + item.height;
-    }, CELL_HEIGHT);
+    }, this.grid.tableHeaderHeight);
   }
   pasteData(data) {
     const { editor } = this.grid;
@@ -145,7 +145,7 @@ class Body {
 
     row.height = rowHeight;
 
-    let everyOffsetY = HEADER_HEIGHT;
+    let everyOffsetY = this.grid.tableHeaderHeight;
     for (let j = 0; j < this.rows.length; j++) {
       const row = this.rows[j];
       row.y = everyOffsetY;

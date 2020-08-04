@@ -1,17 +1,19 @@
 import {
-  CELL_HEIGHT,
   SELECT_BORDER_COLOR,
   SELECT_BG_COLOR
 } from "./constants.js";
 import Context from "./Context.js";
 
 class ColumnHeader extends Context {
-  constructor(grid, index, x, y, column, options) {
-    super(grid, x, y, column.width, CELL_HEIGHT);
+  constructor(grid, index, x, y, width, height, column, options) {
+    super(grid, x, y, width, height);
 
     this.fixed = column.fixed;
-    this.index = index;
+    this.level = column.level
     this.text = column.title;
+    this.colspan = column.colspan
+    this.rowspan = column.rowspan
+    this.index = index;
 
     Object.assign(this, options);
   }
@@ -66,16 +68,16 @@ class ColumnHeader extends Context {
           borderWidth: 2
         });
       }
-      if (this.index - 1 === maxX) {
-        const points = [
-          [x - 1, this.y + this.height],
-          [x, this.y + this.height]
-        ];
-        this.grid.painter.drawLine(points, {
-          borderColor: SELECT_BORDER_COLOR,
-          borderWidth: 2
-        });
-      }
+      // if (this.index - 1 === maxX) {
+      //   const points = [
+      //     [x - 1, this.y + this.height],
+      //     [x, this.y + this.height]
+      //   ];
+      //   this.grid.painter.drawLine(points, {
+      //     borderColor: SELECT_BORDER_COLOR,
+      //     borderWidth: 2
+      //   });
+      // }
     }
 
     // 绘制表头每个单元格文本

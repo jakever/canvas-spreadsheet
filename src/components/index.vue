@@ -7,7 +7,7 @@
       ></canvas>
       <div
         :class="`${CSS_PREFIX}-overlayer`"
-        :style="{ top: `${headerHeight+1}px` }"
+        :style="{ top: `${tableHeaderHeight+1}px` }"
         v-loading="loading"
       >
         <div :class="`${CSS_PREFIX}-editor`" ref="editor" :style="editorSty">
@@ -101,6 +101,7 @@
 import { CSS_PREFIX, HEADER_HEIGHT } from "../core/constants.js";
 import DataGrid from "../core/DataGrid.js";
 import Clickoutside from './clickoutside.js'
+import { getMaxRow } from '../core/util.js'
 const SIMPLE_DATE_TYPES = ["text", "number", "phone", "email"];
 const COMPLEX_DATE_TYPES = ["month", "date", "datetime", "select"];
 
@@ -140,7 +141,6 @@ export default {
   data() {
     return {
       CSS_PREFIX,
-      headerHeight: HEADER_HEIGHT,
       loading: false,
       show: false,
       dataType: "text",
@@ -168,6 +168,10 @@ export default {
     }
   },
   computed: {
+    tableHeaderHeight() {
+      const maxHeaderRow = getMaxRow(this.columns)
+      return HEADER_HEIGHT * maxHeaderRow
+    },
     popupSty() {
       return {
         width: this.popWidth,
@@ -260,7 +264,7 @@ export default {
       } = this.focusCell
       this.isEditing = true
       this.$refs.editor.style.left = `${x - 1}px`;
-      this.$refs.editor.style.top = `${y - 2 - this.headerHeight}px`;
+      this.$refs.editor.style.top = `${y - 2 - this.tableHeaderHeight}px`;
       this.$refs.text.style["min-width"] = `${width - 1}px`;
       this.$refs.text.style["min-height"] = `${height - 1}px`;
       this.popWidth = `${width - 1}px`;

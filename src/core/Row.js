@@ -1,7 +1,10 @@
 import RowHeader from "./RowHeader.js";
 import Cell from "./Cell.js";
 import Context from "./Context.js";
-import { ROW_INDEX_WIDTH } from "./constants";
+import { 
+  ROW_INDEX_WIDTH,
+  SIZE_MAP
+} from "./constants";
 
 class Row extends Context {
   constructor(grid, rowIndex, x, y, height, data) {
@@ -36,7 +39,16 @@ class Row extends Context {
 
     for (let i = 0; i < this.grid.columnsLength; i++) {
       const column = this.grid.columns[i];
-      const width = column.width;
+      const width = SIZE_MAP[column.size || "mini"];
+      let fixed = "";
+      
+      if (i < this.grid.fixedLeft) {
+        fixed = "left";
+      } else if (i > this.grid.columnsLength - 1 - this.grid.fixedRight) {
+        fixed = "right";
+      }
+      column.fixed = fixed
+
       const cell = new Cell(
         data[column.key],
         grid,
@@ -52,7 +64,7 @@ class Row extends Context {
       );
 
       this.allCells.push(cell);
-      if (column.fixed) {
+      if (fixed) {
         this.fixedCells.push(cell);
       } else {
         this.cells.push(cell);

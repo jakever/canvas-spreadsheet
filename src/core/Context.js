@@ -17,7 +17,7 @@ class Context {
   }
   isVerticalVisibleOnBody() {
     return !(
-      this.y + this.height - HEADER_HEIGHT + this.grid.scrollY <= 0 ||
+      this.y + this.height - this.grid.tableHeaderHeight + this.grid.scrollY <= 0 ||
       this.y + this.grid.scrollY >=
         this.grid.height - this.grid.horizontalScrollerSize
     );
@@ -53,7 +53,7 @@ class Context {
     return (
       mouseY > this.y + this.grid.scrollY &&
       mouseY < this.y + this.height + this.grid.scrollY &&
-      mouseY > HEADER_HEIGHT &&
+      mouseY > this.grid.tableHeaderHeight &&
       mouseY < this.grid.height - this.grid.horizontalScrollerSize
     );
   }
@@ -61,11 +61,11 @@ class Context {
     return (
       mouseY > this.y + this.grid.scrollY &&
       mouseY < this.y + this.height + this.grid.scrollY &&
-      mouseY > HEADER_HEIGHT
+      mouseY > this.grid.tableHeaderHeight
     );
   }
   isInsideHeader(mouseX, mouseY) {
-    return mouseY > this.y && mouseY < this.y + HEADER_HEIGHT;
+    return mouseY > this.y && mouseY < this.y + this.grid.tableHeaderHeight;
   }
   // 鼠标坐标是否在checkbox部分内
   isInsideCheckboxBoundary(mouseX, mouseY) {
