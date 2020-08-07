@@ -110,7 +110,8 @@ class DataGrid {
         onEditCell: cell => {},
         onSelectRow: row => {},
         onResizeColumn: () => {},
-        onResizeRow: () => {}
+        onResizeRow: () => {},
+        onUpdateData: () => {}
       },
       options
     );
@@ -367,7 +368,11 @@ class DataGrid {
     if (this.editor.show && this.focusCell) {
       this.editor.show = false;
       this.selector.show = true; // 编辑完再选中该单元格
-      this.focusCell.setData(this.tempValue)
+      if (this.focusCell.value !== this.tempValue) {
+        this.focusCell.setData(this.tempValue)
+        const rowData = this.body.getRowData(this.focusCell.rowIndex)
+        this.onUpdateData(rowData)
+      }
       // this.clipboard.el.focus(); // 通过enter键变为非编辑模式，div编辑框不会失焦
       this.putCell()
       this.clipboard.clear();

@@ -27,6 +27,7 @@
       :data="gridData"
       :fixed-left="2"
       :fixed-right="1"
+      @on-update="onUpdate"
     ></DataGrid>
   </div>
 </template>
@@ -86,6 +87,9 @@ export default {
         }
       ]
       this.$refs.datagrid.updateData(data);
+    },
+    onUpdate(data) {
+      console.log(data)
     },
     getCheckedRows() {
       const data = this.$refs.datagrid.getCheckedRows();
@@ -154,30 +158,30 @@ export default {
       { 
         title: "配送信息", 
         key: "delivery_info",
-        children: [
-          {
-            title: "寄件人", 
-            key: "delivery_name",
-          },
-          {
-            title: "配送地址", 
-            key: "delivery_address",
-            children: [
-              {
-                title: "省", 
-                key: "province",
-              },
-              {
-                title: "市", 
-                key: "city",
-              },
-              {
-                title: "区", 
-                key: "region",
-              }
-            ]
-          }
-        ]
+        // children: [
+        //   {
+        //     title: "寄件人", 
+        //     key: "delivery_name",
+        //   },
+        //   {
+        //     title: "配送地址", 
+        //     key: "delivery_address",
+        //     children: [
+        //       {
+        //         title: "省", 
+        //         key: "province",
+        //       },
+        //       {
+        //         title: "市", 
+        //         key: "city",
+        //       },
+        //       {
+        //         title: "区", 
+        //         key: "region",
+        //       }
+        //     ]
+        //   }
+        // ]
       },
       {
         title: "性别",

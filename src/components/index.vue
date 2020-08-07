@@ -389,6 +389,9 @@ export default {
         },
         onSelectCell: (cell) => {
           self.selectCell(cell)
+        },
+        onUpdateData: (rowData) => {
+          self.$emit('on-update', rowData)
         }
       });
     });
