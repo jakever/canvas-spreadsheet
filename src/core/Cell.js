@@ -84,8 +84,8 @@ class Cell extends Context {
     this.valid = flag;
     this.message = message;
   }
-  setData(val) {
-    if (this.readonly) return;
+  setData(val, ignore) {
+    if (!ignore && this.readonly) return;
 
     if (this.grid.clipboard.isPaste || this.grid.autofill.enable) {
       const value = this.getMapValue(val)

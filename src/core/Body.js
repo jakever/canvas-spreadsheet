@@ -353,7 +353,7 @@ class Body {
             const cells = row.allCells;
             cells.forEach(cell => {
               if (item.hasOwnProperty(cell.key)) {
-                cell.setData(item[cell.key])
+                cell.setData(item[cell.key], true)
               }
             });
           }
