@@ -73,6 +73,7 @@ class Row extends Context {
       everyOffsetX += width;
     }
   }
+  // 鼠标枞坐标是否位于焦点单元格所在的autofill触点范围内
   isInVerticalAutofill(mouseX, mouseY) {
     return (
       this.grid.autofill.yIndex === this.rowIndex &&
@@ -84,6 +85,7 @@ class Row extends Context {
     this.checked = typeof checked === 'boolean' ? checked : !this.checked;
     this.rowHeader.handleCheck(this.checked);
   }
+  // 选中单个单元格
   mouseDown(x, y) {
     // 如果位于autofill触点上则不执行发选择单元格
     const cell = this.allCells[this.grid.autofill.xIndex];
@@ -104,6 +106,7 @@ class Row extends Context {
       }
     }
   }
+  // 批量选中单元格时移动批量选取
   mouseMove(mouseX, mouseY) {
     for (let i = 0; i < this.allCells.length; i++) {
       const cell = this.allCells[i];
@@ -113,6 +116,8 @@ class Row extends Context {
       ) {
         const { colIndex, rowIndex, x, y, width, height, valid, message, fixed } = cell;
         this.grid.multiSelectCell(colIndex, rowIndex, mouseX, mouseY);
+
+        // 显示单元格tooltip提示
         this.grid.tooltip.update({
           valid,
           message,
@@ -125,6 +130,7 @@ class Row extends Context {
       }
     }
   }
+  // 寻找autofill触点
   handleAutofill(x, y) {
     const cell = this.allCells[this.grid.autofill.xIndex];
     if (!cell) return;
@@ -135,6 +141,7 @@ class Row extends Context {
       this.grid.target.style.cursor = "crosshair";
     }
   }
+  // 单击autofill触点开始拖拽
   handleStartAutofill(x, y) {
     const cell = this.allCells[this.grid.autofill.xIndex];
     if (!cell) return;
@@ -161,13 +168,6 @@ class Row extends Context {
       }
     }
   }
-  // getCell(colIndex, rowIndex) {
-  //     const row = this.get(rowIndex);
-  //     if (row !== undefined && this.cells !== undefined && this.cells[colIndex] !== undefined) {
-  //         return this.cells[colIndex];
-  //     }
-  //     return null;
-  // }
   resizeColumn(colIndex, width) {
     const scrollRightBoundry =
       this.grid.width -

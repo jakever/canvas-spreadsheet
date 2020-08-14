@@ -16,7 +16,9 @@
             contenteditable="true"
             v-show="isSimple"
             @input="inputHandler"
-            @keydown.tab.prevent @keydown.enter.prevent @keydown.esc.prevent
+            @keydown.tab.prevent 
+            @keydown.enter.prevent 
+            @keydown.esc.prevent
           ></div>
           <el-date-picker
             ref="month"
@@ -83,15 +85,15 @@
             ></el-option>
           </el-select>
           <!-- <el-cascader
-                        ref="cascader"
-                        v-else-if="dataType==='cascader'"
-                        :class="`${CSS_PREFIX}-popup`"
-                        :style="popupSty"
-                        v-model="cascader_value"
-                        size="medium"
-                        :options="selectOptions"
-                        @change="selectChange">
-                    </el-cascader> -->
+            ref="cascader"
+            v-else-if="dataType==='cascader'"
+            :class="`${CSS_PREFIX}-popup`"
+            :style="popupSty"
+            v-model="cascader_value"
+            size="medium"
+            :options="selectOptions"
+            @change="selectChange">
+          </el-cascader> -->
         </div>
       </div>
     </div>
@@ -99,9 +101,9 @@
 </template>
 <script>
 import { CSS_PREFIX, HEADER_HEIGHT } from "../core/constants.js";
+import { getMaxRow } from '../core/util.js'
 import DataGrid from "../core/DataGrid.js";
 import Clickoutside from './clickoutside.js'
-import { getMaxRow } from '../core/util.js'
 const SIMPLE_DATE_TYPES = ["text", "number", "phone", "email"];
 const COMPLEX_DATE_TYPES = ["month", "date", "datetime", "select"];
 
@@ -219,9 +221,6 @@ export default {
     setFullScreen() {
       this.grid.resize();
     },
-    doPaste() {
-      this.isPaste = true
-    },
     editCell() {
       const {
         dataType,
@@ -310,7 +309,16 @@ export default {
         }
       }
     },
+    doPaste() {
+      // 粘贴事件标识
+      this.isPaste = true
+    },
     inputHandler(e) {
+      /**
+       * 复制粘贴的基本原理：直接监听可编辑元素（这里是contenteditable=true的div）的
+       * input事件，按下CTRL+V会先触发paste事件，接着会触发input事件，在paste事件中
+       * 定义一个标识，这样在input事件就可以区分内容是通过粘贴来的还是手动输入的
+       */
       const val = e.target.innerText;
       if (!this.isPaste) {
         this.showEditor()
@@ -327,6 +335,7 @@ export default {
           textArr = arr.map(item => item.split("\t"));
         }
 
+        // 通过table的格式进行粘贴解析
         // const objE = document.createElement('div')
         // objE.innerHTML = e.target.innerHTML
         // const dom = objE.childNodes
@@ -365,7 +374,6 @@ export default {
     selectChange(val) {
       this.grid.setTempData(val)
     },
-    handlePaste(e) {},
     handleclickoutside() {
       this.grid.doneEdit()
     }
@@ -384,14 +392,23 @@ export default {
         fixedRight: this.fixedRight,
         columns: this.columns,
         data: this.data,
-        onEditCell: () => {
-          self.editCell();
-        },
-        onSelectCell: (cell) => {
+        beforeSelectCell: () => {},
+        afterSelectCell: (cell) => {
           self.selectCell(cell)
         },
-        onUpdateData: (rowData) => {
-          self.$emit('on-update', rowData)
+        beforeMultiSelectCell: () => {},
+        afterMultiSelectCell: () => {},
+        beforeEditCell: () => {
+          self.editCell();
+        },
+        afterEditCell: (data) => {
+          self.$emit('after-edit-cell', data)
+        },
+        afterAutofill: (data) => {
+          self.$emit('after-autofill', data)
+        },
+        afterPaste: (data) => {
+          self.$emit('after-paste', data)
         }
       });
     });

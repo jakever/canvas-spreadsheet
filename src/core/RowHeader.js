@@ -1,9 +1,9 @@
+import Context from "./Context.js";
 import {
   CHECK_BOX_WIDTH,
   SELECT_BORDER_COLOR,
   SELECT_BG_COLOR
 } from "./constants.js";
-import Context from "./Context.js";
 
 const oncheck = new Image();
 const offcheck = new Image();

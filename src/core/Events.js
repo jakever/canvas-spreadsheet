@@ -72,6 +72,7 @@ function throttle(
 }
 function handleMouseDown(e) {
   e.preventDefault();
+  // 点击画布的任何区域都需要将编辑器变为非编辑模式
   this.doneEdit();
   const rect = e.target.getBoundingClientRect();
   const x = e.clientX - rect.left;
@@ -110,9 +111,7 @@ function handleMouseUp(e) {
   this.scroller.mouseUp(x, y);
 }
 function handleClick(e) {
-  if (e.target.tagName.toLowerCase() === "canvas") {
-    e.preventDefault();
-  }
+  e.preventDefault();
   const rect = e.target.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
@@ -123,9 +122,7 @@ function handleClick(e) {
   }
 }
 function handleDbClick(e) {
-  if (e.target.tagName.toLowerCase() === "canvas") {
-    e.preventDefault();
-  }
+  e.preventDefault();
   const rect = e.target.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
@@ -152,37 +149,42 @@ function handleKeydown(e) {
     (e.ctrlKey && e.keyCode === 90) ||
     (e.metaKey && !e.shiftKey && e.keyCode === 90)
   ) {
-    // e.preventDefault()
-    console.log("undo");
+    e.preventDefault()
+    // TODO Undo
   }
   // 恢复
   if (
     (e.ctrlKey && e.keyCode === 89) ||
     (e.metaKey && e.shiftKey && e.keyCode === 90)
   ) {
-    // e.preventDefault()
-    console.log("recovery");
+    e.preventDefault()
+    // TODO Recovery
   }
   // CTRL+C／Command+C
   if ((e.ctrlKey && e.keyCode === 67) || (e.metaKey && e.keyCode === 67)) {
-    // e.preventDefault()
+    e.preventDefault()
     this.clipboard.copy();
   }
   // CTRL+V／Command+V
   if ((e.ctrlKey && e.keyCode === 86) || (e.metaKey && e.keyCode === 86)) {
-      // e.preventDefault()
+      // e.preventDefault() // 注意：这里一定不能阻止默认事件，因为粘贴功能依赖原生的paste事件
       this.clipboard.paste();
   }
   // CTRL+A／Command+A
   if ((e.ctrlKey && e.keyCode) === 65 || (e.metaKey && e.keyCode === 65)) {
-    // e.preventDefault()
-    console.log("select all");
+    e.preventDefault()
+    // TODO Select all
   }
+  // CTRL+R／CRTRL+F等类型的事件不阻止默认事件
   if (e.metaKey || e.ctrlKey) {
-    // CTRL+R／CRTRL+F等类型的事件不禁用默认事件
     return;
   }
-  // e.preventDefault();
+
+  /**
+   * 由于非编辑模式下，输入中文无法正常触发原生input可编辑元素中的中文输入法模式，
+   * 固改用利用原生的可编辑元素的input事件处理非编辑模式下直接敲击键盘可进入编辑模式，
+   * 前提是该元素必须先获取聚焦
+   */
   // const keyHandler = k => {
   //   if (
   //     (k >= 65 && k <= 90) ||
@@ -289,7 +291,7 @@ class Events {
       grid,
       isFirefox
     } = this
-    const rootEl = el.parentElement;
+    // const rootEl = el.parentElement;
     this.eventTasks = {
       'clickoutside': handleClickoutside.bind(grid),
       'mousedown': handleMouseDown.bind(grid),
@@ -303,6 +305,14 @@ class Events {
         context: grid
       }),
     }
+    /**
+     * 这里用js的方案实现Clickoutside会导致一个问题，对于select／data-picker等浮层组件，
+     * 若其超过视窗之外，则会判断不准确，所以直接用v-clickoutside指令的方式完美替代；
+     * -----------------------------------------------------------------------------
+     * 再解释这里为什么有些事件绑定在canvas上而有些绑定在window上？
+     * mousemove／mouseup事件：因为存在一些拖拽的事件（比如调整列宽、拖动滚动条等）拥有“中间状态”，
+     * 需要鼠标在画布之外时也保持事件执行的能力
+     */
     // bindClickoutside.call(grid, rootEl, handleClickoutside.bind(grid))
     bind(el, 'mousedown', this.eventTasks.mousedown, false)
     bind(window, 'mousemove', this.eventTasks.mousemove, false)
@@ -318,7 +328,7 @@ class Events {
       el,
       isFirefox
     } = this
-    const rootEl = el.parentElement;
+    // const rootEl = el.parentElement;
     // unbindClickoutside(rootEl)
     unbind(el, 'mousedown', this.eventTasks.mousedown, false)
     unbind(window, 'mousemove', this.eventTasks.mousemove, false)

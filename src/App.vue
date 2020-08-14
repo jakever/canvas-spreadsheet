@@ -27,7 +27,9 @@
       :data="gridData"
       :fixed-left="2"
       :fixed-right="1"
-      @on-update="onUpdate"
+      @after-edit-cell="afterEditCell"
+      @after-autofill="afterAutofill"
+      @after-paste="afterPaste"
     ></DataGrid>
   </div>
 </template>
@@ -88,7 +90,13 @@ export default {
       ]
       this.$refs.datagrid.updateData(data);
     },
-    onUpdate(data) {
+    afterEditCell(data) {
+      console.log(data)
+    },
+    afterAutofill(data) {
+      console.log(data)
+    },
+    afterPaste(data) {
       console.log(data)
     },
     getCheckedRows() {

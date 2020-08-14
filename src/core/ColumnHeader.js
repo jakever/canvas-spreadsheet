@@ -1,8 +1,8 @@
+import Context from "./Context.js";
 import {
   SELECT_BORDER_COLOR,
   SELECT_BG_COLOR
 } from "./constants.js";
-import Context from "./Context.js";
 
 class ColumnHeader extends Context {
   constructor(grid, index, x, y, width, height, column, options) {
@@ -68,6 +68,8 @@ class ColumnHeader extends Context {
           borderWidth: 2
         });
       }
+      
+      // 弥补相邻单元格线条覆盖的问题
       // if (this.index - 1 === maxX) {
       //   const points = [
       //     [x - 1, this.y + this.height],

@@ -38,13 +38,17 @@ function getValidation(flag, key) {
 
 class Validator {
   constructor(column) {
+    /**
+     * type: month|date|datetime|number|phone|email|select 数据格式类型
+     * required 是否必填
+     * validator: RegExp|Function 校验器
+     * message 校验失败提示文案
+     * validateKey 单元格key
+     * validateTitle 单元格title
+     * options 数据格式为type时的枚举数据
+     */
     this.validateKey = column.key;
     this.validateTitle = column.title;
-
-    // type: month|date|datetime|number|phone|email|select
-    // required
-    // validator: RegExp|Function
-    // message
     this.type = column.type;
     this.options = column.options;
     Object.assign(this, column.rule);
@@ -53,7 +57,7 @@ class Validator {
     const self = this
     const { required, validator, operator, options, type, descriptor } = this;
 
-    if (required && !v && v !== 0) {
+    if (required && !v && v !== 0) { // 必填校验
       return getValidation.call(this, false, "required");
     }
 
@@ -62,6 +66,7 @@ class Validator {
       return getValidation.call(this, pattern.test(v), "notIn");
     } else if (typeof validator === "function") {
       let flag = true
+      // 这里处理异步校验函数
       await validator(v, row, (res) => {
         if (typeof res === 'string') {
           self.message = res
@@ -77,6 +82,7 @@ class Validator {
     if (rules[type] && !rules[type].test(v)) {
       return getValidation.call(this, false, "notMatch");
     }
+    // 下拉校验值必须存在与枚举中
     if (type === "select") {
       const flag = options.map(item => item.value).includes(v);
       return getValidation.call(this, flag, "notMatch");

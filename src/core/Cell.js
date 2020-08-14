@@ -1,3 +1,5 @@
+import Context from "./Context.js";
+import Validator from "./Validator.js";
 import {
   SELECT_BORDER_COLOR,
   SELECT_AREA_COLOR,
@@ -6,8 +8,6 @@ import {
   READONLY_TEXT_COLOR,
   ERROR_TIP_COLOR
 } from "./constants.js";
-import Context from "./Context.js";
-import Validator from "./Validator.js";
 
 class Cell extends Context {
   constructor(
@@ -52,6 +52,7 @@ class Cell extends Context {
     if (column.rule && column.rule.immediate === false) return; // 编辑器初始化不需要校验
     this.validate();
   }
+  // 鼠标横坐标是否位于【焦点单元格】所在的autofill触点范围内
   isInHorizontalAutofill(mouseX, mouseY) {
     return (
       mouseX > this.x + this.grid.scrollX + this.width - 3 &&
@@ -60,6 +61,7 @@ class Cell extends Context {
       mouseX < this.grid.width - this.grid.fixedRightWidth
     );
   }
+  // 鼠标横坐标是否位于处于【冻结列中焦点单元格】所在的autofill触点范围内
   isInsideFixedHorizontalAutofill(mouseX, mouseY) {
     const x =
       this.grid.width -
@@ -84,6 +86,10 @@ class Cell extends Context {
     this.valid = flag;
     this.message = message;
   }
+  /**
+   * @param {String|Number} val 需要设置的值
+   * @param {Boolean} ignore 是否忽略readonly属性可以修改
+   */
   setData(val, ignore) {
     if (!ignore && this.readonly) return;
 
@@ -115,6 +121,7 @@ class Cell extends Context {
     }
     this.label = label;
   }
+  // 对于下拉类型的数据，对外展示的是label，实际存的是value，所以在更新这类数据的时候需要做一个转换
   getMapValue(label) { // label => value
     let value = label;
     if (this.dataType === "select" && Array.isArray(this.options)) {

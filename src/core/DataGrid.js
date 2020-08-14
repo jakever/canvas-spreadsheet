@@ -24,7 +24,6 @@ import {
   SCROLLER_TRACK_SIZE,
   HEADER_HEIGHT
 } from "./constants.js";
-// import './index.scss'
 
 class DataGrid {
   constructor(target, options) {
@@ -36,8 +35,8 @@ class DataGrid {
     this.horizontalScrollerSize = SCROLLER_TRACK_SIZE;
     this.verticalScrollerSize = SCROLLER_TRACK_SIZE;
 
-    this.tempValue = '';
-    this.focusCell = null;
+    this.tempValue = ''; // 存储用户输入的临时值，当执行doneEdit后才去setData()
+    this.focusCell = null; // 当前焦点所在的cell
 
     this.hashChange = {}; // diff changed
 
@@ -105,13 +104,24 @@ class DataGrid {
         fixedLeft: 0,
         fixedRight: 0,
         showCheckbox: true,
-        onSelectCell: cell => {},
-        onMultiSelectCell: cells => {},
-        onEditCell: cell => {},
-        onSelectRow: row => {},
-        onResizeColumn: () => {},
-        onResizeRow: () => {},
-        onUpdateData: () => {}
+        beforeSelectCell: cell => {}, // 选中单元格之前触发
+        afterSelectCell: cell => {},
+        beforeMultiSelectCell: cells => {}, // 批量选中单元格之前触发
+        afterMultiSelectCell: cells => {},
+        beforeEditCell: cell => {}, // 编辑单元格
+        afterEditCell: cell => {},
+        beforeSelectRow: row => {}, // 选中行触发
+        afterSelectRow: row => {},
+        beforeResizeColumn: () => {}, // 调整列宽
+        afterResizeColumn: () => {},
+        beforeResizeRow: () => {}, //调整行高
+        afterResizeRow: () => {},
+        beforeAutofill: () => {}, // 自动填充
+        afterAutofill: () => {},
+        beforeCopy: () => {}, // 复制
+        afterCopy: () => {},
+        beforePaste: () => {}, // 粘贴
+        afterPaste: () => {}
       },
       options
     );
@@ -132,6 +142,9 @@ class DataGrid {
     }
     this.originFixedWidth = ROW_INDEX_WIDTH + this.checkboxWidth;
   }
+  /**
+   * 获取容器可是区域宽、高，设置canvas容器样式尺寸、画布尺寸
+   */
   setLayoutSize(options = {}) {
     const el = this.target.parentElement;
     const rootEl = el.parentElement;
@@ -149,6 +162,9 @@ class DataGrid {
     el.style.height = this.height + "px";
     this.painter.scaleCanvas(dpr);
   }
+  /**
+   * 获取表格左、右冻结列宽，表格实际的宽、高
+   */
   getTableSize() {
     let fixedLeftWidth = this.originFixedWidth;
     let fixedRightWidth = SCROLLER_TRACK_SIZE;
@@ -171,13 +187,13 @@ class DataGrid {
   }
   initTableSize() {
     this.getTableSize();
-
     this.fillTableWidth();
   }
+  /**
+   * 列总宽小于可视区域宽度时，需要补余
+   */
   fillTableWidth() {
-    // 列较少时，宽度不够补余
-    if (this.tableWidth <= this.width - SCROLLER_TRACK_SIZE) {
-      // 没有横向滚动条
+    if (this.tableWidth <= this.width - SCROLLER_TRACK_SIZE) { // 没有横向滚动条
       const fillCellWidth =
         (this.width - SCROLLER_TRACK_SIZE - this.tableWidth) /
         this.columnsLength;
@@ -186,25 +202,14 @@ class DataGrid {
       this.tableWidth = this.width - SCROLLER_TRACK_SIZE;
       this.fixedLeftWidth = 0;
       this.fixedRightWidth = SCROLLER_TRACK_SIZE;
-      // this.hasHorizontalScroll = false
-    } else {
-      // this.fixedLeftWidth = fixedLeftWidth
-      // this.fixedRightWidth = fixedRightWidth + SCROLLER_TRACK_SIZE
-      // this.hasHorizontalScroll = true
     }
-    if (this.tableHeight <= this.height - SCROLLER_TRACK_SIZE) {
-      // 没有纵向滚动条
-      // this.hasVerticalScroll = false
-      // this.height = this.tableHeight + SCROLLER_TRACK_SIZE
-    } else {
-      // this.hasVerticalScroll = true
-    }
+    
     this.scroller.reset();
   }
   resize() {
     const diffX = this.tableWidth - this.width + this.scrollX;
-    this.setLayoutSize();
 
+    this.setLayoutSize();
     this.fillTableWidth();
 
     if (
@@ -249,11 +254,10 @@ class DataGrid {
     this.target.appendChild(this.rootEl.el);
   }
   /**
-   * 选择、编辑相关
+   * 选择、编辑相关----------------------------------------------------->
    */
   // mousedown事件 -> 开始拖拽批量选取
   selectCell({ colIndex, rowIndex }) {
-    // this.clipboard.el.focus();
     this.clearMultiSelect();
     this.editor.xIndex = colIndex;
     this.editor.yIndex = rowIndex;
@@ -263,7 +267,10 @@ class DataGrid {
 
     this.putCell()
   }
-  putCell() { // 将数据填充到div编辑器中
+  /**
+   * 将画布单元格中的数据传递到编辑器中
+   */
+  putCell() {
     const {
       x,
       y,
@@ -279,12 +286,12 @@ class DataGrid {
         ? this.width -
           (this.tableWidth - x - width) -
           width -
-          this.verticalScrollerSize
+          SCROLLER_TRACK_SIZE
         : fixed === "left"
         ? x
         : x + this.scrollX;
     const _y = y + this.scrollY;
-    this.onSelectCell({
+    this.afterSelectCell({
       value,
       x: _x,
       y: _y,
@@ -360,7 +367,7 @@ class DataGrid {
     if (this.focusCell && !this.focusCell.readonly) {
       this.editor.show = true;
       this.selector.show = false;
-      this.onEditCell();
+      this.beforeEditCell();
     }
   }
   // 完成编辑
@@ -371,9 +378,8 @@ class DataGrid {
       if (this.focusCell.value !== this.tempValue) {
         this.focusCell.setData(this.tempValue)
         const rowData = this.body.getRowData(this.focusCell.rowIndex)
-        this.onUpdateData(rowData)
+        this.afterEditCell(rowData)
       }
-      // this.clipboard.el.focus(); // 通过enter键变为非编辑模式，div编辑框不会失焦
       this.putCell()
       this.clipboard.clear();
     }
@@ -381,6 +387,9 @@ class DataGrid {
   setData(value) {
     this.focusCell && this.focusCell.setData(value);
   }
+  /**
+   * 将用户通过编辑器输入的值存储为一个临时变量，执行doneEdit()后再去setData()
+   */
   setTempData(value) {
     this.editor.show = true;
     this.selector.show = false;
@@ -471,7 +480,7 @@ class DataGrid {
     const cellTotalViewHeight =
       this.focusCell.y + this.focusCell.height + this.scrollY;
     const viewWidth = this.width - this.fixedRightWidth;
-    const viewHeight = this.height - this.verticalScrollerSize;
+    const viewHeight = this.height - SCROLLER_TRACK_SIZE;
     const diffLeft = this.focusCell.x + this.scrollX - this.fixedLeftWidth;
     const diffRight = viewWidth - cellTotalViewWidth;
     const diffTop = this.focusCell.y + this.scrollY - this.tableHeaderHeight;
@@ -491,7 +500,7 @@ class DataGrid {
     }
   }
   /**
-   * 画布绘制相关
+   * 画布绘制相关------------------------------------------------------->
    */
   initPaint() {
     this.draw();
@@ -523,9 +532,9 @@ class DataGrid {
 
     // 绘制滚动条
     this.scroller.draw();
-
   }
   updateColumns(columns) {
+    // 代码冗余，后续优化
     const maxHeaderRow = getMaxRow(columns)
     this.tableHeaderHeight = HEADER_HEIGHT * maxHeaderRow
     this.headers = calCrossSpan(columns, maxHeaderRow)

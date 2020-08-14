@@ -25,23 +25,39 @@ class Body {
       return sum + item.height;
     }, this.grid.tableHeaderHeight);
   }
+  /**
+   * CTRL+V 粘贴
+   * @param {Array} data 粘贴板中的数据
+   */
   pasteData(data) {
-    const { editor } = this.grid;
+    const { xIndex, yIndex } = this.grid.editor;
     for (let ri = 0; ri <= data.length - 1; ri++) {
       const len = data[ri].length;
       for (let ci = 0; ci <= len - 1; ci++) {
-        const cells = this.rows[ri + editor.yIndex].allCells;
-        const cell = cells[ci + editor.xIndex];
+        const cells = this.rows[ri + yIndex].allCells;
+        const cell = cells[ci + xIndex];
         cell.setData(data[ri][ci]);
       }
     }
+    // 粘贴后事件派发
+    const startY = yIndex
+    const endY = startY + data.length - 1
+    let rowDatas = []
+    for (let i = startY; i <= endY; i++) {
+      rowDatas.push(this.getRowData(i))
+    }
+    this.grid.afterPaste(rowDatas)
   }
+  /**
+   * autofull自动填充
+   */
   autofillData() {
     const { value } = this.getSelectedData();
     const xStep = value[0].length;
     const yStep = value.length;
     const { xArr, yArr } = this.grid.autofill;
-
+    const { yArr: syArr } = this.grid.selector
+    
     if (yArr[1] < 0 || xArr[1] < 0) return;
 
     for (let ri = 0; ri <= yArr[1] - yArr[0]; ri++) {
@@ -53,6 +69,22 @@ class Body {
         cell.setData(val);
       }
     }
+
+    // 自动填充后事件派发
+    let startY = syArr[0]
+    let endY = syArr[1]
+    let rowDatas = []
+    if (yArr[0] !== syArr[0]) { // 纵方向向上
+      startY = yArr[0]
+    } else {
+      startY = syArr[1] + 1
+      endY = yArr[1]
+    }
+    for (let i = startY; i <= endY; i++) {
+      rowDatas.push(this.getRowData(i))
+    }
+    this.grid.afterAutofill(rowDatas)
+
     this.grid.clearAuaofill();
   }
   resizeColumn(colIndex, width) {
@@ -345,6 +377,7 @@ class Body {
       value: cell.value
     }
   }
+  // 批量更新表格数据
   updateData(data) {
     if (data && Array.isArray(data)) {
       data.forEach(item => {

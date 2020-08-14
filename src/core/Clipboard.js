@@ -35,22 +35,22 @@ class Clipboard {
   paste() {
     this.isPaste = true
   }
-  paste2(e) {
-    const { editor, selector, autofill, body } = this.grid;
-    let textArr;
-    let rawText = e.clipboardData.getData("text/plain");
-    // let arr = isMac ? rawText.split('\r').map(item => item.split('\t')) : rawText.split('\r').map(item => item.split('\t')).slice(0, -1) // windows系统截取掉最后一个空白字符
-    let arr = rawText.split("\r");
-    if (arr.length === 1) {
-      let _arr = arr[0].split("\n");
-      textArr = _arr.map(item => item.split("\t"));
-    } else {
-      textArr = arr.map(item => item.split("\t"));
-    }
-    if (textArr.length) {
-      body.pasteData(textArr);
-    }
-  }
+  // paste2(e) {
+  //   const { editor, selector, autofill, body } = this.grid;
+  //   let textArr;
+  //   let rawText = e.clipboardData.getData("text/plain");
+  //   // let arr = isMac ? rawText.split('\r').map(item => item.split('\t')) : rawText.split('\r').map(item => item.split('\t')).slice(0, -1) // windows系统截取掉最后一个空白字符
+  //   let arr = rawText.split("\r");
+  //   if (arr.length === 1) {
+  //     let _arr = arr[0].split("\n");
+  //     textArr = _arr.map(item => item.split("\t"));
+  //   } else {
+  //     textArr = arr.map(item => item.split("\t"));
+  //   }
+  //   if (textArr.length) {
+  //     body.pasteData(textArr);
+  //   }
+  // }
   select(textArr) {
     this.isPaste = false
     // 复制完把被填充的区域选中，并把激活单元格定位到填充区域的第一个

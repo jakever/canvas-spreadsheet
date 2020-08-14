@@ -64,6 +64,7 @@ class Context {
       mouseY > this.grid.tableHeaderHeight
     );
   }
+  // 鼠标坐标是否在表头范围内
   isInsideHeader(mouseX, mouseY) {
     return mouseY > this.y && mouseY < this.y + this.grid.tableHeaderHeight;
   }
