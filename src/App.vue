@@ -150,6 +150,7 @@ export default {
         size: "small",
         align: "left",
         rule: {
+          required: true,
           validator: function(value, row, callback) {
             if (value.length > 10) {
               callback('岗位字段长度必须小于10个字符哦！')
@@ -166,30 +167,30 @@ export default {
       { 
         title: "配送信息", 
         key: "delivery_info",
-        // children: [
-        //   {
-        //     title: "寄件人", 
-        //     key: "delivery_name",
-        //   },
-        //   {
-        //     title: "配送地址", 
-        //     key: "delivery_address",
-        //     children: [
-        //       {
-        //         title: "省", 
-        //         key: "province",
-        //       },
-        //       {
-        //         title: "市", 
-        //         key: "city",
-        //       },
-        //       {
-        //         title: "区", 
-        //         key: "region",
-        //       }
-        //     ]
-        //   }
-        // ]
+        children: [
+          {
+            title: "寄件人", 
+            key: "delivery_name",
+          },
+          {
+            title: "配送地址", 
+            key: "delivery_address",
+            children: [
+              {
+                title: "省", 
+                key: "province",
+              },
+              {
+                title: "市", 
+                key: "city",
+              },
+              {
+                title: "区", 
+                key: "region",
+              }
+            ]
+          }
+        ]
       },
       {
         title: "性别",
@@ -301,7 +302,7 @@ export default {
         key: "purchasePrice",
         type: "number"
       },
-      { title: "销售价(元)", key: "salePrice", type: "number" }
+      { title: "销售价(元)", key: "salePrice", type: "number", size: "small" }
     ]
     // this.$nextTick(() => {
     let el = document.getElementById("data-grid-demo");

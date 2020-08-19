@@ -26,7 +26,7 @@ class Tooltip {
       painter
     } = this.grid
     if (!this.valid && !selector.isSelected) {
-      const poX = this.x + this.colWidth + 1
+      const poX = this.x + this.colWidth + 2
       const poY = this.y + 1
       const isBeyondHorizontalView = poX + this.width + scrollX > width // tooltip浮层是否超过水平可视区
       const isBeyondVerticalView = poY + this.height + scrollY > height // tooltip浮层是否超过垂直可视区

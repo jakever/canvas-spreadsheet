@@ -52,12 +52,15 @@ class RowHeader extends Context {
       borderWidth: this.borderWidth
     });
     // 绘制每行的索引
-    this.grid.painter.drawText(
+    this.grid.painter.drawCellText(
       this.text,
-      this.x + this.width / 2,
+      this.x,
       y + this.height / 2,
+      this.width,
+      10,
       {
-        color: this.color
+        color: this.color,
+        align: 'center'
       }
     );
 

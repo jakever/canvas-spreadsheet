@@ -168,22 +168,28 @@ class Row extends Context {
       }
     }
   }
-  resizeColumn(colIndex, width) {
-    const scrollRightBoundry =
+  resizeColumn(colIndex, diffWidth) {
+    const scrollDiffWidth =
       this.grid.width -
-        this.grid.tableWidth -
-        this.grid.verticalScrollerSize ===
+      this.grid.tableWidth -
+      this.grid.verticalScrollerSize -
       this.grid.scrollX;
+
     const cell = this.allCells[colIndex];
-    const oldWidth = cell.width;
-    cell.width = width;
-    if (scrollRightBoundry && width < oldWidth) {
-      this.allCells[colIndex + 1].width += oldWidth - width;
-      this.allCells[colIndex + 1].x += width - oldWidth;
-    } else {
+    if (scrollDiffWidth <= diffWidth) {
+      cell.width += diffWidth;
+
+      // 避免操作过快是出现断层
       for (let i = colIndex + 1; i < this.grid.columnsLength; i++) {
-        this.allCells[i].x += width - oldWidth;
+        this.allCells[i].x += diffWidth;
       }
+    }
+    
+    // 滚动到最右侧，调小列宽时只更新目标列宽和相邻下一列的x轴坐标
+    if (scrollDiffWidth === 0 && diffWidth <= 0) {
+      cell.width += diffWidth;
+      this.allCells[colIndex + 1].width -= diffWidth;
+      this.allCells[colIndex + 1].x += diffWidth;
     }
   }
   rePaint() {

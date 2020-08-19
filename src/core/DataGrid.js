@@ -125,13 +125,17 @@ class DataGrid {
       },
       options
     );
+    
     const maxHeaderRow = getMaxRow(options.columns)
     this.tableHeaderHeight = HEADER_HEIGHT * maxHeaderRow
+    // 计算复合表头的跨行colspan、跨列数rowspan，用作表头渲染
     this.headers = calCrossSpan(options.columns, maxHeaderRow)
+    // 获取叶子节点表头，用作数据渲染
     this.columns = toLeaf(options.columns)
     this.columnsLength = this.columns.length;
+
+    // 编辑器边界范围
     this.range = {
-      // 编辑器边界范围
       minX: 0,
       maxX: this.columns.length - 1,
       minY: 0,
@@ -407,12 +411,10 @@ class DataGrid {
   /**
    * 调整列宽、行宽
    */
-  resizeColumn(colIndex, width) {
-    if (width < MIN_CELL_WIDTH) return;
+  resizeColumn(colIndex, newWidth) {
+    this.header.resizeColumn(colIndex, newWidth);
 
-    this.header.resizeColumn(colIndex, width);
-
-    this.body.resizeColumn(colIndex, width);
+    this.body.resizeColumn(colIndex, newWidth);
 
     this.getTableSize();
   }

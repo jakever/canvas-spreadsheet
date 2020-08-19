@@ -62,6 +62,13 @@ class Paint {
     }
     this.ctx.restore();
   }
+  /**
+   * 在指定位置渲染文本
+   * @param {String} text 渲染的文本
+   * @param {Number} x 渲染的x轴位置
+   * @param {Number} y 渲染的y轴位置
+   * @param {Object} options 
+   */
   drawText(text, x, y, options) {
     options = Object.assign(
       {
@@ -80,6 +87,15 @@ class Paint {
     this.ctx.textBaseline = options.baseLine;
     this.ctx.fillText(text, x, y);
   }
+  /**
+   * 在指定宽高的盒子里渲染文本，会结合文本的长度和盒子的宽来决定对齐方式
+   * @param {String} text 渲染的文本
+   * @param {Number} x 渲染的初始x轴位置
+   * @param {Number} y 渲染的初始y轴位置
+   * @param {Number} width 盒子的宽
+   * @param {Number} padding 左右边距
+   * @param {Object} options color, font, align...
+   */
   drawCellText(text, x, y, width, padding, options) {
     options = Object.assign(
       {
@@ -104,6 +120,45 @@ class Paint {
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = options.baseLine;
     this.ctx.fillText(text, x + startOffset, y);
+    this.ctx.restore()
+  }
+  /**
+   * 在文本前指定距离的位置渲染一个图标
+   * @param {String} label 支持字符串图标或者实体字符
+   * @param {String} text 指定文本
+   * @param {Number} x 
+   * @param {Number} y 
+   * @param {Number} width 
+   * @param {Number} padding 
+   * @param {Number} offsetX 横坐标位移
+   * @param {Number} offsetY 纵坐标位移
+   * @param {Object} options 
+   */
+  drawIcon(label, text, x, y, width, padding, offsetX, offsetY, options) {
+    options = Object.assign(
+      {
+        font:
+          'normal 12px "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif',
+        color: "#495060",
+        align: "center",
+        baseLine: "middle"
+      },
+      options
+    );
+    const textWidth = this.ctx.measureText(text).width;
+    const startOffset = calucateTextAlign.call(
+      this,
+      text,
+      width,
+      padding,
+      options.align
+    );
+    
+    this.ctx.font = options.font;
+    this.ctx.fillStyle = options.color;
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = options.baseLine;
+    this.ctx.fillText(label, x + startOffset - textWidth / 2 - offsetX, y + offsetY);
     this.ctx.restore()
   }
   drawRect(x, y, width, height, options) {

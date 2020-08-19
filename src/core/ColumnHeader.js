@@ -1,11 +1,12 @@
 import Context from "./Context.js";
 import {
   SELECT_BORDER_COLOR,
-  SELECT_BG_COLOR
+  SELECT_BG_COLOR,
+  ERROR_TIP_COLOR
 } from "./constants.js";
 
 class ColumnHeader extends Context {
-  constructor(grid, index, x, y, width, height, column, options) {
+  constructor(grid, index, x, y, width, height, column) {
     super(grid, x, y, width, height);
 
     this.fixed = column.fixed;
@@ -13,9 +14,8 @@ class ColumnHeader extends Context {
     this.text = column.title;
     this.colspan = column.colspan
     this.rowspan = column.rowspan
+    this.required = column.rule?.required
     this.index = index;
-
-    Object.assign(this, options);
   }
   // 表头是否超过了右侧可视区的边界
   isVisibleOnScreen() {
@@ -26,27 +26,37 @@ class ColumnHeader extends Context {
   }
   draw() {
     // 绘制表头每个单元格框
+    const {
+      width,
+      tableWidth,
+      verticalScrollerSize,
+      scrollX,
+      editor,
+      selector,
+      painter,
+      fillColor,
+      borderColor,
+      borderWidth
+    } = this.grid
     const x =
       this.fixed === "right"
-        ? this.grid.width -
-          (this.grid.tableWidth - this.x - this.width) -
+        ? width -
+          (tableWidth - this.x - this.width) -
           this.width -
-          this.grid.verticalScrollerSize
+          verticalScrollerSize
         : this.fixed === "left"
         ? this.x
-        : this.x + this.grid.scrollX;
-    const editor = this.grid.editor;
-    const selector = this.grid.selector;
-    this.grid.painter.drawRect(x, this.y, this.width, this.height, {
-      fillColor: this.fillColor,
-      borderColor: this.borderColor,
-      borderWidth: this.borderWidth
+        : this.x + scrollX;
+    painter.drawRect(x, this.y, this.width, this.height, {
+      fillColor,
+      borderColor,
+      borderWidth
     });
 
     /**
-     * 焦点高亮
+     * 焦点高亮，colspan>=2表示复合表头，不需要高亮
      */
-    if (selector.show || editor.show) {
+    if ((selector.show || editor.show ) && this.colspan <= 1) {
       const minX = selector.xArr[0];
       const maxX = selector.xArr[1];
 
@@ -83,14 +93,35 @@ class ColumnHeader extends Context {
     }
 
     // 绘制表头每个单元格文本
-    this.grid.painter.drawText(
+    this.grid.painter.drawCellText(
       this.text,
-      x + this.width / 2,
+      x,
       this.y + this.height / 2,
+      this.width,
+      10,
       {
-        color: this.color
+        color: this.grid.color,
+        align: 'center'
       }
     );
+    // required必填星号标识
+    if (this.required) {
+      this.grid.painter.drawIcon(
+        '*',
+        this.text,
+        x,
+        this.y + this.height / 2,
+        this.width,
+        10,
+        6,
+        4,
+        {
+          font:
+          'normal 20px "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif',
+          color: ERROR_TIP_COLOR
+        }
+      );
+    }
   }
 }
 
