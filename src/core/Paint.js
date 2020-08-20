@@ -107,6 +107,12 @@ class Paint {
       },
       options
     );
+    
+    this.ctx.font = options.font;
+    this.ctx.fillStyle = options.color;
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = options.baseLine;
+    // font会影响measureText获取的值
     const startOffset = calucateTextAlign.call(
       this,
       text,
@@ -114,11 +120,6 @@ class Paint {
       padding,
       options.align
     );
-    
-    this.ctx.font = options.font;
-    this.ctx.fillStyle = options.color;
-    this.ctx.textAlign = "center";
-    this.ctx.textBaseline = options.baseLine;
     this.ctx.fillText(text, x + startOffset, y);
     this.ctx.restore()
   }

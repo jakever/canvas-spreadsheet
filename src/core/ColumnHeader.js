@@ -14,7 +14,7 @@ class ColumnHeader extends Context {
     this.text = column.title;
     this.colspan = column.colspan
     this.rowspan = column.rowspan
-    this.required = column.rule?.required
+    this.required = column.rule ? column.rule.required : null
     this.index = index;
   }
   // 表头是否超过了右侧可视区的边界
@@ -92,18 +92,6 @@ class ColumnHeader extends Context {
       // }
     }
 
-    // 绘制表头每个单元格文本
-    this.grid.painter.drawCellText(
-      this.text,
-      x,
-      this.y + this.height / 2,
-      this.width,
-      10,
-      {
-        color: this.grid.color,
-        align: 'center'
-      }
-    );
     // required必填星号标识
     if (this.required) {
       this.grid.painter.drawIcon(
@@ -122,6 +110,18 @@ class ColumnHeader extends Context {
         }
       );
     }
+    // 绘制表头每个单元格文本
+    this.grid.painter.drawCellText(
+      this.text,
+      x,
+      this.y + this.height / 2,
+      this.width,
+      10,
+      {
+        color: this.grid.color,
+        align: 'center'
+      }
+    );
   }
 }
 
