@@ -295,9 +295,9 @@ export default {
           if (window.getSelection) {
             // ie11 10 9 ff safari
             el.focus(); // 解决ff不获取焦点无法定位问题
-            const range = window.getSelection(); // 创建range
-            range.selectAllChildren(el); // range 选择obj下所有子内容
-            range.collapseToEnd(); // 光标移至最后
+            const selection = window.getSelection(); // 创建selection
+            selection.selectAllChildren(el); // 清除选区并选择指定节点的所有子节点
+            selection.collapseToEnd(); // 光标移至最后
           } else if (document.selection) {
             // ie10以下
             const range = document.selection.createRange(); // 创建选择对象
@@ -366,6 +366,7 @@ export default {
         // }
 
         this.grid.pasteData(textArr)
+        this.clearEditor()
       } else {
         this.isPaste = false
         this.grid.setTempData(val)
