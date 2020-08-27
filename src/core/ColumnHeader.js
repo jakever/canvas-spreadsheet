@@ -114,8 +114,9 @@ class ColumnHeader extends Context {
     this.grid.painter.drawCellText(
       this.text,
       x,
-      this.y + this.height / 2,
+      this.y,
       this.width,
+      this.height,
       10,
       {
         color: this.grid.color,

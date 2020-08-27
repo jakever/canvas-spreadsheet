@@ -55,8 +55,9 @@ class RowHeader extends Context {
     this.grid.painter.drawCellText(
       this.text,
       this.x,
-      y + this.height / 2,
+      y,
       this.width,
+      this.height,
       10,
       {
         color: this.color,

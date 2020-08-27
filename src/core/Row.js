@@ -77,8 +77,8 @@ class Row extends Context {
   isInVerticalAutofill(mouseX, mouseY) {
     return (
       this.grid.autofill.yIndex === this.rowIndex &&
-      mouseY > this.y + this.grid.scrollY + this.height - 3 &&
-      mouseY < this.y + this.height + this.grid.scrollY + 3
+      mouseY > this.y + this.grid.scrollY + this.height - 4 &&
+      mouseY < this.y + this.height + this.grid.scrollY + 4
     );
   }
   handleCheck(checked) {
@@ -98,7 +98,13 @@ class Row extends Context {
 
     for (let i = 0; i < this.allCells.length; i++) {
       const cell = this.allCells[i];
-      if (
+      if (cell.dataType === 'select' && cell.isInsideAffixIcon(x, y)) {
+        this.grid.selectCell(cell);
+        // 选择和编辑同时触发会导致切换单元格的时候下拉浮层延迟消失
+        setTimeout(() => {
+          this.grid.startEdit();
+        }, 0)
+      } else if (
         cell.isInsideHorizontalBodyBoundary(x, y) ||
         cell.isInsideFixedHorizontalBodyBoundary(x, y)
       ) {
@@ -117,7 +123,7 @@ class Row extends Context {
         const { colIndex, rowIndex, x, y, width, height, valid, message, fixed } = cell;
         this.grid.multiSelectCell(colIndex, rowIndex, mouseX, mouseY);
 
-        // 显示单元格tooltip提示
+        // 显示单元格tooltip校验失败提示文案
         this.grid.tooltip.update({
           valid,
           message,
@@ -127,6 +133,10 @@ class Row extends Context {
           colHeight: height,
           fixed
         });
+
+        if (cell.dataType === 'select' && cell.isInsideAffixIcon(mouseX, mouseY)) {
+          this.grid.target.style.cursor = "pointer";
+        }
       }
     }
   }
@@ -160,6 +170,7 @@ class Row extends Context {
   dbClick(x, y) {
     for (let i = 0; i < this.allCells.length; i++) {
       const cell = this.allCells[i];
+      // 仅当鼠标坐标位于body内的单元格之内时才会触发编辑模式
       if (
         cell.isInsideHorizontalBodyBoundary(x, y) ||
         cell.isInsideFixedHorizontalBodyBoundary(x, y)

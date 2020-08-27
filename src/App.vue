@@ -30,6 +30,7 @@
       @after-edit-cell="afterEditCell"
       @after-autofill="afterAutofill"
       @after-paste="afterPaste"
+      @after-clear="afterClear"
     ></DataGrid>
   </div>
 </template>
@@ -97,6 +98,9 @@ export default {
       console.log(data)
     },
     afterPaste(data) {
+      console.log(data)
+    },
+    afterClear(data) {
       console.log(data)
     },
     getCheckedRows() {
@@ -199,13 +203,17 @@ export default {
         options: [
           { value: 1, label: "男" },
           { value: 2, label: "女" }
-        ]
+        ],
+        rule: {
+          required: true
+        }
       },
       {
         title: "计薪月份",
         size: "small",
         key: "salary_month",
-        type: "month"
+        type: "month",
+        align: "center" 
       },
       { title: "出生日期", size: "small", key: "birthday", type: "date" },
       // { title: "爱好", size: 'small', key: "hobby", type: 'cascader', options: [
@@ -353,9 +361,9 @@ export default {
       });
     }
     this.columns = columns;
-    setTimeout(() => {
+    // setTimeout(() => {
       this.gridData = data;
-    }, 2000)
+    // }, 2000)
 
     // const Grid = new DataGrid(el, {
     //   // width: 1264,

@@ -251,7 +251,7 @@ export default {
       this.clearEditor()
       this.hideEditor();
       this.$nextTick(() => {
-        this.focus();
+        this.focus('text');
       });
     },
     showEditor() {
@@ -410,6 +410,9 @@ export default {
         },
         afterPaste: (data) => {
           self.$emit('after-paste', data)
+        },
+        afterClear: (data) => {
+          self.$emit('after-clear', data)
         }
       });
     });

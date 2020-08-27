@@ -3,11 +3,14 @@ import Validator from "./Validator.js";
 import {
   SELECT_BORDER_COLOR,
   SELECT_AREA_COLOR,
-  SELECT_BG_COLOR,
   READONLY_COLOR,
   READONLY_TEXT_COLOR,
   ERROR_TIP_COLOR
 } from "./constants.js";
+const dateIcon = new Image();
+const timeIcon = new Image();
+dateIcon.src = require("./images/date.png");
+timeIcon.src = require("./images/time.png");
 
 class Cell extends Context {
   constructor(
@@ -38,7 +41,7 @@ class Cell extends Context {
     this.options = column.options;
     this.render = column.render;
 
-    this.value = value === null || value === undefined ? "" : value;
+    this.value = value;
     this.originalValue = value;
 
     this.validator = new Validator(column);
@@ -55,8 +58,8 @@ class Cell extends Context {
   // 鼠标横坐标是否位于【焦点单元格】所在的autofill触点范围内
   isInHorizontalAutofill(mouseX, mouseY) {
     return (
-      mouseX > this.x + this.grid.scrollX + this.width - 3 &&
-      mouseX < this.x + this.grid.scrollX + this.width + 3 &&
+      mouseX > this.x + this.grid.scrollX + this.width - 4 &&
+      mouseX < this.x + this.grid.scrollX + this.width + 4 &&
       mouseX > this.grid.fixedLeftWidth &&
       mouseX < this.grid.width - this.grid.fixedRightWidth
     );
@@ -69,11 +72,11 @@ class Cell extends Context {
       this.width -
       this.grid.verticalScrollerSize;
     return (
-      (mouseX >= x + this.width - 3 &&
-        mouseX < x + this.width + 3 &&
+      (mouseX >= x + this.width - 4 &&
+        mouseX < x + this.width + 4 &&
         this.fixed === "right") ||
-      (mouseX > this.x + this.width - 3 &&
-        mouseX < this.x + this.width + 3 &&
+      (mouseX > this.x + this.width - 4 &&
+        mouseX < this.x + this.width + 4 &&
         this.fixed === "left")
     );
   }
@@ -119,7 +122,7 @@ class Cell extends Context {
     } else {
       label = this.getMapLabel(val);
     }
-    this.label = label;
+    this.label = label === null || label === undefined ? "" : label;
   }
   // 对于下拉类型的数据，对外展示的是label，实际存的是value，所以在更新这类数据的时候需要做一个转换
   getMapValue(label) { // label => value
@@ -181,31 +184,24 @@ class Cell extends Context {
       borderWidth: 1
     });
     painter.ctx.clip()
+
     /**
      * 绘制单元格内容
      */
-    let _y = y + this.height / 2;
-    painter.drawCellText(this.label, x, _y, this.width, 10, {
+    const iconEl = this.dataType === 'datetime' ? timeIcon : (['month', 'date'].includes(this.dataType) ? dateIcon : null)
+    painter.drawCellText(this.label, x, y, this.width, this.height, 10, {
       color: this.readonly ? READONLY_TEXT_COLOR : this.color,
       align: this.textAlign,
-      baseLine: this.textBaseline
+      baseLine: this.textBaseline,
+      icon: iconEl,
+      iconOffsetX: 12,
+      iconOffsetY: 1,
+      iconWidth: 12,
+      iconHeight: 12
     });
-
-    /**
-     * 选中当前焦点行、列
-     */
-    // if (selector.show || editor.show) {
-    //     if (this.rowIndex === editor.yIndex) {
-    //         painter.drawRect(x, y, this.width, this.height, {
-    //             fillColor: SELECT_BG_COLOR
-    //         });
-    //     }
-    //     if (this.colIndex === editor.xIndex) {
-    //         painter.drawRect(x, y, this.width, this.height, {
-    //             fillColor: SELECT_BG_COLOR
-    //         });
-    //     }
-    // }
+    if (this.dataType === 'select') {
+      painter.drawCellAffixIcon('arrow', x, y, this.width, this.height)
+    }
 
     /**
      * 绘制错误提示

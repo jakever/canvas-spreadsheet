@@ -121,7 +121,8 @@ class DataGrid {
         beforeCopy: () => {}, // 复制
         afterCopy: () => {},
         beforePaste: () => {}, // 粘贴
-        afterPaste: () => {}
+        afterPaste: () => {},
+        afterClear: () => {} // 清空数据
       },
       options
     );
@@ -371,6 +372,7 @@ class DataGrid {
     if (this.focusCell && !this.focusCell.readonly) {
       this.editor.show = true;
       this.selector.show = false;
+      this.putCell() // BackSpace／delede删除再直接enter进入编辑模式，不会再次更新编辑器的焦点cell
       this.beforeEditCell();
     }
   }

@@ -57,8 +57,25 @@ class Validator {
     const self = this
     const { required, validator, operator, options, type, descriptor } = this;
 
-    if (required && !v && v !== 0) { // 必填校验
+    // 必填校验不通过，不再进行后续的校验
+    let requiredValid = typeof v === 'string' ? !!v.trim() : !!v || v === 0
+    if (required && !requiredValid) {
       return getValidation.call(this, false, "required");
+    }
+    // 空值不参与下面的校验
+    if (!requiredValid) return { flag: true };
+
+    if (rules[type] && !rules[type].test(v)) {
+      return getValidation.call(this, false, "notMatch");
+    }
+    // 下拉校验值必须存在与枚举中
+    if (type === "select") {
+      const flag = options.map(item => item.value).includes(v);
+      if (!flag) return getValidation.call(this, flag, "notMatch");
+    }
+    if (type === "month" || type === "date" || type === "datetime") {
+      const flag = isNaN(v) && !isNaN(Date.parse(v));
+      if (!flag) return getValidation.call(this, flag, "notMatch");
     }
 
     if (validator instanceof RegExp) {
@@ -77,20 +94,7 @@ class Validator {
       })
       return getValidation.call(this, flag, "notIn");
     }
-    if (!v) return { flag: true };
 
-    if (rules[type] && !rules[type].test(v)) {
-      return getValidation.call(this, false, "notMatch");
-    }
-    // 下拉校验值必须存在与枚举中
-    if (type === "select") {
-      const flag = options.map(item => item.value).includes(v);
-      return getValidation.call(this, flag, "notMatch");
-    }
-    if (type === "month" || type === "date" || type === "datetime") {
-      const flag = isNaN(v) && !isNaN(Date.parse(v));
-      return getValidation.call(this, flag, "notMatch");
-    }
     // if (operator) {
     //     const v1 = parseValue.call(this, v);
     //     if (operator === 'be') {

@@ -55,19 +55,13 @@ class Tooltip {
         fillColor: "#fff",
         borderWidth: 1
       });
-      // painter.drawLine([
-      //     [x + 1, y],
-      //     [x + this.width, y]
-      // ], {
-      //     borderColor: ERROR_TIP_COLOR,
-      //     borderWidth: 2
-      // })
 
-      painter.drawCellText("数据错误", x, y + 24, this.width, 20, {
+      painter.drawCellText("数据错误", x, y + 24, this.width, this.height, 16, {
         font:
           'bold 14px "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif',
         color: ERROR_TIP_COLOR,
-        align: "left"
+        align: "left",
+        baseLine: "bottom"
       });
 
       const textArr = painter.getTextWrapping(
@@ -82,10 +76,12 @@ class Tooltip {
           x,
           _y + i * 18,
           this.width,
+          this.height,
           16,
           {
             color,
-            align: "left"
+            align: "left",
+            baseLine: "bottom"
           }
         );
       }

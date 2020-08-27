@@ -232,6 +232,11 @@ class Body {
         cell.setData("")
       }
     }
+    let rowDatas = []
+    for (let i = yArr[0]; i <= yArr[1]; i++) {
+      rowDatas.push(this.getRowData(i))
+    }
+    this.grid.afterClear(rowDatas)
   }
   getData() {
     return this.rows.map(row => {

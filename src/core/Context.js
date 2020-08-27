@@ -64,6 +64,15 @@ class Context {
       mouseY > this.grid.tableHeaderHeight
     );
   }
+  // 鼠标坐标是否在单元格后缀图标区域内
+  isInsideAffixIcon(mouseX, mouseY) {
+    return (
+      mouseX > this.x + this.width + this.grid.scrollX - 25 &&
+      mouseX < this.x + this.width + this.grid.scrollX &&
+      mouseY > this.y + this.grid.scrollY + 10 &&
+      mouseY < this.y + this.height + this.grid.scrollY - 10
+    )
+  }
   // 鼠标坐标是否在表头范围内
   isInsideHeader(mouseX, mouseY) {
     return mouseY > this.y && mouseY < this.y + this.grid.tableHeaderHeight;
