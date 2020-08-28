@@ -188,12 +188,12 @@ class Cell extends Context {
     /**
      * 绘制单元格内容
      */
-    const iconEl = this.dataType === 'datetime' ? timeIcon : (['month', 'date'].includes(this.dataType) ? dateIcon : null)
+    // const iconEl = this.dataType === 'datetime' ? timeIcon : (['month', 'date'].includes(this.dataType) ? dateIcon : null)
     painter.drawCellText(this.label, x, y, this.width, this.height, 10, {
       color: this.readonly ? READONLY_TEXT_COLOR : this.color,
       align: this.textAlign,
       baseLine: this.textBaseline,
-      icon: iconEl,
+      // icon: iconEl,
       iconOffsetX: 12,
       iconOffsetY: 1,
       iconWidth: 12,

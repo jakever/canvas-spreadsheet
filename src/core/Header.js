@@ -27,7 +27,6 @@ import {
   toLeaf,
 } from './util.js'
 import {
-  HEADER_HEIGHT,
   ROW_INDEX_WIDTH,
   MIN_CELL_WIDTH,
   CHECK_BOX_WIDTH,
@@ -41,7 +40,7 @@ offcheck.src = require("./images/offcheck.png");
 
 class Header extends Context {
   constructor(grid, x, y) {
-    super(grid, x, y, null, HEADER_HEIGHT);
+    super(grid, x, y, null, grid.headerHeight);
     this.checked = false;
     this.paint()
   }
@@ -57,8 +56,8 @@ class Header extends Context {
       
       for (let i = 0; i < len; i++) {
         const item = arr[i];
-        const height = HEADER_HEIGHT * (item.rowspan || 1)
-        const y = HEADER_HEIGHT * item.level
+        const height = this.height * (item.rowspan || 1)
+        const y = this.height * item.level
         let width = SIZE_MAP[item.size || "mini"]; // 读取映射宽度
         let fixed = ''
         

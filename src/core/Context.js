@@ -1,4 +1,4 @@
-import { HEADER_HEIGHT, ROW_INDEX_WIDTH } from "./constants.js";
+import { ROW_INDEX_WIDTH } from "./constants.js";
 
 class Context {
   constructor(grid, x, y, width, height, fixed) {

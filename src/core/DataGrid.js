@@ -18,7 +18,6 @@ import {
 } from './util.js'
 import {
   CSS_PREFIX,
-  MIN_CELL_WIDTH,
   ROW_INDEX_WIDTH,
   CHECK_BOX_WIDTH,
   SCROLLER_TRACK_SIZE,
@@ -104,6 +103,7 @@ class DataGrid {
         fixedLeft: 0,
         fixedRight: 0,
         showCheckbox: true,
+        headerHeight: HEADER_HEIGHT,
         beforeSelectCell: cell => {}, // 选中单元格之前触发
         afterSelectCell: cell => {},
         beforeMultiSelectCell: cells => {}, // 批量选中单元格之前触发
@@ -128,7 +128,11 @@ class DataGrid {
     );
     
     const maxHeaderRow = getMaxRow(options.columns)
-    this.tableHeaderHeight = HEADER_HEIGHT * maxHeaderRow
+    // 有复合表头的情况下，高度强制改为24
+    if (maxHeaderRow > 1) {
+      this.headerHeight = 24
+    }
+    this.tableHeaderHeight = this.headerHeight * maxHeaderRow
     // 计算复合表头的跨行colspan、跨列数rowspan，用作表头渲染
     this.headers = calCrossSpan(options.columns, maxHeaderRow)
     // 获取叶子节点表头，用作数据渲染
@@ -540,7 +544,7 @@ class DataGrid {
   updateColumns(columns) {
     // 代码冗余，后续优化
     const maxHeaderRow = getMaxRow(columns)
-    this.tableHeaderHeight = HEADER_HEIGHT * maxHeaderRow
+    this.tableHeaderHeight = this.headerHeight * maxHeaderRow
     this.headers = calCrossSpan(columns, maxHeaderRow)
     this.columns = toLeaf(columns)
     this.columnsLength = this.columns.length;
