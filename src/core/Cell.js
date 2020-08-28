@@ -48,9 +48,7 @@ class Cell extends Context {
     this.valid = true;
     this.message = null;
 
-    Object.assign(this, options, {
-      fillColor: "#fff"
-    });
+    Object.assign(this, options);
     this.setLabel(this.value);
     if (column.rule && column.rule.immediate === false) return; // 编辑器初始化不需要校验
     this.validate();
@@ -161,7 +159,8 @@ class Cell extends Context {
       verticalScrollerSize,
       scrollX,
       scrollY,
-      range
+      range,
+      fillColor
     } = this.grid;
     const x =
       this.fixed === "right"
@@ -179,7 +178,7 @@ class Cell extends Context {
      */
     painter.ctx.save()
     painter.drawRect(x, y, this.width, this.height, {
-      fillColor: this.readonly ? READONLY_COLOR : this.fillColor,
+      fillColor: this.readonly ? READONLY_COLOR : fillColor,
       borderColor: this.borderColor,
       borderWidth: 1
     });
@@ -200,7 +199,10 @@ class Cell extends Context {
       iconHeight: 12
     });
     if (this.dataType === 'select') {
-      painter.drawCellAffixIcon('arrow', x, y, this.width, this.height)
+      painter.drawCellAffixIcon('arrow', x, y, this.width, this.height, {
+        color: '#bbbec4',
+        fillColor: this.readonly ? READONLY_COLOR : fillColor
+      })
     }
 
     /**

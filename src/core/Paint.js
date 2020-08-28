@@ -146,10 +146,17 @@ class Paint {
     this.ctx.restore()
   }
   // 在指定宽度的单元格尾部渲染一个图标
-  drawCellAffixIcon(icon, x, y, width, height) {
+  drawCellAffixIcon(icon, x, y, width, height, options) {
+    options = Object.assign(
+      {
+        color: '#bbbec4',
+        fillColor: '#fff'
+      },
+      options
+    );
     const rightIconPadding = 25
     this.drawRect(x + width - rightIconPadding, y + 1, rightIconPadding, height, {
-      fillColor: '#fff'
+      fillColor: options.fillColor
     })
     if (icon === 'arrow') {
       const points = [
@@ -158,7 +165,7 @@ class Paint {
         [x + width - 10, y + height / 2 - 2]
       ];
       this.drawLine(points, {
-        borderColor: '#bbbec4',
+        borderColor: options.color,
         borderWidth: 1
       });
     }
