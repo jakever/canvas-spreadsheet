@@ -41,7 +41,7 @@ class Cell extends Context {
     this.options = column.options;
     this.render = column.render;
 
-    this.value = value;
+    this.value = value === null || value === undefined ? "" : value;
     this.originalValue = value;
 
     this.validator = new Validator(column);
