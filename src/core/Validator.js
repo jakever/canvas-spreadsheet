@@ -1,5 +1,5 @@
 const rules = {
-  number: /^[0-9]+\.?[0-9]*$/,
+  number: /^(-?\d{1,11}(\.\d*)?)$/,
   phone: /^[1-9]\d{10}$/,
   email: /w+([-+.]w+)*@w+([-.]w+)*.w+([-.]w+)*/
 };
@@ -68,7 +68,7 @@ class Validator {
     if (rules[type] && !rules[type].test(v)) {
       return getValidation.call(this, false, "notMatch");
     }
-    // 下拉校验值必须存在与枚举中
+    // 下拉校验值必须存在于枚举中
     if (type === "select") {
       const flag = options.map(item => item.value).includes(v);
       if (!flag) return getValidation.call(this, flag, "notMatch");

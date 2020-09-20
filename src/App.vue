@@ -285,7 +285,10 @@ export default {
         title: "数量",
         key: "requiredQuantity",
         type: "number",
-        align: "right"
+        align: "right",
+        rule: {
+          message: "请输入数字，且不能超过2为小数！"
+        }
       },
       { title: "单位", key: "unit" },
       { title: "工作性质", key: "work_type" },

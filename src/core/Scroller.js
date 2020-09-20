@@ -9,20 +9,25 @@ class Scroller {
   constructor(grid) {
     this.grid = grid;
     this.horizontalScroller = {
-      x: 0,
-      move: false,
+      x: 0, // 滚动条位移
+      move: false, // 是否开始滚动中
+      focus: false, // 是否获得焦点
       size: 0, // 滚动滑块的尺寸
-      ratio: 1,
-      has: false
+      ratio: 1, // 画布实际滚动的位移和滚动条实际滚动的位移之比
+      has: false // 是否有滚动条
     };
     this.verticalScroller = {
       y: 0,
       move: false,
+      focus: false, // 是否获得焦点
       size: 0,
       ratio: 1,
       has: false
     };
   }
+  /**
+   * 初始化滚动条配置
+   */
   reset() {
     const {
       width,
@@ -92,6 +97,7 @@ class Scroller {
       this.grid.scrollY * this.verticalScroller.ratio
     );
   }
+  // 鼠标位移是否在滚动轨道范围区域内
   isInsideHorizontalScroller(mouseX, mouseY) {
     return (
       mouseX >= this.grid.originFixedWidth &&
@@ -100,8 +106,10 @@ class Scroller {
       mouseY < this.grid.height - (SCROLLER_TRACK_SIZE - SCROLLER_SIZE) / 2
     );
   }
+  // 鼠标位移是否在滚动滑块范围区域内
   isInsideHorizontalScrollerBar(mouseX, mouseY) {
     return (
+      this.horizontalScroller.has &&
       mouseX >= this.grid.originFixedWidth + this.horizontalScroller.x &&
       mouseX <=
         this.grid.originFixedWidth +
@@ -122,6 +130,7 @@ class Scroller {
   }
   isInsideVerticalScrollerBar(mouseX, mouseY) {
     return (
+      this.verticalScroller.has &&
       mouseX > this.grid.width - SCROLLER_TRACK_SIZE &&
       mouseX < this.grid.width &&
       mouseY > this.grid.tableHeaderHeight + this.verticalScroller.y &&
