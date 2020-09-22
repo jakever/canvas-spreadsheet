@@ -122,7 +122,8 @@ class DataGrid {
         afterCopy: () => {},
         beforePaste: () => {}, // 粘贴
         afterPaste: () => {},
-        afterClear: () => {} // 清空数据
+        afterClear: () => {}, // 清空数据
+        onLoad: () => {} // 表格加载完成
       },
       options
     );

@@ -229,6 +229,9 @@ export default {
       } = this.focusCell
       this.show = true;
       this.dataType = dataType;
+      if (![...SIMPLE_DATE_TYPES, ...COMPLEX_DATE_TYPES].includes(dataType)) {
+        this.dataType = 'text';
+      }
       this.selectOptions = options;
       this.$refs.text.innerHTML = value;
       this.grid.setTempData(value)
@@ -413,6 +416,9 @@ export default {
         },
         afterClear: (data) => {
           self.$emit('after-clear', data)
+        },
+        onLoad: () => {
+          self.$emit('on-load')
         }
       });
     });

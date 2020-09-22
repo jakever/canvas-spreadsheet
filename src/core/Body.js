@@ -24,6 +24,7 @@ class Body {
     this.height = this.rows.reduce((sum, item) => {
       return sum + item.height;
     }, this.grid.tableHeaderHeight);
+    data.length > 0 && this.grid.onLoad()
   }
   /**
    * CTRL+V 粘贴

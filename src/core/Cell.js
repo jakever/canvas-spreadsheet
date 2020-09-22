@@ -87,17 +87,17 @@ class Cell extends Context {
     this.valid = flag;
     this.message = message;
   }
-  /**
-   * @param {String|Number} val 需要设置的值
-   * @param {Boolean} ignore 是否忽略readonly属性可以修改
-   */
   handleNumber(val) {
-    if (!isNaN(Number(val))) {
+    if (val && !isNaN(Number(val))) {
       return Number(val)
     } else {
       return val
     }
   }
+  /**
+   * @param {String|Number} val 需要设置的值
+   * @param {Boolean} ignore 是否忽略readonly属性可以修改
+   */
   setData(val, ignore) {
     if (!ignore && this.readonly) return;
     let v = val
