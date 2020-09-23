@@ -91,7 +91,7 @@ class Cell extends Context {
     if (val && !isNaN(Number(val))) {
       return Number(val)
     } else {
-      return val
+      return val || null // number类型的空字符串处理为null
     }
   }
   /**
