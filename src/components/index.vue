@@ -418,7 +418,10 @@ export default {
           self.$emit('after-clear', data)
         },
         onLoad: () => {
-          self.$emit('on-load')
+          // 推入事件队列中延迟执行
+          setTimeout(() => {
+            self.$emit('on-load')
+          }, 0)
         }
       });
     });
