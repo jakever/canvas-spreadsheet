@@ -88,7 +88,7 @@ class Cell extends Context {
     this.message = message;
   }
   handleNumber(val) {
-    if (val && !isNaN(Number(val))) {
+    if (val === 0 || (val && !isNaN(Number(val)))) {
       return Number(val)
     } else {
       return val || null // number类型的空字符串处理为null
