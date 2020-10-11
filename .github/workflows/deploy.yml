@@ -21,19 +21,21 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2 # If you're using actions/checkout@v2 you must set persist-credentials to false in most cases for the deployment to work correctly.
+        width: 
+          persist-credentials: false
 
       # Runs a single command using the runners shell
       - name: Install and Build
         run: |
           npm install
-          npm run build
-
+          npm run-script build
       - name: Deploy
-        #uses: JamesIves/github-pages-deploy-action@3.6.1
-        run: npm run deploy
-        # with:
-        #   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        #   BRANCH: gh-pages # The branch the action should deploy to.
-        #   FOLDER: dist # The folder the action should deploy.
-        #   CLEAN: true # Automatically remove deleted files from the deploy branch
+        uses: JamesIves/github-pages-deploy-action@3.6.1
+        #run: npm run deploy
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: gh-pages # The branch the action should deploy to.
+          FOLDER: dist # The folder the action should deploy.
+          #CLEAN: true # Automatically remove deleted files from the deploy branch
