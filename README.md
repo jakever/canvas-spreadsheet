@@ -2,7 +2,7 @@
 > 基于Canvas的一款高性能在线编辑组件，拥有仿Excel的复制粘贴、拖拽柄、实时编辑、6种不同数据类型、基本数据校验等功能
 
 ## Examples
-Please try it on [Live Demo](https://harlen.cn/canvas-spreadsheet/?_blank).
+Please try it on [Live Demo](https://harlen.cn/canvas-spreadsheet){:target="_blank"}.
 
 ### Screenshot
 ![image](/assets/images/canvas-spreadsheet.gif)
