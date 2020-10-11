@@ -2,7 +2,7 @@
 > 基于Canvas的一款高性能在线编辑组件，拥有仿Excel的复制粘贴、拖拽柄、实时编辑、6种不同数据类型、基本数据校验等功能
 
 ## Examples
-Please try it on [Live Demo](https://harlen.cn/canvas-spreadsheet/).
+Please try it on [Live Demo](https://harlen.cn/canvas-spreadsheet/?_blank).
 
 ### Screenshot
 ![image](/assets/images/canvas-spreadsheet.gif)
@@ -24,8 +24,6 @@ Please try it on [Live Demo](https://harlen.cn/canvas-spreadsheet/).
 - [x] 模拟滚动条
 - [x] Tab键、方向键快速切换
 - [x] 复合表头
-
-## Todo Feature
 - [ ] 数据类型增加`级联组件`、`下拉多选`两种类型
 - [ ] Context menu右键功能菜单
 - [ ] 历史记录的撤销与恢复（CTRL+Z、CTRL+Y／CTRL+Z、CTRL+SHIFT+Z）
@@ -217,6 +215,8 @@ export default {
 </script>
 ```
 ### Example for Composite header（复合表头）
+![image](/assets/images/complex-header.png)
+
 要实现复合表头只需在相应的表头数据中添加children字段即可，支持多层嵌套：
 ```js
 { 
