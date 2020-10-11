@@ -22,7 +22,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
         uses: actions/checkout@v2 # If you're using actions/checkout@v2 you must set persist-credentials to false in most cases for the deployment to work correctly.
-        width: 
+        with: 
           persist-credentials: false
 
       # Runs a single command using the runners shell
@@ -31,7 +31,7 @@ jobs:
           npm install
           npm run-script build
       - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@3.6.1
+        uses: JamesIves/github-pages-deploy-action@releases/v3
         #run: npm run deploy
         with:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
