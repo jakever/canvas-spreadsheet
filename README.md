@@ -29,6 +29,7 @@ Please try it on [Live Demo](https://harlen.cn/canvas-spreadsheet/).
 - [ ] 历史记录的撤销与恢复（CTRL+Z、CTRL+Y／CTRL+Z、CTRL+SHIFT+Z）
 
 ## Usage
+> 目前仅提供了Vue版组件，后续会提供React版组件和支持纯JS环境中使用
 ### Example for basic usage
 ```html
 <template>
