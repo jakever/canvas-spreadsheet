@@ -54,7 +54,7 @@ const getMaxRow = (config) => {
   }
 }
 /*
- ** 计算复合表头的跨行、跨列数
+ ** 根据数据结结构层级关系计算复合表头的跨行、跨列数
  */
 const calCrossSpan = (arr = [], maxRow, level = 0) => {
   if (maxRow === undefined) {

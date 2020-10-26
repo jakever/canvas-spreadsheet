@@ -160,11 +160,11 @@ export default {
   },
   watch: {
     columns(val) {
-      this.grid.updateColumns(val)
+      this.grid.loadColumns(val)
       this.grid.loadData(this.data);
     },
     data(val) {
-      this.grid.updateColumns(this.columns)
+      // this.grid.loadColumns(this.columns)
       this.grid.loadData(val);
       this.loading = false;
     }

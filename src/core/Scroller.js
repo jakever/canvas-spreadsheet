@@ -2,7 +2,8 @@ import {
   SCROLLER_SIZE,
   SCROLLER_TRACK_SIZE,
   SCROLLER_COLOR,
-  SCROLLER_FOCUS_COLOR
+  SCROLLER_FOCUS_COLOR,
+  SELECT_BORDER_COLOR
 } from "./constants.js";
 
 class Scroller {
@@ -327,6 +328,86 @@ class Scroller {
           lineCap: "round"
         }
       );
+    }
+    // 弥补最右侧autofull触点
+    if (this.grid.selector.show) {
+      const {
+        range,
+        height,
+        width,
+        tableWidth,
+        tableHeight,
+        scrollX,
+        scrollY,
+        painter,
+        selector,
+        autofill,
+        fixedRight
+      } = this.grid
+      const cell = this.grid.getCell(autofill.xIndex, autofill.yIndex)
+      const x =
+        cell.fixed === "right"
+          ? width -
+            (tableWidth - cell.x - cell.width) -
+            cell.width -
+            verticalScrollerSize
+          : cell.fixed === "left"
+          ? cell.x
+          : cell.x + scrollX;
+      const y = cell.y + scrollY;
+      const minX = selector.xArr[0];
+      const maxX = selector.xArr[1];
+      const minY = selector.yArr[0];
+      const maxY = selector.yArr[1];
+      const autofill_width = 6;
+      const autofillSty = {
+        borderColor: "#fff",
+        borderWidth: 2,
+        fillColor: SELECT_BORDER_COLOR
+      }
+      
+      // 最右侧
+      if (maxX === range.maxX - fixedRight && width === tableWidth + scrollX + SCROLLER_TRACK_SIZE) {
+        const minCell = this.grid.getCell(maxX, minY)
+        const maxCell = this.grid.getCell(maxX, maxY)
+        const diffY = maxCell.y - minCell.y
+        const points = [
+          [scrollerWidth, minCell.y + scrollY],
+          [scrollerWidth, minCell.y + diffY + maxCell.height + scrollY]
+        ];
+        painter.drawLine(points, {
+          borderColor: SELECT_BORDER_COLOR,
+          borderWidth: 2
+        });
+        painter.drawRect(
+          scrollerWidth - 3,
+          y + cell.height - 3,
+          autofill_width,
+          autofill_width,
+          autofillSty
+        );
+      }
+      // 最下面
+      if (maxY === range.maxY && height === tableHeight + scrollY + SCROLLER_TRACK_SIZE) {
+        const minCell = this.grid.getCell(minX, maxY)
+        const maxCell = this.grid.getCell(maxX, maxY)
+        const diffX = maxCell.x - minCell.x
+        const points = [
+          [minCell.x + scrollX, scrollerHeight],
+          [minCell.x + diffX + maxCell.width + scrollX, scrollerHeight]
+        ];
+        painter.drawLine(points, {
+          borderColor: SELECT_BORDER_COLOR,
+          borderWidth: 2
+        });
+        painter.drawRect(
+          x + cell.width - 3,
+          scrollerHeight - 3,
+          autofill_width,
+          autofill_width,
+          autofillSty
+        );
+      }
     }
   }
 }

@@ -59,7 +59,7 @@ class Cell extends Context {
       mouseX > this.x + this.grid.scrollX + this.width - 4 &&
       mouseX < this.x + this.grid.scrollX + this.width + 4 &&
       mouseX > this.grid.fixedLeftWidth &&
-      mouseX < this.grid.width - this.grid.fixedRightWidth
+      mouseX < this.grid.width - this.grid.fixedRightWidth + 4 // 兼容最右侧autofill触点由于是渲染在scroller上会导致无效
     );
   }
   // 鼠标横坐标是否位于处于【冻结列中焦点单元格】所在的autofill触点范围内
@@ -101,17 +101,19 @@ class Cell extends Context {
   setData(val, ignore) {
     if (!ignore && this.readonly) return;
     let v = val
+    if (typeof v === 'string') {
+      v = val.trim()
+    }
     if (this.dataType === 'number') {
-      v = this.handleNumber(val)
+      v = this.handleNumber(v)
     }
     if (this.grid.clipboard.isPaste || this.grid.autofill.enable) {
       const value = this.getMapValue(v)
-      this.label = v
       this.value = value
     } else {
       this.value = v;
-      this.setLabel(v);
     }
+    this.setLabel(v);
     
     const rowData = this.grid.body.getRowData(this.rowIndex)
     this.validate(rowData)
@@ -130,7 +132,7 @@ class Cell extends Context {
     } else {
       label = this.getMapLabel(val);
     }
-    this.label = label === null || label === undefined ? "" : label;
+    this.label = label ?? "";
   }
   // 对于下拉类型的数据，对外展示的是label，实际存的是value，所以在更新这类数据的时候需要做一个转换
   getMapValue(label) { // label => value
@@ -182,6 +184,11 @@ class Cell extends Context {
         ? this.x
         : this.x + scrollX;
     const y = this.y + scrollY;
+    const fillLineSty = {
+      borderColor: SELECT_BORDER_COLOR,
+      borderWidth: 1,
+      lineDash: [4, 4]
+    }
 
     /**
      * 绘制单元格边框
@@ -209,7 +216,7 @@ class Cell extends Context {
       iconHeight: 12
     });
     if (this.dataType === 'select') {
-      painter.drawCellAffixIcon('arrow', x, y, this.width, this.height, {
+      painter.drawCellAffixIcon('arrow', x, y, this.width, this.height-2, {
         color: '#bbbec4',
         fillColor: this.readonly ? READONLY_COLOR : fillColor
       })
@@ -341,23 +348,26 @@ class Cell extends Context {
       // autofill触点
       if (!editor.show) {
         const autofill_width = 6;
+        const autofillSty = {
+          borderColor: "#fff",
+          borderWidth: 2,
+          fillColor: SELECT_BORDER_COLOR
+        }
+        // left-top
         if (
           this.colIndex === autofill.xIndex &&
           this.rowIndex === autofill.yIndex
         ) {
-          // -2让触点覆盖于边框之上
+          // -3让触点覆盖于边框之上
           painter.drawRect(
             x + this.width - 3,
             y + this.height - 3,
             autofill_width,
             autofill_width,
-            {
-              borderColor: "#fff",
-              borderWidth: 2,
-              fillColor: SELECT_BORDER_COLOR
-            }
+            autofillSty
           );
         }
+        // right-top
         if (
           this.colIndex === autofill.xIndex &&
           this.rowIndex - 1 === autofill.yIndex
@@ -367,13 +377,10 @@ class Cell extends Context {
             y - 3,
             autofill_width,
             autofill_width,
-            {
-              borderColor: "#fff",
-              borderWidth: 2,
-              fillColor: SELECT_BORDER_COLOR
-            }
+            autofillSty
           );
         }
+        // left-bottom
         if (
           this.colIndex - 1 === autofill.xIndex &&
           this.rowIndex === autofill.yIndex
@@ -383,29 +390,26 @@ class Cell extends Context {
             y + this.height - 3,
             autofill_width,
             autofill_width,
-            {
-              borderColor: "#fff",
-              borderWidth: 2,
-              fillColor: SELECT_BORDER_COLOR
-            }
+            autofillSty
           );
         }
+        // right-bottom
         if (
           this.colIndex - 1 === autofill.xIndex &&
           this.rowIndex - 1 === autofill.yIndex &&
           this.colIndex !== this.grid.fixedLeft
         ) {
-          // -2让触点覆盖于边框之上
-          painter.drawRect(x - 3, y - 3, autofill_width, autofill_width, {
-            borderColor: "#fff",
-            borderWidth: 2,
-            fillColor: SELECT_BORDER_COLOR
-          });
+          painter.drawRect(
+            x - 3, 
+            y - 3, 
+            autofill_width, 
+            autofill_width, 
+            autofillSty
+          );
         }
       }
       // autofill选区
       if (autofill.enable) {
-        const lineDash = [4, 4];
         const minX = autofill.xArr[0];
         const maxX = autofill.xArr[1];
         const minY = autofill.yArr[0];
@@ -421,11 +425,7 @@ class Cell extends Context {
             [x, y + 1],
             [x + this.width, y + 1]
           ];
-          painter.drawLine(points, {
-            borderColor: SELECT_BORDER_COLOR,
-            borderWidth: 1,
-            lineDash
-          });
+          painter.drawLine(points, fillLineSty);
         }
         if (
           this.colIndex >= minX &&
@@ -436,11 +436,7 @@ class Cell extends Context {
             [x, y + this.height - 1],
             [x + this.width, y + this.height - 1]
           ];
-          painter.drawLine(points, {
-            borderColor: SELECT_BORDER_COLOR,
-            borderWidth: 1,
-            lineDash
-          });
+          painter.drawLine(points, fillLineSty);
         }
         // left／right border
         if (
@@ -452,11 +448,7 @@ class Cell extends Context {
             [x + 1, y],
             [x + 1, y + this.height]
           ];
-          painter.drawLine(points, {
-            borderColor: SELECT_BORDER_COLOR,
-            borderWidth: 1,
-            lineDash
-          });
+          painter.drawLine(points, fillLineSty);
         }
         if (
           this.colIndex === maxX &&
@@ -467,11 +459,7 @@ class Cell extends Context {
             [x + this.width - 1, y],
             [x + this.width - 1, y + this.height]
           ];
-          painter.drawLine(points, {
-            borderColor: SELECT_BORDER_COLOR,
-            borderWidth: 1,
-            lineDash
-          });
+          painter.drawLine(points, fillLineSty);
         }
       }
     }
@@ -482,7 +470,6 @@ class Cell extends Context {
       const minY = clipboard.yArr[0];
       const maxY = clipboard.yArr[1];
       // top／bottom border
-      const lineDash = [4, 4];
       if (
         this.colIndex >= minX &&
         this.colIndex <= maxX &&
@@ -492,11 +479,7 @@ class Cell extends Context {
           [x, y + 1],
           [x + this.width, y + 1]
         ];
-        painter.drawLine(points, {
-          borderColor: SELECT_BORDER_COLOR,
-          borderWidth: 1,
-          lineDash
-        });
+        painter.drawLine(points, fillLineSty);
       }
       if (
         this.colIndex >= minX &&
@@ -507,11 +490,7 @@ class Cell extends Context {
           [x, y + this.height - 2],
           [x + this.width, y + this.height - 2]
         ];
-        painter.drawLine(points, {
-          borderColor: SELECT_BORDER_COLOR,
-          borderWidth: 1,
-          lineDash
-        });
+        painter.drawLine(points, fillLineSty);
       }
       // left／right border
       if (
@@ -523,11 +502,7 @@ class Cell extends Context {
           [x + 1, y],
           [x + 1, y + this.height]
         ];
-        painter.drawLine(points, {
-          borderColor: SELECT_BORDER_COLOR,
-          borderWidth: 1,
-          lineDash
-        });
+        painter.drawLine(points, fillLineSty);
       }
       if (
         this.colIndex === maxX &&
@@ -538,11 +513,7 @@ class Cell extends Context {
           [x + this.width - 1, y],
           [x + this.width - 1, y + this.height]
         ];
-        painter.drawLine(points, {
-          borderColor: SELECT_BORDER_COLOR,
-          borderWidth: 1,
-          lineDash
-        });
+        painter.drawLine(points, fillLineSty);
       }
     }
   }

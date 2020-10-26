@@ -82,7 +82,7 @@ class Row extends Context {
     );
   }
   handleCheck(checked) {
-    this.checked = typeof checked === 'boolean' ? checked : !this.checked;
+    this.checked = checked ?? !this.checked;
     this.rowHeader.handleCheck(this.checked);
   }
   // 选中单个单元格
@@ -100,7 +100,7 @@ class Row extends Context {
       const cell = this.allCells[i];
       if (cell.dataType === 'select' && cell.isInsideAffixIcon(x, y)) {
         this.grid.selectCell(cell);
-        // 选择和编辑同时触发会导致切换单元格的时候下拉浮层延迟消失
+        // 选择和编辑同时触发会导致切换下拉单元格的时候下拉浮层延迟消失
         setTimeout(() => {
           this.grid.startEdit();
         }, 0)
@@ -165,6 +165,10 @@ class Row extends Context {
   click(x, y) {
     if (this.rowHeader.isInsideCheckboxBoundary(x, y)) {
       this.handleCheck();
+      // body部分勾选状态发生变化，需要影响到表头的indeterminate状态
+      this.grid.handleCheckHeader()
+    } else if (this.rowHeader.isInsideIndexBoundary(x, y)) {
+      this.grid.selectRows(this)
     }
   }
   dbClick(x, y) {

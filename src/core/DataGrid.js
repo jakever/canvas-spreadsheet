@@ -10,6 +10,7 @@ import Scroller from "./Scroller.js";
 import Events from "./Events.js";
 import Tooltip from "./Tooltip.js";
 import Clipboard from "./Clipboard.js";
+import Histories from "./History.js";
 import { dpr } from "./config.js";
 import {
   toLeaf,
@@ -36,6 +37,7 @@ class DataGrid {
 
     this.tempValue = ''; // 存储用户输入的临时值，当执行doneEdit后才去setData()
     this.focusCell = null; // 当前焦点所在的cell
+    this.enterShift = false; // 是否按下shift
 
     this.hashChange = {}; // diff changed
 
@@ -86,6 +88,8 @@ class DataGrid {
 
     this.events = new Events(this, target);
 
+    this.history = new Histories(this)
+
     this.initPaint();
   }
   /**
@@ -127,26 +131,15 @@ class DataGrid {
       },
       options
     );
-    
-    const maxHeaderRow = getMaxRow(options.columns)
-    // 有复合表头的情况下，高度强制改为24
-    if (maxHeaderRow > 1) {
-      this.headerHeight = 24
-    }
-    this.tableHeaderHeight = this.headerHeight * maxHeaderRow
-    // 计算复合表头的跨行colspan、跨列数rowspan，用作表头渲染
-    this.headers = calCrossSpan(options.columns, maxHeaderRow)
-    // 获取叶子节点表头，用作数据渲染
-    this.columns = toLeaf(options.columns)
-    this.columnsLength = this.columns.length;
 
     // 编辑器边界范围
     this.range = {
       minX: 0,
-      maxX: this.columns.length - 1,
       minY: 0,
       maxY: this.data.length - 1
     };
+    this.updateColumns(options.columns)
+
     if (!this.showCheckbox) {
       this.checkboxWidth = 0;
     }
@@ -266,16 +259,41 @@ class DataGrid {
   /**
    * 选择、编辑相关----------------------------------------------------->
    */
+  getCell(x, y) {
+    return this.body.getCell(x, y);
+  }
   // mousedown事件 -> 开始拖拽批量选取
   selectCell({ colIndex, rowIndex }) {
     this.clearMultiSelect();
-    this.editor.xIndex = colIndex;
-    this.editor.yIndex = rowIndex;
     this.selector.show = true;
     this.selector.isSelected = true;
-    this.adjustBoundaryPosition();
-
+    
+    // shift批量选择
+    if (this.enterShift && this.focusCell) {
+      const { colIndex: oldX, rowIndex: oldY } = this.focusCell
+      
+      const minX = Math.min(oldX, colIndex)
+      const maxX = Math.max(oldX, colIndex)
+      const minY = Math.min(oldY, rowIndex);
+      const maxY = Math.max(oldY, rowIndex);
+      this.autofill.xIndex = maxX;
+      this.autofill.yIndex = maxY;
+      this.selector.xArr = [minX, maxX];
+      this.selector.yArr = [minY, maxY];
+    } else {
+      this.editor.xIndex = colIndex;
+      this.editor.yIndex = rowIndex;
+      this.adjustBoundaryPosition();
+    }
+    
     this.putCell()
+  }
+  // 将选区和autofill置为编辑框所在位置
+  resetCellPosition() {
+    this.selector.xArr = [this.editor.xIndex, this.editor.xIndex];
+    this.selector.yArr = [this.editor.yIndex, this.editor.yIndex];
+    this.autofill.xIndex = this.editor.xIndex;
+    this.autofill.yIndex = this.editor.yIndex;
   }
   /**
    * 将画布单元格中的数据传递到编辑器中
@@ -315,10 +333,10 @@ class DataGrid {
   multiSelectCell(x, y, mouseX, mouseY) {
     const selector = this.selector;
     if (selector.isSelected) {
-      const minX = x > this.editor.xIndex ? this.editor.xIndex : x;
-      const maxX = x > this.editor.xIndex ? x : this.editor.xIndex;
-      const minY = y > this.editor.yIndex ? this.editor.yIndex : y;
-      const maxY = y > this.editor.yIndex ? y : this.editor.yIndex;
+      const minX = Math.min(x, this.editor.xIndex);
+      const maxX = Math.max(x, this.editor.xIndex);
+      const minY = Math.min(y, this.editor.yIndex);
+      const maxY = Math.max(y, this.editor.yIndex);
       this.autofill.xIndex = maxX;
       this.autofill.yIndex = maxY;
       selector.xArr = [minX, maxX];
@@ -358,6 +376,59 @@ class DataGrid {
     this.selector.xArr = [-1, -1];
     this.selector.yArr = [-1, -1];
   }
+  // 选中整列
+  selectCols(col) {
+    const { index, colspan } = col
+    // 复合表头情况下，需要处理跨级
+    const colspanIndx = index + colspan - 1
+    this.selector.show = true
+    if (this.enterShift && this.focusCell) {
+      const { colIndex: oldX } = this.focusCell
+      const minX = Math.min(oldX, index)
+      const maxX = Math.max(oldX, colspanIndx)
+      this.selector.xArr = [minX, maxX];
+      this.selector.yArr = [this.range.minY, this.range.maxY];
+      this.editor.xIndex = oldX; // 将编辑器坐标置为第一次按下鼠标的位置
+      this.editor.yIndex = this.range.minY;
+      this.autofill.xIndex = maxX
+      this.autofill.yIndex = this.range.maxY
+    } else {
+      this.selector.xArr = [index, colspanIndx];
+      this.selector.yArr = [this.range.minY, this.range.maxY];
+      this.editor.xIndex = index;
+      this.editor.yIndex = this.range.minY;
+      this.autofill.xIndex = colspanIndx
+      this.autofill.yIndex = this.range.maxY
+    }
+    
+    this.focusCell = this.body.getCell(this.editor.xIndex, this.editor.yIndex);
+    this.putCell()
+  }
+  // 选中整行
+  selectRows({ rowIndex }) {
+    this.selector.show = true
+    if (this.enterShift && this.focusCell) {
+      const { rowIndex: oldY } = this.focusCell
+      const minY = Math.min(oldY, rowIndex)
+      const maxY = Math.max(oldY, rowIndex)
+      this.selector.xArr = [this.range.minX, this.range.maxX];
+      this.selector.yArr = [minY, maxY];
+      this.editor.xIndex = this.range.minX;
+      this.editor.yIndex = oldY;
+      this.autofill.xIndex = this.range.maxX
+      this.autofill.yIndex = maxY
+    } else {
+      this.selector.xArr = [this.range.minX, this.range.maxX];
+      this.selector.yArr = [rowIndex, rowIndex];
+      this.editor.xIndex = this.range.minX;
+      this.editor.yIndex = rowIndex;
+      this.autofill.xIndex = this.range.maxX
+      this.autofill.yIndex = rowIndex
+    }
+    
+    this.focusCell = this.body.getCell(this.editor.xIndex, this.editor.yIndex);
+    this.putCell()
+  }
   startAutofill() {
     this.autofill.enable = true;
   }
@@ -377,6 +448,7 @@ class DataGrid {
     if (this.focusCell && !this.focusCell.readonly) {
       this.editor.show = true;
       this.selector.show = false;
+      this.resetCellPosition()
       this.putCell() // BackSpace／delede删除再直接enter进入编辑模式，不会再次更新编辑器的焦点cell
       this.beforeEditCell();
     }
@@ -387,6 +459,20 @@ class DataGrid {
       this.editor.show = false;
       this.selector.show = true; // 编辑完再选中该单元格
       if (this.focusCell.value !== this.tempValue) {
+        // handle history
+        this.history.pushState({
+          before: {
+            colIndex: this.focusCell.colIndex,
+            rowIndex: this.focusCell.rowIndex,
+            value: this.focusCell.value
+          },
+          after: {
+            colIndex: this.focusCell.colIndex,
+            rowIndex: this.focusCell.rowIndex,
+            value: this.tempValue
+          },
+          type: 'single'
+        })
         this.focusCell.setData(this.tempValue)
         const rowData = this.body.getRowData(this.focusCell.rowIndex)
         this.afterEditCell(rowData)
@@ -395,8 +481,31 @@ class DataGrid {
       this.clipboard.clear();
     }
   }
-  setData(value) {
-    this.focusCell && this.focusCell.setData(value);
+  /**
+   * 单个写入数据
+   * @param {Number} colIndex 需要写入数据的单元格X轴坐标 表格最左上角为<0,0>
+   * @param {Number} rowIndex 需要写入数据的单元格Y轴坐标
+   * @param {*} value 需要写入的数据: 简单数据类型
+   */
+  setData({ colIndex, rowIndex, value }) {
+    const focusCell = this.body.getCell(colIndex, rowIndex);
+    focusCell && focusCell.setData(value);
+    this.focusCellByCoord(colIndex, rowIndex)
+  }
+  /**
+   * 批量写入数据
+   * @param {Number} colIndex 需要写入数据的单元格范围起始X轴坐标 表格最左上角为<0,0>
+   * @param {Number} rowIndex 需要写入数据的单元格范围起始Y轴坐标
+   * @param {Array} value 需要写入的数据: 二维数组[<Array><Array>]
+   */
+  batchSetData({ colIndex, rowIndex, value }) {
+    this.body.batchSetData({ colIndex, rowIndex, value })
+    this.focusCellByCoord(
+      colIndex, 
+      rowIndex, 
+      colIndex + value[0].length - 1, 
+      rowIndex + value.length - 1
+    )
   }
   /**
    * 将用户通过编辑器输入的值存储为一个临时变量，执行doneEdit()后再去setData()
@@ -415,6 +524,15 @@ class DataGrid {
   clearSelectedData() {
     this.body.clearSelectedData()
   }
+  focusCellByCoord(minX, minY, maxX, maxY) {
+    this.selector.xArr = [minX, maxX ?? minX];
+    this.selector.yArr = [minY, maxY ?? minY];
+    this.editor.xIndex = minX;
+    this.editor.yIndex = minY;
+    this.autofill.xIndex = maxX ?? minX
+    this.autofill.yIndex = maxY ?? minY
+    this.focusCell = this.body.getCell(this.editor.xIndex, this.editor.yIndex);
+  }
   /**
    * 调整列宽、行宽
    */
@@ -432,39 +550,39 @@ class DataGrid {
   handleCheckRow(y) {
     this.body.handleCheckRow(y);
   }
+  handleCheckHeader() {
+    this.body.handleCheckHeader();
+  }
+  // 键盘上下左右切换
   moveFocus(dir) {
     switch (dir) {
       case "LEFT":
         if (this.editor.xIndex > this.range.minX) {
           this.editor.xIndex--;
-          this.adjustBoundaryPosition();
         }
         break;
       case "TOP":
         if (this.editor.yIndex > this.range.minY) {
           this.editor.yIndex--;
-          this.adjustBoundaryPosition();
         }
         break;
       case "RIGHT":
         if (this.editor.xIndex < this.range.maxX) {
           this.editor.xIndex++;
-          this.adjustBoundaryPosition();
         }
         break;
       case "BOTTOM":
         if (this.editor.yIndex < this.range.maxY) {
           this.editor.yIndex++;
-          this.adjustBoundaryPosition();
         }
         break;
       default:
       //
     }
+    this.adjustBoundaryPosition();
     this.putCell()
   }
   adjustPosition(x, y, mouseX, mouseY) {
-    // const cell = this.body.getCell(x, y);
     const diffX = mouseX - this.width + SCROLLER_TRACK_SIZE
     const diffY = mouseY - this.height + SCROLLER_TRACK_SIZE
     if (diffX > 0) {
@@ -474,14 +592,10 @@ class DataGrid {
       this.scroller.update(-12, "VERTICAL");
     }
   }
+  // 调整滚动条位置，让焦点单元格始终出现在可视区域内
   adjustBoundaryPosition() {
+    this.resetCellPosition()
     this.focusCell = this.body.getCell(this.editor.xIndex, this.editor.yIndex);
-
-    this.selector.xArr = [this.editor.xIndex, this.editor.xIndex];
-    this.selector.yArr = [this.editor.yIndex, this.editor.yIndex];
-    this.autofill.xIndex = this.editor.xIndex;
-    this.autofill.yIndex = this.editor.yIndex;
-
     if (this.focusCell.fixed) return;
 
     const cellTotalViewWidth =
@@ -542,15 +656,26 @@ class DataGrid {
     // 绘制滚动条
     this.scroller.draw();
   }
+  /**
+   * 事件相关------------------------------------------------------->
+   */
   updateColumns(columns) {
-    // 代码冗余，后续优化
     const maxHeaderRow = getMaxRow(columns)
+    // 有复合表头的情况下，高度强制改为24
+    if (maxHeaderRow > 1) {
+      this.headerHeight = 24
+    }
     this.tableHeaderHeight = this.headerHeight * maxHeaderRow
+    // 计算复合表头的跨行colspan、跨列数rowspan，用作表头渲染
     this.headers = calCrossSpan(columns, maxHeaderRow)
+    // 获取叶子节点表头，用作数据渲染
     this.columns = toLeaf(columns)
     this.columnsLength = this.columns.length;
-
-    this.range.maxX = columns.length - 1;
+    this.range.maxX = this.columnsLength - 1;
+  }
+  loadColumns(columns) {
+    this.updateColumns(columns)
+    
     this.header.paint()
     this.getTableSize()
   }

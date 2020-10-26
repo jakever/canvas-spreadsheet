@@ -32,14 +32,27 @@ class Body {
    */
   pasteData(data) {
     const { xIndex, yIndex } = this.grid.editor;
-    for (let ri = 0; ri <= data.length - 1; ri++) {
-      const len = data[ri].length;
-      for (let ci = 0; ci <= len - 1; ci++) {
-        const cells = this.rows[ri + yIndex].allCells;
-        const cell = cells[ci + xIndex];
-        cell.setData(data[ri][ci]);
-      }
+    const xArr = [xIndex, xIndex + data[0].length - 1]
+    const yArr = [yIndex, yIndex + data.length - 1]
+    const { value: oldData } = this.getSelectedData({ xArr, yArr })
+    const after = {
+      value: data,
+      colIndex: xIndex,
+      rowIndex: yIndex
     }
+    // 推入历史堆栈
+    this.grid.history.pushState({
+      before: {
+        value: oldData,
+        colIndex: xIndex,
+        rowIndex: yIndex
+      },
+      after,
+      type: 'multiple'
+    })
+    // 写入数据
+    this.batchSetData(after)
+    
     // 粘贴后事件派发
     const startY = yIndex
     const endY = startY + data.length - 1
@@ -48,6 +61,16 @@ class Body {
       rowDatas.push(this.getRowData(i))
     }
     this.grid.afterPaste(rowDatas)
+  }
+  batchSetData({ colIndex, rowIndex, value }) {
+    for (let ri = 0; ri <= value.length - 1; ri++) {
+      const len = value[ri].length;
+      for (let ci = 0; ci <= len - 1; ci++) {
+        const cells = this.rows[ri + rowIndex].allCells;
+        const cell = cells[ci + colIndex];
+        cell.setData(value[ri][ci]);
+      }
+    }
   }
   /**
    * autofull自动填充
@@ -111,6 +134,7 @@ class Body {
       this.rows[i].resizeRow(rowIndex, height);
     }
   }
+  // 表头勾选发生改变，body勾选需要改变
   handleCheckRow(y) {
     if (typeof y === "number") {
       this.rows[y].handleCheck();
@@ -120,6 +144,16 @@ class Body {
         row.handleCheck(isChecked);
       }
     }
+  }
+  // body勾选发生改变，表头勾选需要改变
+  handleCheckHeader() {
+    const totalChecked = this.rows.reduce((sum, item) => {
+      const num = +item.checked
+      return sum + num
+    }, 0)
+    const checked = !!totalChecked
+    const indeterminate = totalChecked && totalChecked < this.grid.data.length
+    this.grid.header.handleCheck({ checked, indeterminate })
   }
   mouseMove(x, y) {
     for (let i = 0; i < this.rows.length; i++) {
@@ -196,16 +230,15 @@ class Body {
       }
     }
   }
-  getRow(y) {
-    return this.rows[y];
-  }
   // 根据坐标获取cell对象
   getCell(x, y) {
     const row = this.rows[y];
     return row.allCells[x];
   }
-  getSelectedData() {
-    const { xArr, yArr } = this.grid.selector;
+  getRow(y) {
+    return this.rows[y];
+  }
+  getSelectedData({ xArr, yArr } = this.grid.selector) {
     const rowsData = [];
     let text = "";
     for (let ri = 0; ri <= yArr[1] - yArr[0]; ri++) {

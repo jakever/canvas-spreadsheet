@@ -35,13 +35,16 @@ import {
 
 const oncheck = new Image();
 const offcheck = new Image();
+const indeterminate = new Image();
 oncheck.src = require("./images/oncheck.png");
 offcheck.src = require("./images/offcheck.png");
+indeterminate.src = require("./images/indeterminate.png");
 
 class Header extends Context {
   constructor(grid, x, y) {
-    super(grid, x, y, null, grid.headerHeight);
+    super(grid, x, y);
     this.checked = false;
+    this.indeterminate = false
     this.paint()
   }
   paint() {
@@ -56,8 +59,8 @@ class Header extends Context {
       
       for (let i = 0; i < len; i++) {
         const item = arr[i];
-        const height = this.height * (item.rowspan || 1)
-        const y = this.height * item.level
+        const height = this.grid.headerHeight * (item.rowspan || 1)
+        const y = this.grid.headerHeight * item.level
         let width = SIZE_MAP[item.size || "mini"]; // 读取映射宽度
         let fixed = ''
         
@@ -98,14 +101,26 @@ class Header extends Context {
     }
     renderHeader(this.grid.headers, null, this.grid.originFixedWidth)
   }
+  // 开始调整列宽
   mouseDown(x, y) {
     if (this.resizeTarget) {
       this.resizeOriginalX = x;
       this.resizeOriginalWidth = this.resizeTarget.width;
       this.isResizing = true;
+    } else {
+      for (let col of this.allColumnHeaders) {
+        if (
+          x > col.x + this.grid.scrollX &&
+          x < col.x + this.grid.scrollX + col.width &&
+          y > col.y && y < col.y + col.height
+        ) {
+          this.grid.selectCols(col)
+        }
+      }
     }
   }
-  mouseMove(x, y) {
+  // 鼠标移动调整中
+  resizing(x, y) {
     if (this.isResizing) {
       const index = this.resizeTarget.index;
       const resizeDiffWidth = x - this.resizeOriginalX;
@@ -124,11 +139,12 @@ class Header extends Context {
       this.resizeOriginalX = x
     } else {
       // 鼠标移动中 -> 寻找需要调整列宽的列目标
+      this.resizeTarget = null;
       for (let col of this.allColumnHeaders) {
         if (
           x > col.x + this.grid.scrollX + col.width - 4 &&
           x < col.x + this.grid.scrollX + col.width + 4 &&
-          x < this.grid.width - this.grid.verticalScrollerSize - 4 && // 最后一列不允许调整宽
+          x < this.grid.width - this.grid.verticalScrollerSize - 4 && // 视窗中最后一列不允许调整宽
           col.colspan <= 1 // 父级表头不触发
         ) {
           this.grid.target.style.cursor = "col-resize";
@@ -137,12 +153,23 @@ class Header extends Context {
       }
     }
   }
-  mouseUp() {
+  // 结束调整列宽
+  endResize() {
     this.resizeTarget = null;
     this.isResizing = false;
   }
-  click() {
-    this.checked = !this.checked;
+  handleCheck(opt) {
+    if (opt) {
+      this.checked = opt.checked ?? this.checked
+      this.indeterminate = opt.indeterminate ?? this.indeterminate
+    } else {
+      if (this.indeterminate) {
+        this.indeterminate = false
+      } else {
+        this.checked = !this.checked
+      }
+    }
+    
   }
   resizeColumn(colIndex, diffWidth) {
     const scrollDiffWidth =
@@ -260,7 +287,9 @@ class Header extends Context {
       fillColor: this.grid.fillColor
     };
     if (this.grid.showCheckbox) {
-      const checkEl = this.checked ? oncheck : offcheck;
+      const checkEl = this.checked ? 
+        (this.indeterminate ? indeterminate : oncheck) 
+        : offcheck;
       this.grid.painter.drawRect(
         ROW_INDEX_WIDTH,
         0,

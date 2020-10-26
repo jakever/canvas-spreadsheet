@@ -49,6 +49,7 @@ class Context {
       (mouseX > this.x && mouseX < this.x + this.width && this.fixed === "left")
     );
   }
+  // 鼠标纵坐标在视窗body区域内(不包括横坐标滚动条)
   isInsideVerticaBodyBoundary(mouseX, mouseY) {
     return (
       mouseY > this.y + this.grid.scrollY &&
@@ -57,6 +58,7 @@ class Context {
       mouseY < this.grid.height - this.grid.horizontalScrollerSize
     );
   }
+  // 鼠标纵坐标在视窗body区域内
   isInsideVerticaTableBoundary(mouseX, mouseY) {
     return (
       mouseY > this.y + this.grid.scrollY &&
@@ -84,10 +86,18 @@ class Context {
       mouseX < this.x + this.grid.originFixedWidth
     );
   }
+  // 鼠标坐标位于勾选框区域内
   isInsideHeaderCheckboxBoundary(mouseX, mouseY) {
     return (
-      this.isInsideCheckboxBoundary(mouseX, mouseY) &&
-      this.isInsideHeader(mouseX, mouseY)
+      this.isInsideHeader(mouseX, mouseY) &&
+      this.isInsideCheckboxBoundary(mouseX, mouseY)
+    );
+  }
+  // 鼠标坐标位于索引框区域内
+  isInsideIndexBoundary(mouseX, mouseY) {
+    return (
+      mouseX > this.x &&
+      mouseX < this.x + ROW_INDEX_WIDTH
     );
   }
 }

@@ -72,6 +72,7 @@ function throttle(
 }
 function handleMouseDown(e) {
   e.preventDefault();
+  this.enterShift = e.shiftKey
   // 点击画布的任何区域都需要将编辑器变为非编辑模式
   this.doneEdit();
   const rect = e.target.getBoundingClientRect();
@@ -92,7 +93,7 @@ function handleMouseMove(e) {
   const y = e.clientY - rect.top;
   this.target.style.cursor = "default";
   if (this.header.isInsideHeader(x, y) || this.header.isResizing) {
-    this.header.mouseMove(x, y);
+    this.header.resizing(x, y);
   }
   this.body.mouseMove(x, y);
   this.scroller.mouseMove(x, y);
@@ -105,7 +106,7 @@ function handleMouseUp(e) {
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
   if (this.header.isInsideHeader(x, y) || this.header.isResizing) {
-    this.header.mouseUp(x, y);
+    this.header.endResize(x, y);
   }
   this.endMultiSelect();
   this.scroller.mouseUp(x, y);
@@ -117,8 +118,8 @@ function handleClick(e) {
   const y = e.clientY - rect.top;
   this.body.click(x, y);
   if (this.header.isInsideHeaderCheckboxBoundary(x, y)) {
-    this.header.click();
-    this.body.handleCheckRow();
+    this.header.handleCheck();
+    this.body.handleCheckRow(); // 表头勾选需要影响body的勾选框状态
   }
 }
 function handleDbClick(e) {
@@ -150,7 +151,7 @@ function handleKeydown(e) {
     (e.metaKey && !e.shiftKey && e.keyCode === 90)
   ) {
     e.preventDefault()
-    // TODO Undo
+    this.history.backState()
   }
   // 恢复
   if (
@@ -158,7 +159,7 @@ function handleKeydown(e) {
     (e.metaKey && e.shiftKey && e.keyCode === 90)
   ) {
     e.preventDefault()
-    // TODO Recovery
+    this.history.forwardState()
   }
   // CTRL+C／Command+C
   if ((e.ctrlKey && e.keyCode === 67) || (e.metaKey && e.keyCode === 67)) {

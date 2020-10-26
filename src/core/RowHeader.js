@@ -68,6 +68,7 @@ class RowHeader extends Context {
     /**
      * 焦点高亮
      */
+    // 背景色
     if (selector.show || editor.show) {
       const minY = selector.yArr[0];
       const maxY = selector.yArr[1];
@@ -84,6 +85,7 @@ class RowHeader extends Context {
         );
       }
 
+      // 线
       if (this.rowIndex >= minY && this.rowIndex <= maxY) {
         const points = [
           [this.width + this.grid.checkboxWidth, y],
