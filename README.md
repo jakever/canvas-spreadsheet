@@ -13,6 +13,7 @@ Please try it on [Live Demo](https://harlen.cn/canvas-spreadsheet/).
 - [x] 单元格内容支持（左、中、右）三种对齐方式
 - [x] 单元格数据编辑、选区
 - [x] 批量复制、粘贴数据
+- [x] 批量选择行和列：点击表头选择整列，点击序号整行（支持shift快捷键）
 - [x] 拖拽柄拖拽自动填充（Autofill）
 - [x] 单元格内容自定义渲染函数，基本的文本转换
 - [x] 指定列支持锁定，不可编辑
@@ -24,9 +25,9 @@ Please try it on [Live Demo](https://harlen.cn/canvas-spreadsheet/).
 - [x] 模拟滚动条
 - [x] Tab键、方向键快速切换
 - [x] 复合表头
+- [x] Undo/Redo（撤销与反撤销）
 - [ ] 数据类型增加`级联组件`、`下拉多选`两种类型
 - [ ] Context menu右键功能菜单
-- [ ] 历史记录的撤销与恢复（CTRL+Z、CTRL+Y／CTRL+Z、CTRL+SHIFT+Z）
 
 ## Usage
 > 目前仅提供了Vue版组件，后续会提供React版组件和支持纯JS环境中使用
