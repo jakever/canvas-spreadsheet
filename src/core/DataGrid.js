@@ -525,12 +525,12 @@ class DataGrid {
     this.body.clearSelectedData()
   }
   focusCellByCoord(minX, minY, maxX, maxY) {
-    this.selector.xArr = [minX, maxX ?? minX];
-    this.selector.yArr = [minY, maxY ?? minY];
+    this.selector.xArr = [minX, maxX || minX];
+    this.selector.yArr = [minY, maxY || minY];
     this.editor.xIndex = minX;
     this.editor.yIndex = minY;
-    this.autofill.xIndex = maxX ?? minX
-    this.autofill.yIndex = maxY ?? minY
+    this.autofill.xIndex = maxX || minX
+    this.autofill.yIndex = maxY || minY
     this.focusCell = this.body.getCell(this.editor.xIndex, this.editor.yIndex);
   }
   /**

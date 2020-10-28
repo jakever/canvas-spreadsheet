@@ -160,8 +160,8 @@ class Header extends Context {
   }
   handleCheck(opt) {
     if (opt) {
-      this.checked = opt.checked ?? this.checked
-      this.indeterminate = opt.indeterminate ?? this.indeterminate
+      this.checked = typeof opt.checked === 'boolean' ? opt.checked : this.checked
+      this.indeterminate = typeof opt.indeterminate === 'boolean' ? opt.indeterminate : this.indeterminate
     } else {
       if (this.indeterminate) {
         this.indeterminate = false

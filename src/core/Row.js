@@ -82,7 +82,7 @@ class Row extends Context {
     );
   }
   handleCheck(checked) {
-    this.checked = checked ?? !this.checked;
+    this.checked = typeof checked === 'boolean' ? checked : !this.checked;
     this.rowHeader.handleCheck(this.checked);
   }
   // 选中单个单元格

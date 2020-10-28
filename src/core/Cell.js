@@ -132,7 +132,7 @@ class Cell extends Context {
     } else {
       label = this.getMapLabel(val);
     }
-    this.label = label ?? "";
+    this.label = label === null || label === undefined ? "" : label;
   }
   // 对于下拉类型的数据，对外展示的是label，实际存的是value，所以在更新这类数据的时候需要做一个转换
   getMapValue(label) { // label => value

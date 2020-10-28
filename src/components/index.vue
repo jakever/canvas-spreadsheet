@@ -164,7 +164,7 @@ export default {
       this.grid.loadData(this.data);
     },
     data(val) {
-      // this.grid.loadColumns(this.columns)
+      this.grid.loadColumns(this.columns)
       this.grid.loadData(val);
       this.loading = false;
     }
