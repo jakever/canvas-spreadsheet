@@ -51,7 +51,17 @@ class Body {
       type: 'multiple'
     })
     // 写入数据
-    this.batchSetData(after)
+    // 表格内部复制粘贴以对象{value: '', label: ''}为单位
+    if (this.grid.clipboard.show) {
+      const rowsData = this.getRangeData(this.grid.clipboard);
+      this.batchSetData({
+        value: rowsData,
+        colIndex: xIndex,
+        rowIndex: yIndex
+      })
+    } else {
+      this.batchSetData(after)
+    }
     
     // 粘贴后事件派发
     const startY = yIndex
@@ -76,7 +86,7 @@ class Body {
    * autofull自动填充
    */
   autofillData() {
-    const { value } = this.getSelectedData();
+    const value = this.getRangeData();
     const xStep = value[0].length;
     const yStep = value.length;
     const { xArr, yArr } = this.grid.autofill;
@@ -237,6 +247,21 @@ class Body {
   }
   getRow(y) {
     return this.rows[y];
+  }
+  getRangeData({ xArr, yArr } = this.grid.selector) {
+    const rowsData = [];
+    for (let ri = 0; ri <= yArr[1] - yArr[0]; ri++) {
+      const cellsData = [];
+      for (let ci = 0; ci <= xArr[1] - xArr[0]; ci++) {
+        const cell = this.rows[ri + yArr[0]].allCells[ci + xArr[0]]
+        cellsData.push({
+          label: cell.label,
+          value: cell.value
+        });
+      }
+      rowsData.push(cellsData);
+    }
+    return rowsData
   }
   getSelectedData({ xArr, yArr } = this.grid.selector) {
     const rowsData = [];

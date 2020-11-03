@@ -21,7 +21,7 @@ class Histories {
             const backValue = this.history[this.historyIndex]
             // 单个操作
             if (backValue.type === 'single') {
-                this.grid.setData(backValue.before)
+                this.grid.setData(backValue.before.value, backValue.before)
             } else {
                 this.grid.batchSetData(backValue.before)
             }
@@ -35,7 +35,7 @@ class Histories {
             const forwardValue = this.history[this.historyIndex]
             // 单个操作
             if (forwardValue.type === 'single') {
-                this.grid.setData(forwardValue.after)
+                this.grid.setData(forwardValue.after.value, forwardValue.after)
             } else {
                 this.grid.batchSetData(forwardValue.after)
             }

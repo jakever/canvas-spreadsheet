@@ -98,22 +98,26 @@ class Cell extends Context {
    * @param {String|Number} val 需要设置的值
    * @param {Boolean} ignore 是否忽略readonly属性可以修改
    */
-  setData(val, ignore) {
+  setData(data, ignore) {
     if (!ignore && this.readonly) return;
-    let v = val
+    let v = data
     if (typeof v === 'string') {
-      v = val.trim()
+      v = data.trim()
     }
     if (this.dataType === 'number') {
       v = this.handleNumber(v)
     }
-    if (this.grid.clipboard.isPaste || this.grid.autofill.enable) {
-      const value = this.getMapValue(v)
-      this.value = value
+    if (Object.prototype.toString.call(data) === '[object Object]') {
+      this.value = data.value
+      this.setLabel(data.label)
     } else {
-      this.value = v;
+      if (this.grid.clipboard.isPaste || this.grid.autofill.enable) {
+        this.value = this.getMapValue(v)
+      } else {
+        this.value = v;
+      }
+      this.setLabel(v);
     }
-    this.setLabel(v);
     
     const rowData = this.grid.body.getRowData(this.rowIndex)
     this.validate(rowData)

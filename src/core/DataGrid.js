@@ -447,7 +447,7 @@ class DataGrid {
   startEdit() {
     if (this.focusCell && !this.focusCell.readonly) {
       this.editor.show = true;
-      this.selector.show = false;
+      // this.selector.show = false;
       this.resetCellPosition()
       this.putCell() // BackSpace／delede删除再直接enter进入编辑模式，不会再次更新编辑器的焦点cell
       this.beforeEditCell();
@@ -487,7 +487,7 @@ class DataGrid {
    * @param {Number} rowIndex 需要写入数据的单元格Y轴坐标
    * @param {*} value 需要写入的数据: 简单数据类型
    */
-  setData({ colIndex, rowIndex, value }) {
+  setData(value, { colIndex, rowIndex } = this.focusCell) {
     const focusCell = this.body.getCell(colIndex, rowIndex);
     focusCell && focusCell.setData(value);
     this.focusCellByCoord(colIndex, rowIndex)
@@ -512,7 +512,7 @@ class DataGrid {
    */
   setTempData(value) {
     this.editor.show = true;
-    this.selector.show = false;
+    // this.selector.show = false;
     this.tempValue = value
   }
   pasteData(arr) {
