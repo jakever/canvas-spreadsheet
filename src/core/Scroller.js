@@ -342,7 +342,7 @@ class Scroller {
         painter,
         selector,
         autofill,
-        fixedRight
+        verticalScrollerSize
       } = this.grid
       const cell = this.grid.getCell(autofill.xIndex, autofill.yIndex)
       const x =
@@ -367,7 +367,7 @@ class Scroller {
       }
       
       // 最右侧
-      if (maxX === range.maxX - fixedRight && width === tableWidth + scrollX + SCROLLER_TRACK_SIZE) {
+      if (maxX === range.maxX && (!cell.fixed && width === tableWidth + scrollX + SCROLLER_TRACK_SIZE || cell.fixed === 'right')) {
         const minCell = this.grid.getCell(maxX, minY)
         const maxCell = this.grid.getCell(maxX, maxY)
         const diffY = maxCell.y - minCell.y
