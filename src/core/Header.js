@@ -224,8 +224,8 @@ class Header extends Context {
     // 滚动列阴影
     this.grid.painter.drawRect(this.x, this.y, this.grid.width, this.grid.tableHeaderHeight, {
       fillColor: "#f9f9f9",
-      shadowBlur: 6,
-      shadowColor: "rgba(28,36,56,0.2)",
+      shadowBlur: 4,
+      shadowColor: "rgba(143, 140, 140, 0.22)",
       shadowOffsetX: 0,
       shadowOffsetY: 2
     });
@@ -246,8 +246,8 @@ class Header extends Context {
         this.grid.tableHeaderHeight,
         {
           fillColor: "#f9f9f9",
-          shadowBlur: 6,
-          shadowColor: "rgba(28,36,56,0.2)",
+          shadowBlur: 4,
+          shadowColor: "rgba(143, 140, 140, 0.22)",
           shadowOffsetX: 2,
           shadowOffsetY: -2
         }
@@ -267,8 +267,8 @@ class Header extends Context {
         this.grid.tableHeaderHeight,
         {
           fillColor: "#f9f9f9",
-          shadowBlur: 6,
-          shadowColor: "rgba(0,0,0,0.2)",
+          shadowBlur: 4,
+          shadowColor: "rgba(143, 140, 140, 0.22)",
           shadowOffsetX: -2,
           shadowOffsetY: -2
         }

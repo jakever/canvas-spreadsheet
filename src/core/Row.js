@@ -240,8 +240,8 @@ class Row extends Context {
         this.height,
         {
           fillColor: "#f9f9f9",
-          shadowBlur: 6,
-          shadowColor: "rgba(28,36,56,0.2)",
+          shadowBlur: 4,
+          shadowColor: "rgba(143, 140, 140, 0.22)",
           shadowOffsetX: 2,
           shadowOffsetY: 2
         }
@@ -261,8 +261,8 @@ class Row extends Context {
         this.height,
         {
           fillColor: "#f9f9f9",
-          shadowBlur: 6,
-          shadowColor: "rgba(28,36,56,0.2)",
+          shadowBlur: 4,
+          shadowColor: "rgba(143, 140, 140, 0.22)",
           shadowOffsetX: -2,
           shadowOffsetY: 2
         }
