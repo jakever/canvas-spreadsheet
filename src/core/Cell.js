@@ -15,6 +15,7 @@ timeIcon.src = require("./images/time.png");
 class Cell extends Context {
   constructor(
     value,
+    label,
     grid,
     colIndex,
     rowIndex,
@@ -33,6 +34,7 @@ class Cell extends Context {
 
     this.title = column.title;
     this.key = column.key;
+    this.labelKey = column.label
     this.fixed = column.fixed;
     this.readonly = column.readonly;
     this.textAlign = column.align || "left";
@@ -42,6 +44,7 @@ class Cell extends Context {
     this.render = column.render;
 
     this.value = value === null || value === undefined ? "" : value;
+    this.label = label
     this.originalValue = value;
 
     this.validator = new Validator(column);
@@ -49,7 +52,7 @@ class Cell extends Context {
     this.message = null;
 
     Object.assign(this, options);
-    this.setLabel(this.value);
+    this.setLabel(label === null || label === undefined ? this.value : label);
     if (column.rule && column.rule.immediate === false) return; // 编辑器初始化不需要校验
     this.validate();
   }

@@ -303,6 +303,9 @@ class Body {
       let _o = {};
       cells.forEach(cell => {
         _o[cell.key] = cell.value;
+        if (cell.labelKey) {
+          _o[cell.labelKey] = cell.label;
+        }
       });
       _o = Object.assign({}, row.data, _o)
       return _o;
@@ -316,6 +319,9 @@ class Body {
         let _o = {};
         cells.forEach(cell => {
           _o[cell.key] = cell.value;
+          if (cell.labelKey) {
+            _o[cell.labelKey] = cell.label;
+          }
         });
         _o = Object.assign({}, row.data, _o)
         return _o;
@@ -335,6 +341,9 @@ class Body {
       let _o = {};
       cells.forEach(cell => {
         _o[cell.key] = cell.value;
+        if (cell.labelKey) {
+          _o[cell.labelKey] = cell.label;
+        }
       });
       _o = Object.assign({}, row.data, _o)
       return _o;
@@ -430,6 +439,9 @@ class Body {
     let _o = {};
     row.allCells.forEach(cell => {
       _o[cell.key] = cell.value;
+      if (cell.labelKey) {
+        _o[cell.labelKey] = cell.label;
+      }
     });
     return Object.assign({}, row.data, _o)
   }

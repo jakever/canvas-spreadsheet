@@ -51,6 +51,7 @@ class Row extends Context {
 
       const cell = new Cell(
         data[column.key],
+        data[column.label],
         grid,
         i,
         rowIndex,
