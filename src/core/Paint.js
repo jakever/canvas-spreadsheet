@@ -209,6 +209,7 @@ class Paint {
     this.ctx.fillText(label, x + startOffset - textWidth / 2 - offsetX, y + offsetY);
     this.ctx.restore()
   }
+  // 绘制矩形
   drawRect(x, y, width, height, options) {
     options = Object.assign(
       {
@@ -344,6 +345,12 @@ class Paint {
       height || this.ctx.canvas.height
     );
   }
+  /**
+   * 计算长文本自动换行
+   * @param {String} text 文本
+   * @param {Number} width 单元格宽度
+   * @param {Number} padding 左右需要留出的padding
+   */
   getTextWrapping(text, width, padding) {
     if (!text && text !== 0) {
       return '';
