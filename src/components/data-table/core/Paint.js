@@ -15,7 +15,10 @@ function calucateTextAlign(value, width, padding, align) {
   } else if (align === "right") {
     x = width - textWidth / 2 - padding;
   }
-  return x;
+  return {
+    width: textWidth,
+    offset: x
+  };
 }
 
 class Paint {
@@ -101,9 +104,9 @@ class Paint {
   drawCellText(text, x, y, width, height, padding, options) {
     options = Object.assign(
       {
-        font:
-          'normal 12px "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif',
         color: "#495060",
+        fontSize: "12px",
+        fontFamily: "normal",
         align: "left",
         baseLine: "middle",
         icon: null,
@@ -114,21 +117,47 @@ class Paint {
       },
       options
     );
-    
-    this.ctx.font = options.font;
+    this.ctx.font = options.fontFamily + ' ' + options.fontSize + ' ' + '"Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Arial, sans-serif';
     this.ctx.fillStyle = options.color;
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = options.baseLine;
     // font会影响measureText获取的值
     let posX = x
     const posY = options.baseLine === 'middle' ? y + height / 2 : y
-    const startOffset = calucateTextAlign.call(
+    let {
+      offset: startOffset,
+      width: textWidth
+    } = calucateTextAlign.call(
       this,
       text,
       width,
       padding,
       options.align
     );
+    if (textWidth > width - padding) {
+      let str = text.charAt(0)
+      let i = 0
+      let w = this.ctx.measureText(str).width;
+      while(true) {
+        i++
+        const temp = str + text.charAt(i)
+        w = this.ctx.measureText(temp).width;
+        if (w >= width) {
+          break;
+        }
+        str += text.charAt(i)
+      }
+      text = str.slice(0, -1)
+      const rs = calucateTextAlign.call(
+        this,
+        text,
+        width,
+        padding,
+        options.align
+      );
+      startOffset = rs.offset
+      text += '...'
+    }
     if (options.icon && typeof options.icon === 'object' && options.icon.src) {
       // 绘制日历控件小图标，固定在单元格左侧
       this.drawImage(
@@ -194,8 +223,10 @@ class Paint {
       },
       options
     );
-    const textWidth = this.ctx.measureText(text).width;
-    const startOffset = calucateTextAlign.call(
+    const {
+      offset: startOffset,
+      width: textWidth
+    } = calucateTextAlign.call(
       this,
       text,
       width,
@@ -210,10 +241,10 @@ class Paint {
     this.ctx.fillText(label, x + startOffset - textWidth / 2 - offsetX, y + offsetY);
     this.ctx.restore()
   }
-  drawCircle(x, y) {
+  drawCircle(x, y, radius) {
     this.ctx.beginPath();
     this.ctx.fillStyle = '#0bb27a';
-    this.ctx.arc(x, y, 2, 0, Math.PI + (Math.PI * 2) / 2)
+    this.ctx.arc(x, y, radius, 0, Math.PI * 2)
     this.ctx.fill();
   }
   // 单元格上下border
@@ -374,8 +405,16 @@ class Paint {
     }
     this.ctx.restore();
   }
+  drawAvatar(img, x, y, width, height) {
+    this.ctx.save();
+    this.ctx.beginPath();
+    this.ctx.arc(x + width / 2, y + height / 2, 12, 0, Math.PI * 2)
+    this.ctx.clip();
+    this.drawImage(img, x, y, width, height)
+  }
   drawImage(img, x, y, width, height) {
     this.ctx.drawImage(img, x, y, width, height);
+    this.ctx.restore()
   }
   clearCanvas(x = 0, y = 0, width, height) {
     this.ctx.clearRect(

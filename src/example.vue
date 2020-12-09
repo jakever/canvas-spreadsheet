@@ -50,24 +50,13 @@
         <TableGridColumn label="客户备注" property="customerRemarks"></TableGridColumn>
         <TableGridColumn label="采购价(元)" property="purchasePrice"></TableGridColumn>
         <TableGridColumn label="销售价(元)" property="salePrice"></TableGridColumn>
-        <TableGridColumn label="操作" :width="120" type="action" :actions="columnActions" :renderColumn="renderColumn">
-            <template v-slot="row">
-              <el-dropdown>
-                <span class="el-dropdown-link">
-                  下拉菜单1
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item @click.native="getRow(row)">黄金糕</el-dropdown-item>
-                  <el-dropdown-item @click.native="getRow(row)">狮子头</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-            </template>
+        <TableGridColumn label="操作" :width="120" type="action" :actions="columnActions">
         </TableGridColumn>
     </TableGrid>
   </div>
 </template>
 <script>
-import TableGrid from "./components/data-table/index.vue";
+import TableGrid from "./components/data-table/table.vue";
 import TableGridColumn from "./components/data-table/column.vue"
 export default {
   name: "App",
@@ -87,20 +76,26 @@ export default {
       return [{
         label: '编辑',
         type: 'link',
-        handler(data) {
-          console.log(data)
+        handler({ row, rowIndex }) {
+          console.log(row, rowIndex)
+        }
+      }, {
+        label: '编辑2',
+        type: 'link',
+        handler({ row, rowIndex }) {
+          console.log(row, rowIndex)
         }
       }, {
         type: 'dropdown',
         list: [{
           label: '导入',
-          handler(data) {
-            console.log(data)
+          handler({ row, rowIndex }) {
+            console.log(row, rowIndex)
           } 
         }, {
           label: '导出',
-          handler(data) {
-            console.log(data)
+          handler({ row, rowIndex }) {
+            console.log(row, rowIndex)
           }
         }]
       }]
@@ -137,19 +132,6 @@ export default {
     },
     getRow(data) {
       console.log(data, '~~~');
-    },
-    renderColumn(h, row) {
-      return (
-        <el-dropdown>
-          <span class="el-dropdown-link">
-            下拉菜单
-          </span>
-          <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item><span on-click={() => { this.getRow(row) }}>黄金糕</span></el-dropdown-item>
-            <el-dropdown-item>狮子头</el-dropdown-item>
-          </el-dropdown-menu>
-        </el-dropdown>
-      )
     }
   },
   created() {

@@ -50,28 +50,29 @@ class Body {
     }
   }
   // 表头勾选发生改变，body勾选需要改变
-  handleCheckRow(y) {
-    if (typeof y === "number") {
-      this.rows[y].handleCheck();
-    } else {
-      const isChecked = this.grid.header.checked
-      for (let row of this.rows) {
-        row.handleCheck(isChecked);
-      }
-    }
-  }
+  // handleCheckRow(y) {
+  //   if (typeof y === "number") {
+  //     this.rows[y].handleCheck();
+  //   } else {
+  //     const isChecked = this.grid.header.checked
+  //     for (let row of this.rows) {
+  //       row.handleCheck(isChecked);
+  //     }
+  //   }
+  // }
   // body勾选发生改变，表头勾选需要改变
-  handleCheckHeader() {
-    const totalChecked = this.rows.reduce((sum, item) => {
-      const num = +item.checked
-      return sum + num
-    }, 0)
-    const checked = !!totalChecked
-    const indeterminate = totalChecked && totalChecked < this.grid.data.length
-    this.grid.header.handleCheck({ checked, indeterminate })
-  }
+  // handleCheckHeader() {
+  //   const totalChecked = this.rows.reduce((sum, item) => {
+  //     const num = +item.checked
+  //     return sum + num
+  //   }, 0)
+  //   const checked = !!totalChecked
+  //   const indeterminate = totalChecked && totalChecked < this.grid.data.length
+  //   this.grid.header.handleCheck({ checked, indeterminate })
+  // }
   mouseMove(x, y) {
     for (let i = 0; i < this.rows.length; i++) {
+      this.rows[i].handleBlur();
       if (this.rows[i].isInsideVerticaTableBoundary(x, y)) {
         this.rows[i].mouseMove(x, y);
       }
@@ -79,42 +80,11 @@ class Body {
   }
   click(x, y) {
     for (let i = 0; i < this.rows.length; i++) {
-      if (this.rows[i].isInsideVerticaBodyBoundary(x, y)) {
-        this.rows[i].click(x, y);
+      const row = this.rows[i]
+      if (row.isInsideVerticaBodyBoundary(x, y)) {
+        row.click(x, y);
+        break;
       }
-    }
-  }
-  rePaintRow(rowIndex) {
-    // 计算该行中所有单元格内容所需要的最大高度
-    // const rowData = this.data[rowIndex]
-    const row = this.getRow(rowIndex);
-    const len = row.cells.length;
-    let textWrap = null;
-    let rowHeight = CELL_HEIGHT;
-    for (let i = 0; i < len; i++) {
-      const { value, width } = row.cells[i];
-      if (value || value === 0) {
-        textWrap = this.grid.painter.getTextWrapping(value, width);
-        let textWrapCount = 0;
-        if (textWrap) {
-          textWrapCount = textWrap.length;
-        }
-        if (textWrapCount > 1) {
-          if (CELL_HEIGHT + (textWrapCount - 1) * 18 > rowHeight) {
-            rowHeight = CELL_HEIGHT + (textWrapCount - 1) * 18;
-          }
-        }
-      }
-    }
-
-    row.height = rowHeight;
-
-    let everyOffsetY = this.grid.tableHeaderHeight;
-    for (let j = 0; j < this.rows.length; j++) {
-      const row = this.rows[j];
-      row.y = everyOffsetY;
-      everyOffsetY += row.height;
-      row.rePaint();
     }
   }
   draw() {
@@ -139,6 +109,28 @@ class Body {
         _o = Object.assign({}, row.data, _o)
         return _o;
       });
+  }
+  getRow(y) {
+    return this.rows[y];
+  }
+  getRowData(y) {
+    const row = this.getRow(y);
+    let _o = {};
+    row.allCells.forEach(cell => {
+      _o[cell.key] = cell.value;
+      if (cell.labelKey) {
+        _o[cell.labelKey] = cell.label;
+      }
+    });
+    return Object.assign({}, row.data, _o)
+  }
+  getCellData(x, y) {
+    const cell = this.getCell(x, y)
+    return {
+      title: cell.title,
+      key: cell.key,
+      value: cell.value
+    }
   }
 }
 

@@ -31,13 +31,6 @@ class Context {
       mouseX < this.grid.width - this.grid.fixedRightWidth
     ); // 避免冻结列点击穿透了
   }
-  isInsideHorizontalTableBoundary(mouseX, mouseY) {
-    return (
-      mouseX > this.x + this.grid.scrollX &&
-      mouseX < this.x + this.grid.scrollX + this.width &&
-      mouseX > this.grid.fixedLeftWidth
-    );
-  }
   isInsideFixedHorizontalBodyBoundary(mouseX, mouseY) {
     const x =
       this.grid.width -
@@ -77,13 +70,13 @@ class Context {
   }
   // 鼠标坐标是否在表头范围内
   isInsideHeader(mouseX, mouseY) {
-    return mouseY > this.y && mouseY < this.y + this.grid.tableHeaderHeight;
+    return mouseY > 0 && mouseY < this.grid.tableHeaderHeight;
   }
   // 鼠标坐标是否在checkbox部分内
   isInsideCheckboxBoundary(mouseX, mouseY) {
     return (
-      mouseX > this.x + ROW_INDEX_WIDTH &&
-      mouseX < this.x + this.grid.originFixedWidth
+      mouseX > ROW_INDEX_WIDTH &&
+      mouseX < this.grid.originFixedWidth
     );
   }
   // 鼠标坐标位于勾选框区域内
@@ -96,9 +89,27 @@ class Context {
   // 鼠标坐标位于索引框区域内
   isInsideIndexBoundary(mouseX, mouseY) {
     return (
-      mouseX > this.x &&
-      mouseX < this.x + ROW_INDEX_WIDTH
+      mouseX > 0 &&
+      mouseX < ROW_INDEX_WIDTH
     );
+  }
+  isInsideDropdownBoundary(mouseX, mouseY) {
+    const x =
+      this.fixed === "right"
+        ? this.grid.width -
+          (this.grid.tableWidth - this.x - this.width) -
+          this.width -
+          this.grid.verticalScrollerSize
+        : this.fixed === "left"
+        ? this.x
+        : this.x + this.grid.scrollX;
+    return (
+      mouseX >= x + this.dropdown.x - 2 &&
+      mouseX <= x + this.dropdown.x + this.dropdown.width &&
+      mouseY >= this.y + this.grid.scrollY + this.dropdown.y - 2 &&
+      mouseY <= this.y + this.grid.scrollY + this.dropdown.y + this.dropdown.height &&
+      this.y + this.grid.scrollY + this.dropdown.y + this.dropdown.height < this.grid.height - this.grid.horizontalScrollerSize
+    )
   }
 }
 

@@ -29,6 +29,8 @@ class DataGrid {
     this.scrollY = 0;
     this.scrollX = 0;
     this.focusRowIndex = -1
+    this.checkedIds = []
+    this.checkedData = []
 
     this.checkboxWidth = CHECK_BOX_WIDTH;
     this.horizontalScrollerSize = SCROLLER_TRACK_SIZE;
@@ -39,8 +41,6 @@ class DataGrid {
 
     this.initConfig(options);
 
-    // this.createContainer()
-
     // Headers 表头对象
     this.header = new Header(this, 0, 0);
 
@@ -50,7 +50,7 @@ class DataGrid {
     // 滚动条
     this.scroller = new Scroller(this);
 
-    this.setLayoutSize(options); // 设置容器宽高
+    this.setLayoutSize(); // 设置容器宽高
 
     this.initTableSize();
 
@@ -69,15 +69,21 @@ class DataGrid {
       {
         data: [],
         color: "#495060",
+        colorPromary: "#0bb27a",
+        hoverColor: "",
         borderColor: "#e1e6eb",
+        dividerColor: "#f0f2f4",
         fillColor: "#fff",
         borderWidth: 1,
         fixedLeft: 0,
         fixedRight: 0,
         showCheckbox: true,
         headerHeight: HEADER_HEIGHT,
+        beforeCheckRow: () => {},
+        afterCheckRow: () => {},
         beforeRenderRow: () => {},
         showDropdown: () => {},
+        showPoptip: () => {},
         onLoad: () => {} // 表格加载完成
       },
       options
@@ -93,14 +99,28 @@ class DataGrid {
   /**
    * 获取容器可是区域宽、高，设置canvas容器样式尺寸、画布尺寸
    */
-  setLayoutSize(options = {}) {
+  setLayoutSize() {
     const el = this.target.parentElement;
     const rootEl = el.parentElement;
+    const wHeight = window.innerHeight // 视窗高度
     const { width, left, top } = rootEl.getBoundingClientRect();
     this.containerOriginX = left;
     this.containerOriginY = top;
-    this.width = options.width || width; // 容器宽
-    this.height = options.height || window.innerHeight - top; // 容器高
+    this.width = this.gridWidth || width; // 容器宽
+    this.height = this.gridHeight || wHeight - top; // 容器高
+    
+    let realH = 484 + this.horizontalScrollerSize
+    if (this.showSummary) {
+        const footerHeight = 44
+        realH += footerHeight // 兼容有合计行时只有10条数据会出现横向滚动条
+    }
+    if (this.data.length <= 10) {
+      this.height = realH
+    } else {
+      const marginBottom = 24 // 24为table和翻页组件的上下间距
+      const paginationHeight = 32 // 分页器高度
+      this.height = Math.max(wHeight - top - marginBottom - paginationHeight - this.footerPadding, realH)
+    }
 
     this.target.width = this.width * dpr;
     this.target.height = this.height * dpr;
@@ -115,7 +135,7 @@ class DataGrid {
    */
   getTableSize() {
     let fixedLeftWidth = this.originFixedWidth;
-    let fixedRightWidth = SCROLLER_TRACK_SIZE;
+    let fixedRightWidth = this.verticalScrollerSize;
     this.header.fixedColumnHeaders.forEach(item => {
       if (item.index < this.fixedLeft) {
         fixedLeftWidth += item.width;
@@ -141,15 +161,15 @@ class DataGrid {
    * 列总宽小于可视区域宽度时，需要补余
    */
   fillTableWidth() {
-    if (this.tableWidth <= this.width - SCROLLER_TRACK_SIZE) { // 没有横向滚动条
+    if (this.tableWidth <= this.width - this.verticalScrollerSize) { // 没有横向滚动条
       const fillCellWidth =
-        (this.width - SCROLLER_TRACK_SIZE - this.tableWidth) /
+        (this.width - this.verticalScrollerSize - this.tableWidth) /
         this.columnsLength;
       fillCellWidth && this.body.resizeAllColumn(fillCellWidth);
       fillCellWidth && this.header.resizeAllColumn(fillCellWidth);
-      this.tableWidth = this.width - SCROLLER_TRACK_SIZE;
+      this.tableWidth = this.width - this.verticalScrollerSize;
       this.fixedLeftWidth = 0;
-      this.fixedRightWidth = SCROLLER_TRACK_SIZE;
+      this.fixedRightWidth = this.verticalScrollerSize;
     }
     
     this.scroller.reset();
@@ -161,45 +181,12 @@ class DataGrid {
     this.fillTableWidth();
 
     if (
-      this.tableWidth - (this.width - SCROLLER_TRACK_SIZE) + this.scrollX <
+      this.tableWidth - (this.width - this.verticalScrollerSize) + this.scrollX <
       0
     ) {
       // 小屏滚动到最右侧再调大屏幕断开的问题
       this.scrollX = this.width - this.tableWidth + diffX;
     }
-  }
-  createContainer() {
-    // 顶层容器
-    this.rootEl = h("div", `${CSS_PREFIX}`);
-
-    // this.loadingEl = h('div', `${CSS_PREFIX}-loading`)
-    //     .children(
-    //         this.loadingDot = h('div', `${CSS_PREFIX}-loading-dot`)
-    //     )
-    // 画布外层容器
-    this.wrapEl = h("div", `${CSS_PREFIX}-main`);
-    this.wrapEl.offset({
-      width: this.width,
-      height: this.height
-    });
-    this.rootEl.children(this.wrapEl);
-
-    // 画布
-    this.tableEl = h("canvas", `${CSS_PREFIX}-table`);
-
-    // 编辑器
-    this.editor = new Editor(this);
-    // this.selector = new Selector()
-
-    // 编辑器、选区容器
-    this.overlayerEl = h("div", `${CSS_PREFIX}-overlayer`).children(
-      this.editor.el
-      // this.selector.el
-    );
-
-    this.wrapEl.children(this.tableEl, this.overlayerEl);
-
-    this.target.appendChild(this.rootEl.el);
   }
   /**
    * 调整列宽、行宽
@@ -215,11 +202,26 @@ class DataGrid {
     this.body.resizeRow(rowIndex, height);
     this.getTableSize();
   }
-  handleCheckRow(y) {
-    this.body.handleCheckRow(y);
+  // handleCheckRow(y) {
+  //   this.body.handleCheckRow(y);
+  // }
+  // handleCheckHeader() {
+  //   this.body.handleCheckHeader();
+  // }
+  handleSelectChange(rows, value) {
+    if (value) {
+      this.checkedData = this.checkedData.concat(rows.filter(row => !this.checkedData.includes(row[this.rowKey])))
+    } else {
+      const ids = rows.map(item => item[this.rowKey])
+      // 删除元素
+      this.checkedData = this.checkedData.filter(row => !ids.includes(row[this.rowKey]))
+    }
+    this.checkedIds = this.checkedData.map(item => item[this.rowKey])
+
+    this.afterCheckRow(this.checkedData)
   }
-  handleCheckHeader() {
-    this.body.handleCheckHeader();
+  handleSelectAll() {
+    this.handleSelectChange(this.data, this.header.checked)
   }
   /**
    * 画布绘制相关------------------------------------------------------->
@@ -230,7 +232,7 @@ class DataGrid {
   }
   drawContainer() {
     this.painter.drawRect(0, 0, this.width, this.height, {
-      borderColor: this.borderColor,
+      // borderColor: this.borderColor,
       fillColor: '#fff',
       borderWidth: this.borderWidth
     });
@@ -258,6 +260,9 @@ class DataGrid {
   /**
    * 事件相关------------------------------------------------------->
    */
+  updateSetting(options) {
+    Object.assign(this, options)
+  }
   updateColumns(columns) {
     const maxHeaderRow = getMaxRow(columns)
     // 有复合表头的情况下，高度强制改为24
@@ -284,12 +289,6 @@ class DataGrid {
   }
   getCheckedRows() {
     return this.body.getCheckedRows();
-  }
-  handScopeSlots(data) {
-    this.beforeRenderRow(data)
-  }
-  showMore(cell) {
-    this.showDropdown(cell)
   }
 }
 export default DataGrid;

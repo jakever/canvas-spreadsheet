@@ -8,7 +8,11 @@ import {
   Dropdown,
   DropdownMenu,
   DropdownItem,
-  loading
+  Pagination,
+  Popover,
+  loading,
+  Form,
+  FormItem
 } from "element-ui";
 
 Vue.use(Button);
@@ -19,6 +23,10 @@ Vue.use(Cascader);
 Vue.use(Dropdown);
 Vue.use(DropdownMenu);
 Vue.use(DropdownItem);
+Vue.use(Pagination);
+Vue.use(Popover);
+Vue.use(Form);
+Vue.use(FormItem);
 Vue.use(loading);
 
 // Vue.directive('loading', loading)

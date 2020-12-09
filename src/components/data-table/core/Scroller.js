@@ -79,6 +79,11 @@ class Scroller {
           SCROLLER_SIZE) /
         (tableHeight + SCROLLER_TRACK_SIZE - height)
       : 0;
+
+    this.horizontalScroller.x = 0
+    this.verticalScroller.y = 0
+    this.grid.scrollX = 0
+    this.grid.scrollY = 0
   }
   update(diff, dir) {
     if (dir === "HORIZONTAL") {
@@ -206,49 +211,48 @@ class Scroller {
     this.verticalScroller.move = false;
   }
   draw() {
-    const scrollerWidth = this.grid.width - SCROLLER_TRACK_SIZE;
-    const scrollerHeight = this.grid.height - SCROLLER_TRACK_SIZE;
+    const {
+      border,
+      borderColor,
+      borderWidth,
+      fillColor,
+      width,
+      height,
+      tableHeaderHeight,
+      painter
+    } = this.grid
+    const scrollerWidth = width - SCROLLER_TRACK_SIZE;
+    const scrollerHeight = height - SCROLLER_TRACK_SIZE;
     const trackOffset = SCROLLER_TRACK_SIZE / 2;
     const thumbOffset = SCROLLER_SIZE / 2;
 
     // 横向滚动条
     // 轨道
-    this.grid.painter.drawRect(
+    painter.drawRect(
       0,
       scrollerHeight,
       scrollerWidth + SCROLLER_TRACK_SIZE,
       SCROLLER_TRACK_SIZE,
       {
-        fillColor: this.grid.fillColor,
-        borderColor: this.grid.borderColor,
-        borderWidth: this.grid.borderWidth
+        fillColor,
+        borderColor: border ? borderColor : undefined,
+        borderWidth
       }
     );
-    // 滑块起始位置线条
-    // this.grid.painter.drawLine(
-    //   [
-    //     [this.grid.originFixedWidth, scrollerHeight],
-    //     [this.grid.originFixedWidth, scrollerHeight + SCROLLER_TRACK_SIZE]
-    //   ],
-    //   {
-    //     borderColor: this.grid.borderColor,
-    //     borderWidth: this.grid.borderWidth
-    //   }
-    // );
     // 滑块结束位置线条
-    this.grid.painter.drawLine(
+    border && painter.drawLine(
       [
         [scrollerWidth, scrollerHeight],
         [scrollerWidth, scrollerHeight + SCROLLER_TRACK_SIZE]
       ],
       {
-        borderColor: this.grid.borderColor,
-        borderWidth: this.grid.borderWidth
+        borderColor,
+        borderWidth
       }
     );
     // 滑块
     if (this.horizontalScroller.has) {
-      this.grid.painter.drawLine(
+      painter.drawLine(
         [
           [
               this.horizontalScroller.x +
@@ -274,30 +278,30 @@ class Scroller {
     }
 
     // 纵向滚动条
-    this.grid.painter.drawRect(
+    painter.drawRect(
       scrollerWidth,
       0,
       SCROLLER_TRACK_SIZE,
       scrollerHeight,
       {
-        fillColor: this.grid.fillColor,
-        borderColor: this.grid.borderColor,
-        borderWidth: this.grid.borderWidth
+        fillColor,
+        borderColor: border ? borderColor : undefined,
+        borderWidth
       }
     );
-    this.grid.painter.drawRect(
+    painter.drawRect(
       scrollerWidth,
       0,
       SCROLLER_TRACK_SIZE,
-      this.grid.tableHeaderHeight,
+      tableHeaderHeight,
       {
         fillColor: HEADER_BG_COLOR,
-        borderColor: this.grid.borderColor,
-        borderWidth: this.grid.borderWidth
+        borderColor: border ? borderColor : undefined,
+        borderWidth
       }
     );
     // 滑块起始位置线条
-    // this.grid.painter.drawLine(
+    // painter.drawLine(
     //   [
     //     [scrollerWidth, this.grid.tableHeaderHeight],
     //     [scrollerWidth + SCROLLER_TRACK_SIZE, this.grid.tableHeaderHeight]
@@ -309,17 +313,17 @@ class Scroller {
     // );
     // 滑块
     if (this.verticalScroller.has) {
-      this.grid.painter.drawLine(
+      painter.drawLine(
         [
           [
             scrollerWidth + trackOffset,
-            this.verticalScroller.y + thumbOffset + this.grid.tableHeaderHeight
+            this.verticalScroller.y + thumbOffset + tableHeaderHeight
           ],
           [
             scrollerWidth + trackOffset,
             this.verticalScroller.y +
               thumbOffset +
-              this.grid.tableHeaderHeight +
+              tableHeaderHeight +
               this.verticalScroller.size
           ]
         ],

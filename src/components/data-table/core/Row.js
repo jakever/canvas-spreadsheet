@@ -12,27 +12,21 @@ class Row extends Context {
 
     this.data = data;
     this.rowIndex = rowIndex;
+    this.id = data[grid.rowKey]
     this.checked = false;
 
     this.allCells = [];
     this.fixedCells = [];
     this.cells = [];
 
-    const style = {
-      color: this.grid.color,
-      fillColor: this.grid.fillColor,
-      borderColor: this.grid.borderColor,
-      borderWidth: this.grid.borderWidth
-    };
-    grid.handScopeSlots(data)
     this.rowHeader = new RowHeader(
+      this.id,
       grid,
       rowIndex,
       x,
       y,
       ROW_INDEX_WIDTH,
-      height,
-      style
+      height
     );
 
     // cells对象集合
@@ -60,8 +54,7 @@ class Row extends Context {
         width,
         this.height,
         column,
-        data,
-        style
+        data
       );
 
       this.allCells.push(cell);
@@ -86,6 +79,11 @@ class Row extends Context {
     this.checked = typeof checked === 'boolean' ? checked : !this.checked;
     this.rowHeader.handleCheck(this.checked);
   }
+  handleBlur() {
+    for (const cell of this.allCells) {
+      cell.hoverColor = ''
+    }
+  }
   mouseMove(mouseX, mouseY) {
     const {
       width,
@@ -95,14 +93,13 @@ class Row extends Context {
       scrollY,
     } = this.grid;
     this.grid.focusRowIndex = this.rowIndex
-    for (let i = 0; i < this.allCells.length; i++) {
-      const cell = this.allCells[i];
+    for (const cell of this.allCells) {
       if (
-        cell.isInsideHorizontalTableBoundary(mouseX, mouseY) ||
+        cell.isInsideHorizontalBodyBoundary(mouseX, mouseY) ||
         cell.isInsideFixedHorizontalBodyBoundary(mouseX, mouseY)
       ) {
         const x =
-        cell.fixed === "right"
+          cell.fixed === "right"
             ? width -
               (tableWidth - cell.x - cell.width) -
               cell.width -
@@ -111,7 +108,36 @@ class Row extends Context {
             ? cell.x
             : cell.x + scrollX;
         const y = cell.y + scrollY;
-        this.grid.showMore({ x, y })
+        if (cell.dropdown && cell.isInsideDropdownBoundary(mouseX, mouseY)) {
+          this.grid.target.style.cursor = "pointer";
+          this.grid.showDropdown({ 
+            x: width - x - cell.dropdown.x - cell.dropdown.width, 
+            y: y + cell.dropdown.y + cell.dropdown.height
+          }, {
+            row: this.data,
+            rowIndex: this.rowIndex
+          })
+        } else {
+          this.grid.showDropdown({ x: 0, y: -9999 })
+        }
+        if (cell.links && cell.links.length) {
+          const link = cell.getLinkAtCoord(mouseX, mouseY)
+          if (link) {
+            this.grid.target.style.cursor = "pointer";
+            if (cell.type === 'link') {
+              cell.hoverColor = this.grid.colorPromary
+              link.cardRender({ x: x + link.realX + link.width + 6, y: y + cell.height / 2 - 6 }, {
+                row: this.data,
+                rowIndex: this.rowIndex
+              })
+            }
+          } else {
+            this.grid.showPoptip({ x: -9999, y: -9999 })
+          }
+        } else {
+          this.grid.showPoptip({ x: -9999, y: -9999 })
+        }
+        break;
 
         // 显示单元格tooltip校验失败提示文案
         // this.grid.tooltip.update({
@@ -126,11 +152,28 @@ class Row extends Context {
       }
     }
   }
-  click(x, y) {
-    if (this.rowHeader.isInsideCheckboxBoundary(x, y)) {
+  click(mouseX, mouseY) {
+    if (this.rowHeader.isInsideCheckboxBoundary(mouseX, mouseY)) {
       this.handleCheck();
       // body部分勾选状态发生变化，需要影响到表头的indeterminate状态
-      this.grid.handleCheckHeader()
+      // this.grid.handleCheckHeader()
+      this.grid.handleSelectChange([this.data], this.checked)
+    } else {
+      // 点击按钮触发事件
+      for (const cell of this.allCells) {
+        if (
+          cell.isInsideHorizontalBodyBoundary(mouseX, mouseY) ||
+          cell.isInsideFixedHorizontalBodyBoundary(mouseX, mouseY)
+        ) {
+          if (cell.links && cell.links.length) {
+            const link = cell.getLinkAtCoord(mouseX, mouseY)
+            if (link) {
+              link.handler({ row: this.data, rowIndex: this.rowIndex })
+            }
+          }
+          break;
+        }
+      }
     }
   }
   resizeColumn(colIndex, diffWidth) {
@@ -173,6 +216,7 @@ class Row extends Context {
     this.rowHeader.y = this.y;
   }
   draw() {
+    this.checked = this.grid.checkedIds.includes(this.id)
     // 绘制主体body部分
     for (let i = 0; i < this.cells.length; i++) {
       const cell = this.cells[i];

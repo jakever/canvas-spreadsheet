@@ -2,7 +2,7 @@
 export default {
     name: 'DTableGridColumn',
     props: {
-        type: String,
+        business_type: String,
         showTooltip: Boolean, // 内容超出显示tooltip
         align: [Boolean, String], // 对齐方式
         fixed: [Boolean, String], // 固定列
@@ -15,7 +15,9 @@ export default {
                 return []
             }
         },
-        renderColumn: Function
+        renderColumn: Function,
+        linkAction: Function,
+        cardRender: Function
     },
     provide() {
         return {
@@ -41,14 +43,29 @@ export default {
         getColumnAction() {
             let links = []
             let dropdown = []
-            this.actions.forEach(item => {
-                if (item.type === 'link') {
-                    links.push(item)
+            if (this.business_type === 'link') {
+                links = {
+                    handler: ({ row, rowIndex }) => {
+                        typeof this.linkAction === 'function' && this.linkAction({ row, rowIndex })
+                    },
+                    cardRender: (pos, { row, rowIndex }) => {
+                        if (typeof this.cardRender === 'function') {
+                            const vnode = this.cardRender(this.$createElement, { row, rowIndex })
+                            this.dTable.updatePoptip(pos, vnode)
+                        }
+                    }
                 }
-                if (item.type === 'dropdown') {
-                    dropdown = item.list
-                }
-            })
+            } else if (this.business_type === 'action'){
+                this.actions.forEach(item => {
+                    if (item.type === 'link') {
+                        links.push(item)
+                    }
+                    if (item.type === 'dropdown') {
+                        dropdown = item.list
+                    }
+                })
+            }
+            
             return {
                 links,
                 dropdown
@@ -59,7 +76,7 @@ export default {
         const self = this
         const { links, dropdown } = this.getColumnAction()
         this.column = {
-            type: this.type,
+            business_type: this.business_type,
             property: this.property,
             label: this.label,
             showTooltip: this.showTooltip,

@@ -1,4 +1,4 @@
-export const CSS_PREFIX = "xs-data-grid";
+export const CSS_PREFIX = "xs-grid-table";
 
 export const HEADER_HEIGHT = 44; // 表头行高
 

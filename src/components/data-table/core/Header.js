@@ -36,10 +36,10 @@ import {
 
 const oncheck = new Image();
 const offcheck = new Image();
-const indeterminate = new Image();
+const onindeterminate = new Image();
 oncheck.src = require("./images/oncheck.png");
 offcheck.src = require("./images/offcheck.png");
-indeterminate.src = require("./images/indeterminate.png");
+onindeterminate.src = require("./images/indeterminate.png");
 
 class Header extends Context {
   constructor(grid, x, y) {
@@ -225,8 +225,8 @@ class Header extends Context {
     // 滚动列阴影
     // this.grid.painter.drawRect(this.x, this.y, this.grid.width, this.grid.tableHeaderHeight, {
     //   fillColor: "#f9f9f9",
-    //   shadowBlur: 6,
-    //   shadowColor: "rgba(28,36,56,0.2)",
+    //   shadowBlur: 4,
+    //   shadowColor: "rgba(143, 140, 140, 0.22)",
     //   shadowOffsetX: 0,
     //   shadowOffsetY: 2
     // });
@@ -283,14 +283,23 @@ class Header extends Context {
 
     // 绘制checkbox
     const style = {
-      // borderColor: this.grid.borderColor,
+      borderColor: this.grid.border ? this.grid.borderColor : undefined,
       borderWidth: this.grid.borderWidth,
       fillColor: HEADER_BG_COLOR
     };
     if (this.grid.showCheckbox) {
+      const totalChecked = this.grid.data.reduce((sum, item) => {
+        const num = +(this.grid.checkedIds.includes(item[this.grid.rowKey]))
+        return sum + num
+      }, 0)
+      const checked = !!totalChecked
+      const indeterminate = totalChecked && totalChecked < this.grid.data.length
+      this.checked = checked
+      this.indeterminate = indeterminate
       const checkEl = this.checked ? 
-        (this.indeterminate ? indeterminate : oncheck) 
+        (this.indeterminate ? onindeterminate : oncheck) 
         : offcheck;
+      
       this.grid.painter.drawRect(
         ROW_INDEX_WIDTH,
         0,

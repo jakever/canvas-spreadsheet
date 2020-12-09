@@ -1,4 +1,4 @@
-$css-prefix: xs-data-grid;
+$css-prefix: xs-grid-table;
 .#{$css-prefix} {
     width: 100%;
     position: relative;
@@ -7,9 +7,12 @@ $css-prefix: xs-data-grid;
     width: 100%;
     position: relative;
     box-sizing: border-box;
-    overflow: hidden;
-    border-right: 1px solid #e1e6eb;
-    border-bottom: 1px solid #e1e6eb;
+    // overflow: hidden;
+
+    &.border {
+        border-right: 1px solid #e1e6eb;
+        border-bottom: 1px solid #e1e6eb;
+    }
 }
 .#{$css-prefix}-table {
     text-rendering: auto;
@@ -27,47 +30,101 @@ $css-prefix: xs-data-grid;
     height: 100%;
     pointer-events: none;
 }
-.#{$css-prefix}-editor {
+.#{$css-prefix}-poptip, .#{$css-prefix}-dropdown {
     position: absolute;
     top: -10000px;
-    left: -10000px;
     text-align: left;
     // line-height: 0;
     z-index: 100;
-    overflow: hidden;
+    // overflow: hidden;
     background-color: transparent;
     // border: 2px solid rgb(82,146,247);
     box-sizing: border-box;
     // box-shadow: rgba(0, 0, 0, 0.2) 0px 6px 16px;
     pointer-events: auto;
 
-    div[contenteditable="true"] {
-        box-sizing: border-box;
-        // border: 2px solid #4b89ff;
-        // padding: 5px;
-        padding: 8px;
-        outline: none;
-        // resize: none;
-        // text-align: start;
-        // overflow-y: hidden;
-        font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "\5FAE\8F6F\96C5\9ED1", Arial, sans-serif;
-        font-weight: 400;
-        font-size: 12px;
-        color: inherit;
-        white-space: normal;
-        word-wrap: break-word;
-        word-break: break-all;
-        line-height: 18px;
-        margin: 0;
-        background: #fff;
-        cursor: text;
+    .arrow, .arrow::after {
+        position: absolute;
+        display: block;
+        width: 0;
+        height: 0;
+        border-color: transparent;
+        border-style: solid;
+        border-width: 6px;
+    }
+    .arrow::after {
+        content: " ";
     }
 }
-.#{$css-prefix}-popup {
-    input[type="text"] {
-        border: none;
-        outline: none;
-        border-radius: 0;
+.#{$css-prefix}-poptip {
+    left: -10000px;
+    .popper {
+        position: relative;
+        padding: 12px;
+        width: 350px;
+        background-color: #fff;
+        border: 1px solid #ebeef5;
+        border-radius: 4px;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        .popper-arrow {
+            position: absolute;
+            display: block;
+            width: 0;
+            height: 0;
+            border-color: transparent;
+            border-style: solid;
+
+            border-width: 6px;
+            border-right-color: #ebeef5;
+            border-left-width: 0;
+            top: 50%;
+            left: -6px;
+
+            &::after {
+                bottom: -6px;
+                left: 1px;
+                border-right-color: #fff;
+                border-left-width: 0;
+            }
+        }
+    }
+}
+.#{$css-prefix}-dropdown {
+    right: 0;
+    .dropdown-menu {
+        position: relative;
+        padding: 10px 0;
+        margin: 5px 0;
+        background-color: #fff;
+        border: 1px solid #ebeef5;
+        border-radius: 4px;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+        > li {
+            list-style: none;
+            line-height: 36px;
+            padding: 0 20px;
+            margin: 0;
+            font-size: 14px;
+            color: #606266;
+            cursor: pointer;
+            outline: none;
+            &:hover {
+                background-color: #f5f7fa;
+            }
+        }
+        .dropdown-arrow {
+            border-top-width: 0;
+            border-bottom-color: #ebeef5;
+            top: -6px;
+            right: 12px;
+
+            &::after {
+                top: 1px;
+                margin-left: -6px;
+                border-top-width: 0;
+                border-bottom-color: #fff;
+            }
+        }
     }
 }
 .#{$css-prefix}-fullscreen {
@@ -117,18 +174,7 @@ $css-prefix: xs-data-grid;
         display: inline-block;
     }
 }
-.dropdown-menu {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 10;
-    padding: 10px 0;
-    margin: 5px 0;
-    background-color: #fff;
-    border: 1px solid #ebeef5;
-    border-radius: 4px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
+
 @keyframes spin-dot {
     0% {
         transform: scale(0);

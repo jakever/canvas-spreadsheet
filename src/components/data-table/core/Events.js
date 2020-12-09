@@ -59,6 +59,8 @@ function handleMouseMove(e) {
   const rect = e.target.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
+  this.target.style.cursor = "default";
+  this.hoverColor = '';
   this.body.mouseMove(x, y);
   this.scroller.mouseMove(x, y);
 }
@@ -76,14 +78,17 @@ function handleClick(e) {
   const rect = e.target.getBoundingClientRect();
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
-  this.body.click(x, y);
-  if (this.header.isInsideHeaderCheckboxBoundary(x, y)) {
-    this.header.handleCheck();
-    this.body.handleCheckRow(); // 表头勾选需要影响body的勾选框状态
+  if (this.header.isInsideHeader(x, y)) {
+    if (this.header.isInsideCheckboxBoundary(x, y)) {
+      this.header.handleCheck();
+      // this.body.handleCheckRow(); // 表头勾选需要影响body的勾选框状态
+      this.handleSelectAll()
+    }
+  } else {
+    this.body.click(x, y);
   }
 }
 function handleScroll(e) {
-  e.preventDefault();
   const { deltaX, deltaY } = e;
   if (Math.abs(deltaX) > Math.abs(deltaY)) {
     if (this.scroller.horizontalScroller.has) {
@@ -95,6 +100,7 @@ function handleScroll(e) {
         deltaX
       ) {
         this.scrollX = this.width - maxWidth - this.verticalScrollerSize;
+        e.preventDefault();
       } else {
         e.preventDefault();
         e.returnValue = false;
@@ -162,8 +168,8 @@ class Events {
      */
     // bindClickoutside.call(grid, rootEl, handleClickoutside.bind(grid))
     bind(el, 'mousedown', this.eventTasks.mousedown, false)
-    bind(window, 'mousemove', this.eventTasks.mousemove, false)
-    bind(window, 'mouseup', this.eventTasks.mouseup, false)
+    bind(el, 'mousemove', this.eventTasks.mousemove, false)
+    bind(el, 'mouseup', this.eventTasks.mouseup, false)
     bind(el, 'click', this.eventTasks.click, false)
     bind(el, isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.eventTasks.mousewheel, false)
     bind(window, 'resize', this.eventTasks.resize, false)
@@ -176,8 +182,8 @@ class Events {
     // const rootEl = el.parentElement;
     // unbindClickoutside(rootEl)
     unbind(el, 'mousedown', this.eventTasks.mousedown, false)
-    unbind(window, 'mousemove', this.eventTasks.mousemove, false)
-    unbind(window, 'mouseup', this.eventTasks.mouseup, false)
+    unbind(el, 'mousemove', this.eventTasks.mousemove, false)
+    unbind(el, 'mouseup', this.eventTasks.mouseup, false)
     unbind(el, 'click', this.eventTasks.click, false)
     unbind(el, isFirefox ? 'DOMMouseScroll' : 'mousewheel', this.eventTasks.mousewheel, false)
     unbind(window, 'resize', this.eventTasks.resize, false)

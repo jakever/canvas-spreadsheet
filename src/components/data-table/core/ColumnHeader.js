@@ -7,12 +7,11 @@ class ColumnHeader extends Context {
 
     this.fixed = column.fixed;
     this.level = column.level
-    this.text = column.label;
+    this.text = column.label ?? '';
     this.colspan = column.colspan
     this.rowspan = column.rowspan
     this.textAlign = column.align || "left";
     this.textBaseline = column.baseline || "middle";
-    this.required = column.rule ? column.rule.required : null
     this.index = index;
   }
   // 表头是否超过了右侧可视区的边界
@@ -30,7 +29,7 @@ class ColumnHeader extends Context {
       verticalScrollerSize,
       scrollX,
       painter,
-      fillColor,
+      border,
       borderColor,
       borderWidth
     } = this.grid
@@ -48,15 +47,11 @@ class ColumnHeader extends Context {
      */
     painter.ctx.save()
     painter.drawRect(x, this.y, this.width, this.height, {
-      // borderColor,
+      borderColor: border ? borderColor : undefined,
       fillColor: HEADER_BG_COLOR,
       borderWidth
     });
     painter.ctx.clip()
-    painter.drawTBBorder(x, this.y, this.width, this.height, {
-      borderColor,
-      borderWidth
-    })
 
     // 绘制表头每个单元格文本
     this.grid.painter.drawCellText(
