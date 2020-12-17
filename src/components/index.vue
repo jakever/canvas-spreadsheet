@@ -17,7 +17,7 @@
             v-show="isSimple"
             @input="inputHandler"
             @keydown.tab.prevent 
-            @keydown.enter.prevent 
+            @keydown.enter="handleEnter"
             @keydown.esc.prevent
           ></div>
           <el-date-picker
@@ -185,6 +185,93 @@ export default {
     }
   },
   methods: {
+    handleEnter(e) {
+        // CTRL+ENTER换行
+        if (e.metaKey || e.ctrlKey) {
+            const createEl = (mark) => {
+                return document.createElement(mark)
+            }
+            const el = this.$refs.text
+            const selection = window.getSelection()
+            const range = selection.getRangeAt(0)
+            const anchorNode = selection.anchorNode
+            const anchorParentNode = anchorNode.parentNode
+            //获取当前光标位置
+            const startOffset = range.startOffset
+            const endOffset = range.endOffset
+            //div当前内容
+            const content = el.innerText
+            let find = false
+            let beforeNodes = []
+            let afterNodes = []
+            let insertNode = createEl('div')
+            el.childNodes.forEach(node => {
+                // 文本节点
+                if (node.nodeType === 3) {
+                    const startStr = node.textContent.slice(0, startOffset)
+                    const endStr = node.textContent.slice(endOffset)　
+                    let befforeElBox = createEl('div')
+                    if (!startStr) {
+                        befforeElBox.appendChild(createEl('br'))
+                    } else {
+                        befforeElBox.appendChild(document.createTextNode(startStr))
+                    }
+                    beforeNodes.push(befforeElBox)
+                    if (!endStr) {
+                        insertNode.appendChild(createEl('br'))
+                    } else {
+                        insertNode.appendChild(document.createTextNode(endStr))
+                    }
+                } else {
+                    if(!find) {
+                        if (node === anchorParentNode) {
+                            const startStr = node.textContent.slice(0, startOffset)
+                            const endStr = node.textContent.slice(endOffset)　
+                            let befforeElBox = createEl('div')
+                            if (!startStr) {
+                                befforeElBox.appendChild(createEl('br'))
+                            } else {
+                                befforeElBox.appendChild(document.createTextNode(startStr))
+                            }
+                            beforeNodes.push(befforeElBox)
+                            if (!endStr) {
+                                insertNode.appendChild(document.createElement('br'))
+                            } else {
+                                insertNode.appendChild(document.createTextNode(endStr))
+                            }
+                            find = true
+                        } else {
+                            beforeNodes.push(node)
+                        }
+                    } else {
+                        afterNodes.push(node)
+                    }
+                }
+            })
+            el.innerHTML = ''
+            beforeNodes.forEach(item => {
+                el.appendChild(item)
+            })
+            el.appendChild(insertNode)
+            afterNodes.forEach(item => {
+                el.appendChild(item)
+            })
+    　　　　　const newRange = document.createRange()
+            // 光标对象的范围界定为新建的节点
+            // newRange.selectNodeContents(insertNode)
+            newRange.setStartBefore(insertNode)
+            // newRange.setEndAfter(insertNode)
+            // 使光标开始和光标结束重叠
+            newRange.collapse(true)
+            selection.removeAllRanges()
+            // 插入新的光标对象
+            selection.addRange(newRange)
+
+            this.grid.setTempData(el.innerText) // 手动换行不会触发input事件，需要手动处理
+            return
+        }
+        e.preventDefault()
+    },
     reload() {
       return this.grid.resize()
     },
@@ -270,10 +357,10 @@ export default {
       this.$refs.text.style["min-width"] = `${width - 1}px`;
       this.$refs.text.style["min-height"] = `${height - 1}px`;
       this.popWidth = `${width - 1}px`;
-      if (COMPLEX_DATE_TYPES.includes(this.dataType)) {
-        // 下拉，日期控件高度比输入框高
-        this.$refs.editor.style.height = "38px";
-      }
+      // if (COMPLEX_DATE_TYPES.includes(this.dataType)) {
+      //   // 下拉，日期控件高度比输入框高
+      //   this.$refs.editor.style.height = "38px";
+      // }
     },
     hideEditor() {
       this.isEditing = false
@@ -298,9 +385,21 @@ export default {
           if (window.getSelection) {
             // ie11 10 9 ff safari
             el.focus(); // 解决ff不获取焦点无法定位问题
+            if (!el.childNodes.length) return
             const selection = window.getSelection(); // 创建selection
-            selection.selectAllChildren(el); // 清除选区并选择指定节点的所有子节点
-            selection.collapseToEnd(); // 光标移至最后
+            // selection.selectAllChildren(el); // 清除选区并选择指定节点的所有子节点
+            // selection.collapseToEnd(); // 光标移至最后
+
+            const newRange = document.createRange()
+            // 光标对象的范围界定为新建的节点
+            // newRange.selectNodeContents(el)
+            newRange.setStart(el.childNodes[el.childNodes.length - 1], el.innerText.length)
+            // newRange.setEndAfter(insertNode)
+            // 使光标开始和光标结束重叠
+            newRange.collapse(true)
+            selection.removeAllRanges()
+            // 插入新的光标对象
+            selection.addRange(newRange)
           } else if (document.selection) {
             // ie10以下
             const range = document.selection.createRange(); // 创建选择对象

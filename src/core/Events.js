@@ -136,6 +136,7 @@ function handleKeydown(e) {
   if (this.editor.show) {
     // 编辑模式按下按Enter／ESC退出编辑模式
     if (e.keyCode === 13 || e.keyCode === 27) {
+      if (e.metaKey || e.ctrlKey) return;
       e.preventDefault();
       this.doneEdit();
     }
